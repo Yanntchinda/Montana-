@@ -1427,17 +1427,18 @@ function calculer() {
   // --- Alimentation du devis ---
   G.beton = ($('sel-poteau').checked ? tVol : 0) + ($('sel-poutre').checked ? tV : 0) + ($('sel-dalle').checked ? tDV : 0) + num($('dos-autre').value);
   G.parpaings = $('sel-mur').checked ? Math.ceil(nb - 1e-9) : 0;
+  // Les références choisies restent toujours dans le devis, même avec une quantité provisoire de 0.
   G.ferPoteaux = $('sel-poteau').checked
-    ? Object.fromEntries(profilsFer.map(([profil, ml]) => [profil, Math.ceil(ml / 12 - 1e-9)]))
+    ? Object.fromEntries(Object.entries(fersParProfil).map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]))
     : {};
   G.ferPoutres = $('sel-poutre').checked
-    ? Object.fromEntries(profilsFerPoutres.map(([profil, ml]) => [profil, Math.ceil(ml / 12 - 1e-9)]))
+    ? Object.fromEntries(Object.entries(fersPoutresParProfil).map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]))
     : {};
   G.ferChapeaux = $('sel-poutre').checked
-    ? Object.fromEntries(profilsChapeaux.map(([profil, ml]) => [profil, Math.ceil(ml / 12 - 1e-9)]))
+    ? Object.fromEntries(Object.entries(chapeauxParProfil).map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]))
     : {};
   G.ferDalles = $('sel-dalle').checked
-    ? Object.fromEntries(profilsFerDalles.map(([profil, ml]) => [profil, Math.ceil(ml / 12 - 1e-9)]))
+    ? Object.fromEntries(Object.entries(fersDallesParProfil).map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]))
     : {};
   syncFersDevis();
   rendreDevis();
