@@ -803,6 +803,18 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-bag-shopping"></i> Quantité de ciment</div><div class="t-val"><span id="crep-ciment">0</span><small>sacs</small></div></div>
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-mountain"></i> Quantité de sable</div><div class="t-val"><span id="crep-sable">0</span><small>m³</small></div></div>
             </div>
+
+            <div class="subcard" style="margin-top:14px">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                <div class="note" id="crep-validation-statut" style="flex:1;min-width:260px"><i class="fa-solid fa-circle-info"></i><div>Calculs non validés. Aucune quantité de crépissage n’est encore enregistrée dans le devis.</div></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="btn btn-primary" id="btn-crep-valider" onclick="validerCrepissage()"><i class="fa-solid fa-circle-check"></i> Valider et enregistrer dans le devis</button>
+                  <button class="btn" onclick="aller('devis')"><i class="fa-solid fa-file-invoice"></i> Voir le devis</button>
+                  <button class="btn btn-danger" id="btn-crep-retirer" onclick="retirerCrepissageDevis()" style="display:none"><i class="fa-solid fa-trash-can"></i> Retirer du devis</button>
+                </div>
+              </div>
+            </div>
+
             <div class="note" style="margin-top:14px"><i class="fa-solid fa-calculator"></i><div><b>Ouvertures :</b> (longueur porte × hauteur porte × nombre de portes) + (longueur fenêtre × hauteur fenêtre × nombre de fenêtres). <b>Surface :</b> [(longueur mur × hauteur mur) − ouvertures] × nombre de murs × 2 + surface des dalles. <b>Volume :</b> surface totale × (épaisseur en cm ÷ 100). <b>Ciment :</b> volume × dosage ciment. <b>Sable :</b> volume × dosage sable saisi.</div></div>
           </div>
         </div>
@@ -1217,6 +1229,7 @@ function syncSwitches() {
    ============================================================ */
 let uid = 1;
 let murs = [], poteaux = [], poutres = [], dalles = [], corps = [], crepMurs = [], crepDalles = [];
+let crepValidation = null;
 let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, dalSurf: 0, dalVol: 0, dalFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
 
 function ajouterMur()    { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', porteL: '0', porteH: '0', porteN: '1', fenetreL: '0', fenetreH: '0', fenetreN: '1' }); rendre(); }
@@ -1635,6 +1648,84 @@ let devis = [
     ligne('Planche de 28', '/'), ligne('Latte', '/'), ligne('Fonds de 20', '/'), ligne('Fonds de 15', '/'),
     ligne('Pointe de 80', 'paquet'), ligne('Pointe tock 60', 'paquet')] }
 ];
+const CREPISSAGE_DEVIS = [
+  { auto: 'crep-surface', des: 'Crépissage — surface totale', unite: 'm²' },
+  { auto: 'crep-volume', des: 'Mortier de crépissage — volume', unite: 'm³' },
+  { auto: 'crep-ciment', des: 'Ciment pour crépissage', unite: 'sacs' },
+  { auto: 'crep-sable', des: 'Sable pour crépissage', unite: 'm³' }
+];
+function syncCrepissageDevis() {
+  let section = devis.find(s => s.auto === 'crepissage');
+  if (!crepValidation) {
+    if (section) devis = devis.filter(s => s !== section);
+    return;
+  }
+  if (!section) {
+    section = { n: 'IV', titre: 'CRÉPISSAGE', auto: 'crepissage', lignes: [] };
+    devis.push(section);
+  }
+  CREPISSAGE_DEVIS.forEach(def => {
+    let l = section.lignes.find(x => x.auto === def.auto);
+    if (!l) {
+      l = ligne(def.des, def.unite, def.auto);
+      section.lignes.push(l);
+    }
+    l.des = def.des;
+    l.unite = def.unite;
+    l.qte = null;
+  });
+}
+function crepissageValideAJour() {
+  if (!crepValidation) return false;
+  return Math.abs(crepValidation.surface - T.crepTotal) < 1e-6
+    && Math.abs(crepValidation.volume - T.crepVolume) < 1e-6
+    && Math.abs(crepValidation.ciment - T.crepCiment) < 1e-6
+    && Math.abs(crepValidation.sable - T.crepSable) < 1e-6;
+}
+function majStatutCrepissage() {
+  const statut = $('crep-validation-statut'), valider = $('btn-crep-valider'), retirer = $('btn-crep-retirer');
+  if (!statut || !valider || !retirer) return;
+  if (!crepValidation) {
+    statut.innerHTML = '<i class="fa-solid fa-circle-info"></i><div>Calculs non validés. Aucune quantité de crépissage n’est encore enregistrée dans le devis.</div>';
+    valider.innerHTML = '<i class="fa-solid fa-circle-check"></i> Valider et enregistrer dans le devis';
+    retirer.style.display = 'none';
+    return;
+  }
+  retirer.style.display = 'inline-flex';
+  if (crepissageValideAJour()) {
+    const date = new Date(crepValidation.date).toLocaleString('fr-FR');
+    statut.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><b>Validé et enregistré dans le devis.</b> Surface, volume, ciment et sable enregistrés le ${esc(date)}.</div>`;
+    valider.innerHTML = '<i class="fa-solid fa-circle-check"></i> Revalider les résultats';
+  } else {
+    statut.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><div><b>Calculs modifiés depuis la dernière validation.</b> Le devis conserve les anciennes quantités jusqu’à votre confirmation.</div>';
+    valider.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Mettre à jour le devis';
+  }
+}
+function validerCrepissage() {
+  if (T.crepTotal <= 0) {
+    toast('Saisissez les murs ou les dalles avant de valider le crépissage', 'err');
+    return;
+  }
+  crepValidation = {
+    surface: T.crepTotal, volume: T.crepVolume, ciment: T.crepCiment, sable: T.crepSable,
+    epaisseurCm: num($('crep-epaisseur').value), dosageCiment: num($('crep-dosage').value),
+    dosageSable: num($('crep-dosage-sable').value), date: new Date().toISOString()
+  };
+  syncCrepissageDevis();
+  rendreDevis();
+  majStatutCrepissage();
+  sauver(false);
+  toast('Crépissage validé et enregistré dans le devis', 'ok', 'fa-file-circle-check');
+}
+function retirerCrepissageDevis() {
+  if (!crepValidation || !window.confirm('Retirer les quantités de crépissage du devis ?')) return;
+  crepValidation = null;
+  syncCrepissageDevis();
+  rendreDevis();
+  majStatutCrepissage();
+  sauver(false);
+  toast('Crépissage retiré du devis', 'ok');
+}
 const fmtM = n => n.toLocaleString('fr-FR', { maximumFractionDigits: 2 });
 const estLigneFer = l => typeof l.auto === 'string' && l.auto.startsWith('fer:');
 const estLigneChapeau = l => typeof l.auto === 'string' && l.auto.startsWith('chap:');
@@ -1706,6 +1797,10 @@ function autoVal(l) {
     case 'ciment': return Math.ceil(b * num($('dos-c').value) - 1e-9) + G.cimentMur;
     case 'sable': return b * num($('dos-s').value) + G.sableMur;
     case 'gravier': return b * num($('dos-g').value);
+    case 'crep-surface': return crepValidation?.surface || 0;
+    case 'crep-volume': return crepValidation?.volume || 0;
+    case 'crep-ciment': return crepValidation?.ciment || 0;
+    case 'crep-sable': return crepValidation?.sable || 0;
   }
   return 0;
 }
@@ -1749,7 +1844,7 @@ function updateDevis() {
     const v = valL(l), t = v * num(l.pu);
     ht += t;
     const q = $('dq-' + l.id);
-    if (q && l.qte === null) q.value = String(Math.round(v * 1000) / 1000).replace('.', ',');
+    if (q && l.qte === null) q.value = String(Math.round(v * 10000) / 10000).replace('.', ',');
     const c = $('dt-' + l.id); if (c) c.innerText = fmtM(t);
   }));
   const txTva = num($('dv-tva').value);
@@ -1835,6 +1930,7 @@ function updateDashboard() {
   $('crep-ciment').innerText = fmt(T.crepCiment);
   $('crep-sable').innerText = fmt(T.crepSable);
   $('crep-total-entete').innerText = fmt(T.crepTotal);
+  majStatutCrepissage();
 
   // valeurs dans la sidebar
   $('nav-v-mur').textContent = fmt(T.sMur) + ' m² · ' + fmt(G.parpaings) + ' parpaings';
@@ -1925,7 +2021,7 @@ function sauver(silencieux = true) {
   try {
     const champs = {};
     CHAMPS.forEach(id => { const el = $(id); if (el) champs[id] = el.type === 'checkbox' ? el.checked : el.value; });
-    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, poutres, dalles, corps, crepMurs, crepDalles, champs, devis };
+    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, poutres, dalles, corps, crepMurs, crepDalles, crepValidation, champs, devis };
     localStorage.setItem(CLE, JSON.stringify(data));
     const s = $('save-state');
     s.classList.remove('dirty');
@@ -1985,10 +2081,13 @@ function charger() {
       fenetreL: o.fenetreL ?? '0', fenetreH: o.fenetreH ?? '0', fenetreN: o.fenetreN ?? '1'
     }));
     crepDalles = d.crepDalles || [];
+    crepValidation = d.crepValidation || null;
     if (Array.isArray(d.devis) && d.devis.length) devis = d.devis;
     migrerFersDevis();
     uid = Math.max(d.uid || 1, ...[murs, poteaux, poutres, dalles, corps, crepMurs, crepDalles].flat().map(o => o.id + 1), 1);
     dvId = Math.max(1000, ...devis.flatMap(s => s.lignes.map(l => l.id + 1)));
+    syncCrepissageDevis();
+    dvId = Math.max(dvId, ...devis.flatMap(s => s.lignes.map(l => l.id + 1)));
     CHAMPS.forEach(id => {
       const el = $(id); if (!el || !(id in (d.champs || {}))) return;
       if (el.type === 'checkbox') el.checked = !!d.champs[id]; else el.value = d.champs[id];
