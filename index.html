@@ -1480,13 +1480,13 @@ function fersDevisActifs() {
 function aciersDevisActifs() {
   const lignes = {};
   Object.entries(fersDevisActifs()).forEach(([cle, qte]) => {
-    lignes[`fer:${cle}`] = { qte, des: libelleFer(cle) };
+    lignes[`fer:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre 12 m' };
   });
   Object.entries(G.ferChapeaux || {}).forEach(([cle, qte]) => {
-    lignes[`chap:${cle}`] = { qte, des: `Chapeau ${libelleFer(cle)}` };
+    lignes[`chap:${cle}`] = { qte, des: `Chapeau ${libelleFer(cle)}`, unite: 'barre 12 m' };
   });
   Object.entries(G.ferDalles || {}).forEach(([cle, qte]) => {
-    lignes[`dallefer:${cle}`] = { qte, des: `Dalle pleine ${libelleFer(cle)}` };
+    lignes[`dallefer:${cle}`] = { qte, des: `Fer dalle pleine à commander — ${libelleFer(cle)}`, unite: 'barre 12 m' };
   });
   return lignes;
 }
@@ -1496,12 +1496,12 @@ function syncFersDevis() {
   Object.entries(aciersDevisActifs()).forEach(([auto, info]) => {
     let l = materiaux.lignes.find(x => x.auto === auto);
     if (!l) {
-      l = { id: dvId++, des: info.des, unite: 'barre', qte: null, pu: '0', auto };
+      l = { id: dvId++, des: info.des, unite: info.unite || 'barre 12 m', qte: null, pu: '0', auto };
       const fil = materiaux.lignes.findIndex(x => /fil\s+d['’]?attache/i.test(x.des || ''));
       if (fil >= 0) materiaux.lignes.splice(fil, 0, l); else materiaux.lignes.push(l);
     }
     l.des = info.des;
-    l.unite = 'barre';
+    l.unite = info.unite || 'barre 12 m';
     l.qte = null;
   });
 }
