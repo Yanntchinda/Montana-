@@ -1208,7 +1208,7 @@ function calculer() {
     const ferBarres = ferML / 12;
     const nuance = o.ferNuance === 'RL' ? 'RL' : 'HA';
     const diam = String(o.ferDiam || '12');
-    const profil = `${nuance} Ø${diam}`;
+    const profil = `${nuance}:${diam}`;
     fersParProfil[profil] = (fersParProfil[profil] || 0) + ferML;
     tSec += sec * n; tLat += lat; tVol += vol; tFerML += ferML;
     $('p-ferml-' + o.id).innerText = fmt(ferML);
@@ -1223,9 +1223,9 @@ function calculer() {
   $('pot-fer-ml').innerText = fmt(tFerML);
   $('pot-fer-exact').innerText = fmt(tFerExact);
   $('pot-fer-commande').innerText = fmt(tFerCommande);
-  const profilsFer = Object.entries(fersParProfil);
+  const profilsFer = Object.entries(fersParProfil).filter(([, ml]) => ml > 0);
   $('pot-fer-detail').innerHTML = profilsFer.length
-    ? `<i class="fa-solid fa-bars-staggered"></i><div><b>Détail par nuance :</b> ${profilsFer.map(([profil, ml]) => `${profil} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
+    ? `<i class="fa-solid fa-bars-staggered"></i><div><b>Détail par nuance :</b> ${profilsFer.map(([profil, ml]) => `${libelleFer(profil)} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
     : '<i class="fa-solid fa-bars-staggered"></i><div>Aucune armature calculée.</div>';
 
   // --- Poutres ---
@@ -1277,13 +1277,17 @@ function calculer() {
   // --- Alimentation du devis ---
   G.beton = ($('sel-poteau').checked ? tVol : 0) + ($('sel-poutre').checked ? tV : 0) + ($('sel-dalle').checked ? tDV : 0) + num($('dos-autre').value);
   G.parpaings = $('sel-mur').checked ? Math.ceil(nb - 1e-9) : 0;
-  updateDevis();
+  G.ferPoteaux = $('sel-poteau').checked
+    ? Object.fromEntries(profilsFer.map(([profil, ml]) => [profil, Math.ceil(ml / 12 - 1e-9)]))
+    : {};
+  syncFersDevis();
+  rendreDevis();
 }
 
 /* ============================================================
    DEVIS QUANTITATIF
    ============================================================ */
-let G = { beton: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0 };
+let G = { beton: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferPoteaux: {} };
 let dvId = 1000;
 function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', auto }; }
 let devis = [
@@ -1291,15 +1295,53 @@ let devis = [
   { n: 'II', titre: 'MATÉRIAUX', lignes: [
     ligne('Parpaing agglo 20', 'u', 'parpaing'), ligne('Hourdis', 'u', 'hourdis'), ligne('Nervures (longueur totale)', 'ml', 'nervure'),
     ligne('Ciment', 'sacs', 'ciment'), ligne('Sable', 'm³', 'sable'), ligne('Gravier', 'm³', 'gravier'),
-    ligne('HA 14', 'barre'), ligne('HA 12', 'barre'), ligne('HA 10', 'barre'), ligne('HA 8', 'barre'), ligne('RL6', 'barre'), ligne("Fil d'attache", 'botte')] },
+    ligne('HA Ø14', 'barre', 'fer:HA:14'), ligne('HA Ø12', 'barre', 'fer:HA:12'), ligne('HA Ø10', 'barre', 'fer:HA:10'),
+    ligne('HA Ø8', 'barre', 'fer:HA:8'), ligne('RL Ø6', 'barre', 'fer:RL:6'), ligne("Fil d'attache", 'botte')] },
   { n: 'III', titre: 'MATÉRIELS', lignes: [
     ligne('Planche de 28', '/'), ligne('Latte', '/'), ligne('Fonds de 20', '/'), ligne('Fonds de 15', '/'),
     ligne('Pointe de 80', 'paquet'), ligne('Pointe tock 60', 'paquet')] }
 ];
 const fmtM = n => n.toLocaleString('fr-FR', { maximumFractionDigits: 2 });
+const estLigneFer = l => typeof l.auto === 'string' && l.auto.startsWith('fer:');
+const libelleFer = cle => {
+  const [nuance, diametre] = cle.split(':');
+  return `${nuance} Ø${diametre}`;
+};
+function syncFersDevis() {
+  const materiaux = devis.find(s => s.n === 'II');
+  if (!materiaux) return;
+  Object.keys(G.ferPoteaux).forEach(cle => {
+    const auto = `fer:${cle}`;
+    let l = materiaux.lignes.find(x => x.auto === auto);
+    if (!l) {
+      l = { id: dvId++, des: libelleFer(cle), unite: 'barre', qte: null, pu: '0', auto };
+      const fil = materiaux.lignes.findIndex(x => /fil\s+d['’]?attache/i.test(x.des || ''));
+      if (fil >= 0) materiaux.lignes.splice(fil, 0, l); else materiaux.lignes.push(l);
+    }
+    l.des = libelleFer(cle);
+    l.unite = 'barre';
+    l.qte = null;
+  });
+}
+function migrerFersDevis() {
+  const materiaux = devis.find(s => s.n === 'II');
+  if (!materiaux) return;
+  materiaux.lignes.forEach(l => {
+    if (estLigneFer(l)) return;
+    const m = String(l.des || '').trim().match(/^(HA|RL)\s*(?:Ø\s*)?(\d{1,2})$/i);
+    if (!m) return;
+    const nuance = m[1].toUpperCase(), diametre = Number(m[2]);
+    if (diametre < 2 || diametre > 40) return;
+    l.auto = `fer:${nuance}:${diametre}`;
+    l.des = `${nuance} Ø${diametre}`;
+    l.unite = 'barre';
+    l.qte = null;
+  });
+}
 
 function autoVal(l) {
   const b = G.beton;
+  if (estLigneFer(l)) return G.ferPoteaux[l.auto.slice(4)] || 0;
   switch (l.auto) {
     case 'beton': return b;
     case 'parpaing': return G.parpaings;
@@ -1320,6 +1362,8 @@ function rendreDevis() {
     h += `<tr class="dv-sec"><td class="code-sec">${s.n}</td><td colspan="3">${esc(s.titre)}</td><td class="col-prix" colspan="2"></td>
       <td class="no-print" style="text-align:center"><button class="auto-btn" onclick="ajouterLigne('${s.n}')" title="Ajouter une ligne"><i class="fa-solid fa-plus"></i></button></td></tr>`;
     s.lignes.forEach(l => {
+      // Les fers automatiques non utilisés par les poteaux restent mémorisés mais sont masqués du devis.
+      if (estLigneFer(l) && !(l.auto.slice(4) in G.ferPoteaux)) return;
       const c = s.n === 'I' ? '' : ++code;
       h += `<tr>
         <td class="code-cell">${c}</td>
@@ -1423,7 +1467,7 @@ function updateDashboard() {
   $('nav-v-poutre').textContent = fmt(T.pouVol) + ' m³ · ' + fmt(T.pouCof) + ' m² coffrage';
   $('nav-v-dalle').textContent = fmt(T.dalVol) + ' m³ · ' + fmt(T.dalSurf) + ' m²';
   $('nav-v-corps').textContent = fmt(T.ccHour) + ' hourdis · ' + fmt(T.ccSurf) + ' m²';
-  const nbArt = devis.reduce((a, s) => a + s.lignes.length, 0);
+  const nbArt = devis.reduce((a, s) => a + s.lignes.filter(l => !estLigneFer(l) || l.auto.slice(4) in G.ferPoteaux).length, 0);
   $('nav-v-devis').textContent = nbArt + ' article' + (nbArt > 1 ? 's' : '') + ' · ' + fmtM(totTTC) + ' ' + dev;
   $('nav-badge-devis').textContent = totHT > 0 ? fmtM(totTTC) : '—';
   $('nav-v-dash').textContent = beton > 0 ? fmt(beton) + ' m³ de béton' : 'Synthèse du projet';
@@ -1546,6 +1590,7 @@ function charger() {
     poutres = d.poutres || [];
     dalles = d.dalles || []; corps = d.corps || [];
     if (Array.isArray(d.devis) && d.devis.length) devis = d.devis;
+    migrerFersDevis();
     uid = Math.max(d.uid || 1, ...[murs, poteaux, poutres, dalles, corps].flat().map(o => o.id + 1), 1);
     dvId = Math.max(1000, ...devis.flatMap(s => s.lignes.map(l => l.id + 1)));
     CHAMPS.forEach(id => {
