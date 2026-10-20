@@ -1203,7 +1203,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
     <div class="m-body">Toutes les saisies (murs, poteaux, poutres, dalles, corps creux, semelles, crépissage, devis et paramètres) seront effacées et remplacées par un projet vierge. Cette action est irréversible.</div>
     <footer>
       <button class="btn" onclick="fermerModal()">Annuler</button>
-      <button class="btn btn-solid-danger" onclick="reinitialiser()"><i class="fa-solid fa-trash-can"></i> Tout effacer</button>
+      <button class="btn btn-solid-danger" onclick="reinitialiser()"><i class="fa-solid fa-trash-can"></i> Tout effacer et repartir à zéro</button>
     </footer>
   </div>
 </div>
@@ -2250,6 +2250,7 @@ const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'crep-epaisseur'
   'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
   'sel-mur', 'sel-poteau', 'sel-poutre', 'sel-dalle', 'sel-corps', 'sel-semelle'];
 let saveTimer = null;
+let reinitialisationEnCours = false;
 
 function marquerModifie() {
   const s = $('save-state');
@@ -2260,6 +2261,8 @@ function marquerModifie() {
   saveTimer = setTimeout(sauver, 550);
 }
 function sauver(silencieux = true) {
+  // Pendant une remise à zéro, aucune sauvegarde différée ou beforeunload ne doit restaurer l’ancien projet.
+  if (reinitialisationEnCours) return;
   try {
     const champs = {};
     CHAMPS.forEach(id => { const el = $(id); if (el) champs[id] = el.type === 'checkbox' ? el.checked : el.value; });
@@ -2353,12 +2356,16 @@ function charger() {
 function demanderReset() { $('modal-reset').classList.add('open'); }
 function fermerModal() { $('modal-reset').classList.remove('open'); }
 function reinitialiser() {
+  reinitialisationEnCours = true;
+  clearTimeout(saveTimer);
   try { localStorage.removeItem(CLE); } catch (e) {}
   fermerModal();
   location.hash = '';
   location.reload();
 }
-window.addEventListener('beforeunload', () => sauver());
+window.addEventListener('beforeunload', () => {
+  if (!reinitialisationEnCours) sauver();
+});
 
 /* ============================================================
    DÉMARRAGE
