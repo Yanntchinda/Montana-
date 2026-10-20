@@ -851,7 +851,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           <div class="card-head">
             <div class="ch-txt">
               <h3><i class="fa-solid fa-square"></i> Dalle pleine</h3>
-              <div class="ch-sub">Surface, volume et armatures dans les deux sens avec dépassement automatique</div>
+              <div class="ch-sub">Armatures dans les deux sens avec espacements indépendants et dépassement automatique</div>
             </div>
             <div class="ch-act">
               <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-dalle" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
@@ -864,7 +864,8 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <table>
                 <thead><tr>
                   <th>Désignation</th><th class="w-md">Long. L (m)</th><th class="w-md">Larg. l (m)</th><th class="w-lg">Épaisseur (m)</th><th class="w-sm">Nb dalles</th>
-                  <th class="w-sm group-gap">Nuance fer</th><th class="w-sm">Ø fer</th><th class="w-md">Espacement (cm)</th>
+                  <th class="w-sm group-gap">Nuance fer</th><th class="w-sm">Ø fer</th>
+                  <th class="w-lg">Espacement selon longueur (cm)</th><th class="w-lg">Espacement selon largeur (cm)</th>
                   <th class="th-r">Nb fers selon L</th><th class="th-r">Nb fers selon l</th>
                   <th class="th-r">Fer sens L (ml)</th><th class="th-r">Fer sens l (ml)</th><th class="th-r">Fer total (ml)</th><th class="th-r">Barres 12 m</th>
                   <th class="th-r group-gap">Surface (m²)</th><th class="th-r">Volume (m³)</th><th class="w-sm no-print"></th>
@@ -882,7 +883,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-truck-ramp-box"></i> Fers à commander</div><div class="t-val"><span id="dal-fer-commande">0</span><small>barres</small></div></div>
             </div>
             <div class="note" id="dal-fer-detail" style="margin-top:14px"><i class="fa-solid fa-table-cells-large"></i><div>Aucune armature de dalle calculée.</div></div>
-            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div>Sens L : <b>(L ÷ espacement) × (largeur + 0,15 m)</b>. Sens l : <b>(largeur ÷ espacement) × (L + 0,15 m)</b>. Le résultat est multiplié par le nombre de dalles, puis divisé par <b>12 m</b>. Le dépassement de 15 cm est automatique pour chaque barre.</div></div>
+            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div>Sens L : <b>(L ÷ espacement selon longueur) × (largeur + 0,15 m)</b>. Sens l : <b>(largeur ÷ espacement selon largeur) × (L + 0,15 m)</b>. Les deux espacements sont saisis séparément en centimètres. Le résultat est multiplié par le nombre de dalles, puis divisé par <b>12 m</b>.</div></div>
           </div>
         </div>
       </section>
@@ -1113,7 +1114,7 @@ let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0
 function ajouterMur()    { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', porteL: '0', porteH: '0', porteN: '1', fenetreL: '0', fenetreH: '0', fenetreN: '1' }); rendre(); }
 function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '0.15', b: '0.15', H: '3', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '3', ferNb: '4' }); rendre(); }
 function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferNb: '4', chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2' }); rendre(); }
-function ajouterDalle()  { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1', ferNuance: 'HA', ferDiam: '10', ferEsp: '20' }); rendre(); }
+function ajouterDalle()  { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1', ferNuance: 'HA', ferDiam: '10', ferEspLong: '20', ferEspLarg: '20' }); rendre(); }
 function ajouterCorps()  { corps.push({ id: uid++, nom: 'Panneau ' + (corps.length + 1), L: '', l: '', pb: '0.15', n: '1' }); rendre(); }
 
 function supprimer(type, id) {
@@ -1224,13 +1225,14 @@ function rendre() {
         <option value="HA" ${o.ferNuance === 'RL' ? '' : 'selected'}>HA</option>
         <option value="RL" ${o.ferNuance === 'RL' ? 'selected' : ''}>RL</option></select></td>
       <td><select class="inp" onchange="maj('dalle',${o.id},'ferDiam',this.value)">${optionsFer(o.ferDiam || '10')}</select></td>
-      <td><input class="inp" type="number" min="0" step="0.1" value="${esc(o.ferEsp ?? '20')}" oninput="maj('dalle',${o.id},'ferEsp',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="0.1" value="${esc(o.ferEspLong ?? o.ferEsp ?? '20')}" oninput="maj('dalle',${o.id},'ferEspLong',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="0.1" value="${esc(o.ferEspLarg ?? o.ferEsp ?? '20')}" oninput="maj('dalle',${o.id},'ferEspLarg',this.value)"></td>
       <td class="res" id="d-nl-${o.id}">0</td><td class="res" id="d-nla-${o.id}">0</td>
       <td class="res" id="d-fl-${o.id}">0</td><td class="res" id="d-fla-${o.id}">0</td>
       <td class="res" id="d-ft-${o.id}">0</td><td class="res" id="d-fb-${o.id}">0</td>
       <td class="res group-gap" id="d-s-${o.id}">0</td><td class="res" id="d-v-${o.id}">0</td>
       ${delBtn('dalle', o.id)}</tr>`).join('')
-    : ligneVide(17, 'Aucune dalle — cliquez sur « Ajouter une dalle »');
+    : ligneVide(18, 'Aucune dalle — cliquez sur « Ajouter une dalle »');
 
   calculer();
 }
@@ -1365,9 +1367,10 @@ function calculer() {
   dalles.forEach(o => {
     const L = Math.max(0, num(o.L)), l = Math.max(0, num(o.l)), n = Math.max(0, num(o.n));
     const s = L * l * n, v = s * num(o.e);
-    const esp = Math.max(0, num(o.ferEsp)) / 100; // saisie en cm, calcul en m
-    const nbSensL = esp > 0 ? (L / esp) * n : 0;
-    const nbSensl = esp > 0 ? (l / esp) * n : 0;
+    const espLong = Math.max(0, num(o.ferEspLong ?? o.ferEsp)) / 100; // cm → m
+    const espLarg = Math.max(0, num(o.ferEspLarg ?? o.ferEsp)) / 100; // cm → m
+    const nbSensL = espLong > 0 ? (L / espLong) * n : 0;
+    const nbSensl = espLarg > 0 ? (l / espLarg) * n : 0;
     const ferSensL = nbSensL * (l + 0.15);        // +15 cm automatique sur chaque barre
     const ferSensl = nbSensl * (L + 0.15);        // +15 cm automatique sur chaque barre
     const ferTotal = ferSensL + ferSensl;
@@ -1786,7 +1789,10 @@ function charger() {
       chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2', ...o,
       ferL: o.ferL ?? o.L ?? '', chapL: o.chapL ?? ''
     }));
-    dalles = (d.dalles || []).map(o => ({ ferNuance: 'HA', ferDiam: '10', ferEsp: '20', ...o }));
+    dalles = (d.dalles || []).map(o => ({
+      ferNuance: 'HA', ferDiam: '10', ferEspLong: o.ferEsp ?? '20', ferEspLarg: o.ferEsp ?? '20', ...o,
+      ferEspLong: o.ferEspLong ?? o.ferEsp ?? '20', ferEspLarg: o.ferEspLarg ?? o.ferEsp ?? '20'
+    }));
     corps = d.corps || [];
     if (Array.isArray(d.devis) && d.devis.length) devis = d.devis;
     migrerFersDevis();
