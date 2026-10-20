@@ -717,6 +717,8 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-vector-square"></i> Surface totale des murs</div><div class="t-val"><span id="mur-total">0</span><small>m²</small></div></div>
               <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-calculator"></i> Parpaings (exact)</div><div class="t-val" id="pp-exact">0</div></div>
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-truck-ramp-box"></i> À commander (arrondi sup.)</div><div class="t-val" id="pp-arrondi">0</div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-sack"></i> Ciment (parpaings ÷ 30)</div><div class="t-val" id="ciment-pp">0</div><small>sacs</small></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-mound"></i> Sable (surface ÷ 0,180)</div><div class="t-val" id="sable-pp">0</div><small>sacs</small></div>
             </div>
           </div>
         </div>
@@ -1165,6 +1167,12 @@ function calculer() {
   const nb = sPP > 0 ? (sMur / sPP) * (1 + num($('pp-m').value) / 100) : 0;
   $('pp-exact').innerText = fmt(nb);
   $('pp-arrondi').innerText = fmt(Math.ceil(nb - 1e-9));
+
+  // --- Ciment & sable pour les parpaings ---
+  const cimentPP = G.parpaings / 30;                      // 1 sac de ciment pour 30 parpaings
+  const sablePP = sMur / 0.180;                           // 0,180 m² par sac de sable
+  $('ciment-pp').innerText = fmt(cimentPP);
+  $('sable-pp').innerText = fmt(sablePP);
 
   // --- Poteaux ---
   let tSec = 0, tLat = 0, tVol = 0;
