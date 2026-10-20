@@ -208,6 +208,12 @@ td .inp{padding:9px 10px;font-size:13px}
 #tb-mur td > .inp-txt,#tb-poteau td > .inp-txt,#tb-poutre td > .inp-txt,#tb-dalle td > .inp-txt,#tb-corps td > .inp-txt{min-width:180px}
 #tb-poteau td > select.inp,#tb-poutre td > select.inp{min-width:122px}
 #tb-mur td > div .inp{width:64px !important;min-width:64px;padding:8px 7px !important;font-size:12.8px !important}
+/* Séparateurs de groupes dans le grand tableau des poutres. */
+#bloc-poutre th.group-gap,#tb-poutre td.group-gap{
+  border-left:12px solid var(--surface) !important;
+  box-shadow:inset 1px 0 0 var(--border-strong);padding-left:14px
+}
+#bloc-poutre th.group-gap{color:var(--brand);background:color-mix(in srgb,var(--brand-soft) 42%,var(--surface-3))}
 .th-r,td.res{text-align:right}
 .res{font-family:var(--mono);color:var(--brand);font-weight:700;white-space:nowrap;font-size:12.6px}
 .empty-row td{padding:22px;text-align:center;color:var(--faint);font-size:12.5px}
@@ -487,6 +493,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
   .inp{border:none !important;background:transparent !important;color:#000 !important;padding:1px 2px !important;font-weight:600}
   .w-sm,.w-md,.w-lg,.w-code{min-width:0 !important;width:auto !important}
   #tb-mur .inp,#tb-poteau .inp,#tb-poutre .inp,#tb-dalle .inp,#tb-corps .inp{min-width:0 !important;width:100% !important}
+  #bloc-poutre .group-gap{border-left:3px solid #fff !important;box-shadow:none !important;padding-left:4px !important}
   select.inp{background-image:none !important}
   .res,.tile .t-val,.kpi .k-val{color:#000 !important}
   thead th{background:#eef2f7 !important;color:#334155 !important}
@@ -820,11 +827,11 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <table>
                 <thead><tr>
                   <th>Désignation</th><th class="w-md">Larg. b (m)</th><th class="w-md">Haut. h (m)</th><th class="w-md">Long. poutre (m)</th><th class="w-sm">Nb poutres</th>
-                  <th class="w-sm">Nuance fer</th><th class="w-sm">Ø fer</th><th class="w-md">Long. fer (m)</th><th class="w-sm">Fers / poutre</th>
+                  <th class="w-sm group-gap">Nuance fer</th><th class="w-sm">Ø fer</th><th class="w-md">Long. fer (m)</th><th class="w-sm">Fers / poutre</th>
                   <th class="th-r">Fer total (ml)</th><th class="th-r">Barres fer 12 m</th>
-                  <th class="w-sm">Nuance chapeau</th><th class="w-sm">Ø chapeau</th><th class="w-md">Long. chapeau (m)</th><th class="w-sm">Nb chapeaux total</th>
+                  <th class="w-sm group-gap">Nuance chapeau</th><th class="w-sm">Ø chapeau</th><th class="w-md">Long. chapeau (m)</th><th class="w-sm">Nb chapeaux total</th>
                   <th class="th-r">Chapeaux total (ml)</th><th class="th-r">Barres chapeau 12 m</th>
-                  <th class="th-r">Coffrage 3 faces (m²)</th><th class="th-r">Surf. 4 faces (m²)</th><th class="th-r">Volume (m³)</th><th class="w-sm no-print"></th>
+                  <th class="th-r group-gap">Coffrage 3 faces (m²)</th><th class="th-r">Surf. 4 faces (m²)</th><th class="th-r">Volume (m³)</th><th class="w-sm no-print"></th>
                 </tr></thead>
                 <tbody id="tb-poutre"></tbody>
               </table>
@@ -1184,21 +1191,21 @@ function rendre() {
   $('tb-poutre').innerHTML = poutres.length ? poutres.map(o => `<tr>
       <td>${inp('poutre', o, 'nom', 'inp-txt')}</td><td>${inp('poutre', o, 'b')}</td><td>${inp('poutre', o, 'h')}</td>
       <td>${inp('poutre', o, 'L')}</td><td>${inp('poutre', o, 'n')}</td>
-      <td><select class="inp" onchange="maj('poutre',${o.id},'ferNuance',this.value)">
+      <td class="group-gap"><select class="inp" onchange="maj('poutre',${o.id},'ferNuance',this.value)">
         <option value="HA" ${o.ferNuance === 'RL' ? '' : 'selected'}>HA</option>
         <option value="RL" ${o.ferNuance === 'RL' ? 'selected' : ''}>RL</option></select></td>
       <td><select class="inp" onchange="maj('poutre',${o.id},'ferDiam',this.value)">${optionsFer(o.ferDiam || '12')}</select></td>
       <td><input class="inp" type="number" min="0" step="0.01" value="${esc(o.ferL ?? o.L ?? '')}" oninput="maj('poutre',${o.id},'ferL',this.value)"></td>
       <td><input class="inp" type="number" min="0" step="1" value="${esc(o.ferNb ?? '4')}" oninput="maj('poutre',${o.id},'ferNb',this.value)"></td>
       <td class="res" id="u-ferml-${o.id}">0</td><td class="res" id="u-ferbar-${o.id}">0</td>
-      <td><select class="inp" onchange="maj('poutre',${o.id},'chapNuance',this.value)">
+      <td class="group-gap"><select class="inp" onchange="maj('poutre',${o.id},'chapNuance',this.value)">
         <option value="HA" ${o.chapNuance === 'RL' ? '' : 'selected'}>HA</option>
         <option value="RL" ${o.chapNuance === 'RL' ? 'selected' : ''}>RL</option></select></td>
       <td><select class="inp" onchange="maj('poutre',${o.id},'chapDiam',this.value)">${optionsFer(o.chapDiam || '12')}</select></td>
       <td><input class="inp" type="number" min="0" step="0.01" value="${esc(o.chapL ?? '')}" oninput="maj('poutre',${o.id},'chapL',this.value)"></td>
       <td><input class="inp" type="number" min="0" step="1" value="${esc(o.chapNb ?? '2')}" oninput="maj('poutre',${o.id},'chapNb',this.value)"></td>
       <td class="res" id="u-chapml-${o.id}">0</td><td class="res" id="u-chapbar-${o.id}">0</td>
-      <td class="res" id="u-cof-${o.id}">0</td><td class="res" id="u-sur-${o.id}">0</td><td class="res" id="u-vol-${o.id}">0</td>
+      <td class="res group-gap" id="u-cof-${o.id}">0</td><td class="res" id="u-sur-${o.id}">0</td><td class="res" id="u-vol-${o.id}">0</td>
       ${delBtn('poutre', o.id)}</tr>`).join('')
     : ligneVide(21, 'Aucune poutre — cliquez sur « Ajouter une poutre »');
 
