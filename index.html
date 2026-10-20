@@ -1174,6 +1174,10 @@ function calculer() {
   $('ciment-pp').innerText = fmt(cimentPP);
   $('sable-pp').innerText = fmt(sablePP);
 
+  // --- Mise à jour globale du devis ---
+  G.cimentMur = cimentPP;
+  G.sableMur = sablePP;
+
   // --- Poteaux ---
   let tSec = 0, tLat = 0, tVol = 0;
   poteaux.forEach(o => {
@@ -1244,7 +1248,7 @@ function calculer() {
 /* ============================================================
    DEVIS QUANTITATIF
    ============================================================ */
-let G = { beton: 0, parpaings: 0, hourdis: 0, nervures: 0 };
+let G = { beton: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0 };
 let dvId = 1000;
 function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', auto }; }
 let devis = [
@@ -1266,8 +1270,8 @@ function autoVal(l) {
     case 'parpaing': return G.parpaings;
     case 'hourdis': return G.hourdis;
     case 'nervure': return G.nervures;
-    case 'ciment': return Math.ceil(b * num($('dos-c').value) - 1e-9);
-    case 'sable': return b * num($('dos-s').value);
+    case 'ciment': return Math.ceil(b * num($('dos-c').value) - 1e-9) + G.cimentMur;
+    case 'sable': return b * num($('dos-s').value) + G.sableMur;
     case 'gravier': return b * num($('dos-g').value);
   }
   return 0;
