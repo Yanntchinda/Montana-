@@ -606,13 +606,11 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
     <div class="side-foot">
       <div class="save-state" id="save-state"><i class="fa-solid fa-circle-check"></i><span>Sauvegardé automatiquement</span></div>
       <div class="side-actions">
-        <button onclick="exporter()" title="Exporter le projet (JSON)"><i class="fa-solid fa-download"></i> Exporter</button>
-        <button onclick="$('file-import').click()" title="Importer un projet (JSON)"><i class="fa-solid fa-upload"></i> Importer</button>
+        <button onclick="telechargerDevis()" title="Télécharger le devis en PDF"><i class="fa-solid fa-file-arrow-down"></i> Télécharger le devis</button>
       </div>
       <div class="side-actions">
         <button onclick="demanderReset()" title="Tout réinitialiser"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</button>
       </div>
-      <input type="file" id="file-import" accept="application/json,.json" style="display:none" onchange="importer(this)">
     </div>
   </aside>
   <div class="scrim" onclick="document.body.classList.remove('nav-open')"></div>
@@ -628,7 +626,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
       <div class="top-actions">
         <button class="btn btn-icon btn-ghost" id="btn-theme" onclick="basculerTheme()" title="Basculer clair / sombre"><i class="fa-solid fa-moon"></i></button>
         <button class="btn" onclick="imprimerRapport()"><i class="fa-solid fa-table-list"></i><span class="lbl">Synthèse</span></button>
-        <button class="btn btn-primary" onclick="imprimerDevis()"><i class="fa-solid fa-file-pdf"></i><span class="lbl">Devis PDF</span></button>
+        <button class="btn btn-primary" onclick="telechargerDevis()" title="Télécharger le devis en PDF"><i class="fa-solid fa-file-arrow-down"></i><span class="lbl">Télécharger le devis</span></button>
       </div>
     </div>
 
@@ -1013,7 +1011,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
 
         <div class="no-print" style="display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end">
           <button class="btn" onclick="imprimerRapport()"><i class="fa-solid fa-table-list"></i> Imprimer la synthèse complète</button>
-          <button class="btn btn-primary" onclick="imprimerDevis()"><i class="fa-solid fa-file-pdf"></i> Imprimer le devis / PDF</button>
+          <button class="btn btn-primary" onclick="telechargerDevis()"><i class="fa-solid fa-file-arrow-down"></i> Télécharger le devis (PDF)</button>
         </div>
       </section>
 
@@ -1025,7 +1023,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
 <div class="modal-bg" id="modal-reset">
   <div class="modal">
     <header><i class="fa-solid fa-triangle-exclamation"></i><b>Réinitialiser le projet ?</b></header>
-    <div class="m-body">Toutes les saisies (murs, poteaux, poutres, dalles, corps creux, devis et paramètres) seront effacées et remplacées par un projet vierge. Cette action est irréversible — pensez à exporter votre projet avant.</div>
+    <div class="m-body">Toutes les saisies (murs, poteaux, poutres, dalles, corps creux, devis et paramètres) seront effacées et remplacées par un projet vierge. Cette action est irréversible.</div>
     <footer>
       <button class="btn" onclick="fermerModal()">Annuler</button>
       <button class="btn btn-solid-danger" onclick="reinitialiser()"><i class="fa-solid fa-trash-can"></i> Tout effacer</button>
@@ -1541,7 +1539,12 @@ function majPrix() {
   $('bloc-devis').classList.toggle('prix-off', !on);
   sauver();
 }
-function imprimerDevis() { document.body.classList.add('print-devis'); window.print(); }
+function telechargerDevis() {
+  document.body.classList.add('print-devis');
+  toast('Choisissez « Enregistrer au format PDF » pour télécharger le devis', 'info', 'fa-file-pdf');
+  setTimeout(() => window.print(), 80);
+}
+function imprimerDevis() { telechargerDevis(); }
 function imprimerRapport() { document.body.classList.add('print-report'); window.print(); }
 window.addEventListener('afterprint', () => document.body.classList.remove('print-devis', 'print-report'));
 
@@ -1732,36 +1735,6 @@ function charger() {
     });
     return true;
   } catch (e) { return false; }
-}
-function exporter() {
-  sauver();
-  let raw = '';
-  try { raw = localStorage.getItem(CLE) || ''; } catch (e) {}
-  if (!raw) { toast('Rien à exporter', 'err'); return; }
-  const nom = ($('dv-ref').value.trim() || 'projet-gros-oeuvre').replace(/[^\w\-]+/g, '_');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([raw], { type: 'application/json' }));
-  a.download = nom + '.json';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
-  toast('Projet exporté (' + a.download + ')', 'ok');
-}
-function importer(input) {
-  const f = input.files && input.files[0];
-  if (!f) return;
-  const rd = new FileReader();
-  rd.onload = () => {
-    try {
-      const d = JSON.parse(rd.result);
-      if (!d || d.v !== 2) throw new Error('format');
-      localStorage.setItem(CLE, rd.result);
-      charger();
-      appliquerTout();
-      toast('Projet importé : ' + f.name, 'ok');
-    } catch (e) { toast('Fichier invalide — JSON attendu', 'err'); }
-    input.value = '';
-  };
-  rd.readAsText(f);
 }
 function demanderReset() { $('modal-reset').classList.add('open'); }
 function fermerModal() { $('modal-reset').classList.remove('open'); }
