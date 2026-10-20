@@ -863,6 +863,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-sack"></i> Ciment (parpaings ÷ 30)</div><div class="t-val" id="ciment-pp">0</div><small>sacs</small></div>
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-mound"></i> Sable (ciment × 0,180)</div><div class="t-val" id="sable-pp">0</div><small>m³</small></div>
             </div>
+            <div id="validation-module-mur"></div>
           </div>
         </div>
       </section>
@@ -904,6 +905,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
             </div>
             <div class="note" id="pot-fer-detail" style="margin-top:14px"><i class="fa-solid fa-bars-staggered"></i><div>Aucune armature calculée.</div></div>
             <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div>Fer d'un poteau : <b>hauteur du fer × nombre de fers × nombre de poteaux</b>. Quantité en barres : <b>longueur totale ÷ 12 m</b>. La commande est arrondie au supérieur séparément pour chaque nuance et diamètre.</div></div>
+            <div id="validation-module-poteau"></div>
           </div>
         </div>
       </section>
@@ -950,6 +952,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
             <div class="note" id="pou-fer-detail" style="margin-top:14px"><i class="fa-solid fa-bars-staggered"></i><div>Aucune armature calculée.</div></div>
             <div class="note" id="pou-chap-detail" style="margin-top:10px"><i class="fa-solid fa-arrows-left-right-to-line"></i><div>Aucun chapeau calculé.</div></div>
             <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div>Fer des poutres : <b>longueur du fer × nombre de fers × nombre de poutres ÷ 12</b>. Chapeaux : <b>longueur du chapeau × nombre total de chapeaux ÷ 12</b>. Les commandes sont arrondies au supérieur séparément pour chaque nuance et diamètre.</div></div>
+            <div id="validation-module-poutre"></div>
           </div>
         </div>
       </section>
@@ -1003,6 +1006,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
             </div>
             <div class="note" id="dal-fer-detail" style="margin-top:14px"><i class="fa-solid fa-table-cells-large"></i><div>Aucune armature de dalle calculée.</div></div>
             <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Nappe 1 — sens longueur L :</b> (L ÷ espacement longueur) × (largeur + 0,15 m). <b>Nappe 2 — sens largeur l :</b> (largeur ÷ espacement largeur) × (L + 0,15 m). Chaque nappe possède sa propre nuance, son propre diamètre et son propre espacement. Les longueurs sont regroupées par référence, puis divisées par <b>12 m</b> pour alimenter automatiquement le devis.</div></div>
+            <div id="validation-module-dalle"></div>
           </div>
         </div>
       </section>
@@ -1045,6 +1049,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-ruler"></i> Longueur totale nervures</div><div class="t-val"><span id="cc-lg">0</span><small>m</small></div></div>
             </div>
             <div class="note" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><div>Hourdis = surface × hourdis/m² (arrondi sup.). Nervures par panneau = longueur ÷ entraxe (arrondi sup.). Longueur des nervures = nb de nervures × (largeur panneau + largeur poutre) × nb de panneaux.</div></div>
+            <div id="validation-module-corps"></div>
           </div>
         </div>
       </section>
@@ -1077,7 +1082,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="field"><label for="dv-devise">Devise</label><input class="inp inp-txt" id="dv-devise" value="FCFA" oninput="updateDevis()"></div>
               <div class="field"><label for="dv-tva">TVA (%)</label><input class="inp" id="dv-tva" value="19.25" oninput="updateDevis()"></div>
             </div>
-            <div class="note" style="margin-top:14px"><i class="fa-solid fa-lightbulb"></i><div><b>Béton</b> = volume des poteaux + poutres + dalles (modules activés) + « autre béton ». Parpaings, ciment, sable et gravier se calculent seuls ; vous pouvez écraser n'importe quelle quantité, puis revenir au calcul automatique avec <i class="fa-solid fa-rotate-left"></i>. Armatures et matériels sont à saisir.</div></div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-lightbulb"></i><div>Les quantités des modules sont intégrées ici uniquement après clic sur <b>Valider et enregistrer dans le devis</b>. Après modification d’un module, le devis conserve le dernier calcul validé jusqu’à confirmation. Vous pouvez encore écraser une quantité, puis revenir à la valeur validée avec <i class="fa-solid fa-rotate-left"></i>.</div></div>
           </div>
         </div>
 
@@ -1198,7 +1203,7 @@ function aller(tab, opts = {}) {
   if (!ONGLETS[tab]) tab = 'dashboard';
   // un module désactivé se réactive quand on ouvre son onglet
   const sel = $('sel-' + tab);
-  if (sel && !sel.checked && !opts.silent) { sel.checked = true; majVisibilite(); toast('Module réactivé et réintégré au devis', 'ok'); }
+  if (sel && !sel.checked && !opts.silent) { sel.checked = true; majVisibilite(); toast('Module réactivé — validez ses calculs pour mettre à jour le devis', 'ok'); }
 
   ongletActif = tab;
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -1230,7 +1235,58 @@ function syncSwitches() {
 let uid = 1;
 let murs = [], poteaux = [], poutres = [], dalles = [], corps = [], crepMurs = [], crepDalles = [];
 let crepValidation = null;
+const MODULES_VALIDABLES = {
+  mur: 'Murs & parpaings', poteau: 'Poteaux', poutre: 'Poutres', dalle: 'Dalle pleine', corps: 'Dalle corps creux'
+};
+let calculsModules = { mur: {}, poteau: {}, poutre: {}, dalle: {}, corps: {} };
+let validationsModules = { mur: null, poteau: null, poutre: null, dalle: null, corps: null };
 let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, dalSurf: 0, dalVol: 0, dalFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
+
+const copierCalcul = valeur => JSON.parse(JSON.stringify(valeur || {}));
+const calculModuleValideAJour = cle => {
+  const validation = validationsModules[cle];
+  return !!validation && JSON.stringify(validation.donnees) === JSON.stringify(calculsModules[cle]);
+};
+function rendreValidationsModules() {
+  Object.entries(MODULES_VALIDABLES).forEach(([cle, libelle]) => {
+    const cible = $('validation-module-' + cle);
+    if (!cible) return;
+    const validation = validationsModules[cle];
+    const aJour = calculModuleValideAJour(cle);
+    let message = `Calculs non validés. Le module ${libelle} n’alimente pas encore le devis.`;
+    let icone = 'fa-circle-info', texteBouton = 'Valider et enregistrer dans le devis';
+    if (validation && aJour) {
+      const date = new Date(validation.date).toLocaleString('fr-FR');
+      message = `<b>Validé et enregistré dans le devis.</b> Dernière validation : ${esc(date)}.`;
+      icone = 'fa-circle-check'; texteBouton = 'Revalider les résultats';
+    } else if (validation) {
+      message = '<b>Calculs modifiés depuis la dernière validation.</b> Le devis conserve les anciennes quantités jusqu’à votre confirmation.';
+      icone = 'fa-triangle-exclamation'; texteBouton = 'Mettre à jour le devis';
+    }
+    cible.innerHTML = `<div class="subcard" style="margin-top:14px"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div class="note" style="flex:1;min-width:260px"><i class="fa-solid ${icone}"></i><div>${message}</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="validerModuleDevis('${cle}')"><i class="fa-solid fa-circle-check"></i> ${texteBouton}</button>
+        <button class="btn" onclick="aller('devis')"><i class="fa-solid fa-file-invoice"></i> Voir le devis</button>
+        ${validation ? `<button class="btn btn-danger" onclick="retirerModuleDevis('${cle}')"><i class="fa-solid fa-trash-can"></i> Retirer du devis</button>` : ''}
+      </div></div></div>`;
+  });
+}
+function validerModuleDevis(cle) {
+  if (!(cle in MODULES_VALIDABLES)) return;
+  validationsModules[cle] = { donnees: copierCalcul(calculsModules[cle]), date: new Date().toISOString() };
+  calculer();
+  sauver(false);
+  toast(`${MODULES_VALIDABLES[cle]} validé et enregistré dans le devis`, 'ok', 'fa-file-circle-check');
+}
+function retirerModuleDevis(cle) {
+  if (!(cle in MODULES_VALIDABLES) || !validationsModules[cle]
+      || !window.confirm(`Retirer le module ${MODULES_VALIDABLES[cle]} du devis ?`)) return;
+  validationsModules[cle] = null;
+  calculer();
+  sauver(false);
+  toast(`${MODULES_VALIDABLES[cle]} retiré du devis`, 'ok');
+}
 
 function ajouterMur()    { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', porteL: '0', porteH: '0', porteN: '1', fenetreL: '0', fenetreH: '0', fenetreN: '1' }); rendre(); }
 function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '0.15', b: '0.15', H: '3', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '3', ferNb: '4' }); rendre(); }
@@ -1608,25 +1664,37 @@ function calculer() {
         dalSurf: tDS, dalVol: tDV, dalFer: tDalFerCommande, crepMurNet, crepMur, crepDalle, crepTotal, crepEpaisseur, crepVolume, crepDosage, crepCiment, crepDosageSable, crepSable,
         ccSurf: tCS, ccHour: tCH, ccNerv: tCN, ccLg: tCG };
 
-  G.hourdis = $('sel-corps').checked ? tCH : 0;
-  G.nervures = $('sel-corps').checked ? tCG : 0;
+  // --- Instantanés calculés : le devis ne reçoit que les valeurs validées par l’utilisateur. ---
+  const fersPoteauxCommande = Object.fromEntries(Object.entries(fersParProfil)
+    .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
+  const fersPoutresCommande = Object.fromEntries(Object.entries(fersPoutresParProfil)
+    .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
+  const chapeauxCommande = Object.fromEntries(Object.entries(chapeauxParProfil)
+    .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
+  const fersDallesCommande = Object.fromEntries(Object.entries(fersDallesParProfil)
+    .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
+  calculsModules = {
+    mur: { surface: sMur, parpaings: Math.ceil(nb - 1e-9), ciment: cimentPP, sable: sablePP },
+    poteau: { volume: tVol, fers: fersPoteauxCommande },
+    poutre: { volume: tV, fers: fersPoutresCommande, chapeaux: chapeauxCommande },
+    dalle: { surface: tDS, volume: tDV, fers: fersDallesCommande },
+    corps: { surface: tCS, hourdis: tCH, nervures: tCG }
+  };
+  const valideActif = cle => $('sel-' + cle).checked ? validationsModules[cle]?.donnees : null;
+  const murValide = valideActif('mur'), poteauValide = valideActif('poteau');
+  const poutreValide = valideActif('poutre'), dalleValidee = valideActif('dalle'), corpsValide = valideActif('corps');
 
-  // --- Alimentation du devis ---
-  G.beton = ($('sel-poteau').checked ? tVol : 0) + ($('sel-poutre').checked ? tV : 0) + ($('sel-dalle').checked ? tDV : 0) + num($('dos-autre').value);
-  G.parpaings = $('sel-mur').checked ? Math.ceil(nb - 1e-9) : 0;
-  // Les références choisies restent toujours dans le devis, même avec une quantité provisoire de 0.
-  G.ferPoteaux = $('sel-poteau').checked
-    ? Object.fromEntries(Object.entries(fersParProfil).map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]))
-    : {};
-  G.ferPoutres = $('sel-poutre').checked
-    ? Object.fromEntries(Object.entries(fersPoutresParProfil).map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]))
-    : {};
-  G.ferChapeaux = $('sel-poutre').checked
-    ? Object.fromEntries(Object.entries(chapeauxParProfil).map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]))
-    : {};
-  G.ferDalles = $('sel-dalle').checked
-    ? Object.fromEntries(Object.entries(fersDallesParProfil).map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]))
-    : {};
+  // --- Alimentation du devis à partir des derniers instantanés validés ---
+  G.beton = (poteauValide?.volume || 0) + (poutreValide?.volume || 0) + (dalleValidee?.volume || 0) + num($('dos-autre').value);
+  G.parpaings = murValide?.parpaings || 0;
+  G.cimentMur = murValide?.ciment || 0;
+  G.sableMur = murValide?.sable || 0;
+  G.hourdis = corpsValide?.hourdis || 0;
+  G.nervures = corpsValide?.nervures || 0;
+  G.ferPoteaux = copierCalcul(poteauValide?.fers);
+  G.ferPoutres = copierCalcul(poutreValide?.fers);
+  G.ferChapeaux = copierCalcul(poutreValide?.chapeaux);
+  G.ferDalles = copierCalcul(dalleValidee?.fers);
   syncFersDevis();
   rendreDevis();
 }
@@ -1929,9 +1997,10 @@ function updateDashboard() {
   $('crep-sable').innerText = fmt(T.crepSable);
   $('crep-total-entete').innerText = fmt(T.crepTotal);
   majStatutCrepissage();
+  rendreValidationsModules();
 
   // valeurs dans la sidebar
-  $('nav-v-mur').textContent = fmt(T.sMur) + ' m² · ' + fmt(G.parpaings) + ' parpaings';
+  $('nav-v-mur').textContent = fmt(T.sMur) + ' m² · ' + fmt(T.ppArr) + ' parpaings';
   $('nav-v-poteau').textContent = fmt(T.potVol) + ' m³ · ' + fmt(T.potFer) + ' barres';
   $('nav-v-poutre').textContent = fmt(T.pouVol) + ' m³ · ' + fmt(T.pouFer) + ' fers · ' + fmt(T.pouChap) + ' chapeaux';
   $('nav-v-dalle').textContent = fmt(T.dalVol) + ' m³ · ' + fmt(T.dalFer) + ' barres';
@@ -1972,7 +2041,7 @@ function updateDashboard() {
     const on = $('sel-' + m.k).checked;
     return `<div class="list-row ${on ? '' : 'disabled'}">
       <span class="lr-ico"><i class="fa-solid ${m.ico}"></i></span>
-      <span class="lr-txt"><b>${m.label}</b><span>${m.detail} · ${on ? 'inclus au devis' : 'exclu du devis'}</span></span>
+      <span class="lr-txt"><b>${m.label}</b><span>${m.detail} · ${validationsModules[m.k] ? (calculModuleValideAJour(m.k) ? 'validé' : 'à revalider') : 'non validé'} · ${on ? 'inclus au devis' : 'exclu du devis'}</span></span>
       <span class="lr-val">${m.val}</span>
     </div>`;
   }).join('');
@@ -2019,7 +2088,7 @@ function sauver(silencieux = true) {
   try {
     const champs = {};
     CHAMPS.forEach(id => { const el = $(id); if (el) champs[id] = el.type === 'checkbox' ? el.checked : el.value; });
-    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, poutres, dalles, corps, crepMurs, crepDalles, crepValidation, champs, devis };
+    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, poutres, dalles, corps, crepMurs, crepDalles, crepValidation, validationsModules, champs, devis };
     localStorage.setItem(CLE, JSON.stringify(data));
     const s = $('save-state');
     s.classList.remove('dirty');
@@ -2080,6 +2149,8 @@ function charger() {
     }));
     crepDalles = d.crepDalles || [];
     crepValidation = d.crepValidation || null;
+    const validationsSauvees = d.validationsModules || {};
+    Object.keys(MODULES_VALIDABLES).forEach(cle => { validationsModules[cle] = validationsSauvees[cle] || null; });
     if (Array.isArray(d.devis) && d.devis.length) devis = d.devis;
     migrerFersDevis();
     uid = Math.max(d.uid || 1, ...[murs, poteaux, poutres, dalles, corps, crepMurs, crepDalles].flat().map(o => o.id + 1), 1);
