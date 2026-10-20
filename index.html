@@ -1168,9 +1168,9 @@ function calculer() {
   $('pp-exact').innerText = fmt(nb);
   $('pp-arrondi').innerText = fmt(Math.ceil(nb - 1e-9));
 
-  // --- Ciment & sable pour les parpaings ---
-  const cimentPP = G.parpaings / 30;                      // 1 sac de ciment pour 30 parpaings
-  const sablePP = sMur / 0.180;                           // 0,180 m² par sac de sable
+  // --- Ciment & sable pour les parpaings (calcul en cascade sur l'exact) ---
+  const cimentPP = nb / 30;                               // sacs de ciment = parpaings exact ÷ 30
+  const sablePP = cimentPP * 0.180;                       // sable (m³) = sacs de ciment × 0,180
   $('ciment-pp').innerText = fmt(cimentPP);
   $('sable-pp').innerText = fmt(sablePP);
 
