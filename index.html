@@ -791,8 +791,10 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <table>
                 <thead><tr>
                   <th>Désignation</th><th class="w-md">Larg. b (m)</th><th class="w-md">Haut. h (m)</th><th class="w-md">Long. poutre (m)</th><th class="w-sm">Nb poutres</th>
-                  <th class="w-sm">Nuance</th><th class="w-sm">Ø fer</th><th class="w-md">Long. fer (m)</th><th class="w-sm">Fers / poutre</th>
-                  <th class="th-r">Fer total (ml)</th><th class="th-r">Barres 12 m</th>
+                  <th class="w-sm">Nuance fer</th><th class="w-sm">Ø fer</th><th class="w-md">Long. fer (m)</th><th class="w-sm">Fers / poutre</th>
+                  <th class="th-r">Fer total (ml)</th><th class="th-r">Barres fer 12 m</th>
+                  <th class="w-sm">Nuance chapeau</th><th class="w-sm">Ø chapeau</th><th class="w-md">Long. chapeau (m)</th><th class="w-sm">Nb chapeaux total</th>
+                  <th class="th-r">Chapeaux total (ml)</th><th class="th-r">Barres chapeau 12 m</th>
                   <th class="th-r">Coffrage 3 faces (m²)</th><th class="th-r">Surf. 4 faces (m²)</th><th class="th-r">Volume (m³)</th><th class="w-sm no-print"></th>
                 </tr></thead>
                 <tbody id="tb-poutre"></tbody>
@@ -805,9 +807,13 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-grip-lines"></i> Longueur totale des fers</div><div class="t-val"><span id="pou-fer-ml">0</span><small>ml</small></div></div>
               <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-divide"></i> Barres de 12 m (exact)</div><div class="t-val"><span id="pou-fer-exact">0</span><small>barres</small></div></div>
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-truck-ramp-box"></i> Fers à commander</div><div class="t-val"><span id="pou-fer-commande">0</span><small>barres</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-arrows-left-right-to-line"></i> Longueur totale chapeaux</div><div class="t-val"><span id="pou-chap-ml">0</span><small>ml</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-divide"></i> Chapeaux 12 m (exact)</div><div class="t-val"><span id="pou-chap-exact">0</span><small>barres</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-truck-ramp-box"></i> Chapeaux à commander</div><div class="t-val"><span id="pou-chap-commande">0</span><small>barres</small></div></div>
             </div>
             <div class="note" id="pou-fer-detail" style="margin-top:14px"><i class="fa-solid fa-bars-staggered"></i><div>Aucune armature calculée.</div></div>
-            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div>Fer des poutres : <b>longueur du fer × nombre de fers × nombre de poutres</b>, puis division par <b>12 m</b>. La commande est arrondie au supérieur séparément pour chaque nuance et diamètre. Volume = <b>b × h × L</b>.</div></div>
+            <div class="note" id="pou-chap-detail" style="margin-top:10px"><i class="fa-solid fa-arrows-left-right-to-line"></i><div>Aucun chapeau calculé.</div></div>
+            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div>Fer des poutres : <b>longueur du fer × nombre de fers × nombre de poutres ÷ 12</b>. Chapeaux : <b>longueur du chapeau × nombre total de chapeaux ÷ 12</b>. Les commandes sont arrondies au supérieur séparément pour chaque nuance et diamètre.</div></div>
           </div>
         </div>
       </section>
@@ -1066,11 +1072,11 @@ function syncSwitches() {
    ============================================================ */
 let uid = 1;
 let murs = [], poteaux = [], poutres = [], dalles = [], corps = [];
-let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, dalSurf: 0, dalVol: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
+let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, dalSurf: 0, dalVol: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
 
 function ajouterMur()    { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', porteL: '0', porteH: '0', porteN: '1', fenetreL: '0', fenetreH: '0', fenetreN: '1' }); rendre(); }
 function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '0.15', b: '0.15', H: '3', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '3', ferNb: '4' }); rendre(); }
-function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferNb: '4' }); rendre(); }
+function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferNb: '4', chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2' }); rendre(); }
 function ajouterDalle()  { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1' }); rendre(); }
 function ajouterCorps()  { corps.push({ id: uid++, nom: 'Panneau ' + (corps.length + 1), L: '', l: '', pb: '0.15', n: '1' }); rendre(); }
 
@@ -1156,9 +1162,16 @@ function rendre() {
       <td><input class="inp" type="number" min="0" step="0.01" value="${esc(o.ferL ?? o.L ?? '')}" oninput="maj('poutre',${o.id},'ferL',this.value)"></td>
       <td><input class="inp" type="number" min="0" step="1" value="${esc(o.ferNb ?? '4')}" oninput="maj('poutre',${o.id},'ferNb',this.value)"></td>
       <td class="res" id="u-ferml-${o.id}">0</td><td class="res" id="u-ferbar-${o.id}">0</td>
+      <td><select class="inp" onchange="maj('poutre',${o.id},'chapNuance',this.value)">
+        <option value="HA" ${o.chapNuance === 'RL' ? '' : 'selected'}>HA</option>
+        <option value="RL" ${o.chapNuance === 'RL' ? 'selected' : ''}>RL</option></select></td>
+      <td><select class="inp" onchange="maj('poutre',${o.id},'chapDiam',this.value)">${optionsFer(o.chapDiam || '12')}</select></td>
+      <td><input class="inp" type="number" min="0" step="0.01" value="${esc(o.chapL ?? '')}" oninput="maj('poutre',${o.id},'chapL',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="1" value="${esc(o.chapNb ?? '2')}" oninput="maj('poutre',${o.id},'chapNb',this.value)"></td>
+      <td class="res" id="u-chapml-${o.id}">0</td><td class="res" id="u-chapbar-${o.id}">0</td>
       <td class="res" id="u-cof-${o.id}">0</td><td class="res" id="u-sur-${o.id}">0</td><td class="res" id="u-vol-${o.id}">0</td>
       ${delBtn('poutre', o.id)}</tr>`).join('')
-    : ligneVide(15, 'Aucune poutre — cliquez sur « Ajouter une poutre »');
+    : ligneVide(21, 'Aucune poutre — cliquez sur « Ajouter une poutre »');
 
   $('tb-corps').innerHTML = corps.length ? corps.map(o => `<tr>
       <td>${inp('corps', o, 'nom', 'inp-txt')}</td><td>${inp('corps', o, 'L')}</td><td>${inp('corps', o, 'l')}</td>
@@ -1249,8 +1262,8 @@ function calculer() {
     : '<i class="fa-solid fa-bars-staggered"></i><div>Aucune armature calculée.</div>';
 
   // --- Poutres & fers longitudinaux ---
-  let tCof = 0, tSur = 0, tV = 0, tPouFerML = 0;
-  const fersPoutresParProfil = {};
+  let tCof = 0, tSur = 0, tV = 0, tPouFerML = 0, tChapML = 0;
+  const fersPoutresParProfil = {}, chapeauxParProfil = {};
   poutres.forEach(o => {
     const b = num(o.b), h = num(o.h), L = num(o.L), n = Math.max(0, num(o.n));
     const cof = (b + 2 * h) * L * n, sur = 2 * (b + h) * L * n, vol = b * h * L * n;
@@ -1262,23 +1275,45 @@ function calculer() {
     const diam = String(o.ferDiam || '12');
     const profil = `${nuance}:${diam}`;
     fersPoutresParProfil[profil] = (fersPoutresParProfil[profil] || 0) + ferML;
-    tCof += cof; tSur += sur; tV += vol; tPouFerML += ferML;
+
+    // Chapeaux : longueur × nombre total, puis conversion en barres de 12 m.
+    const chapL = Math.max(0, num(o.chapL));
+    const chapNb = Math.max(0, num(o.chapNb ?? 2));
+    const chapML = chapL * chapNb;
+    const chapBarres = chapML / 12;
+    const chapNuance = o.chapNuance === 'RL' ? 'RL' : 'HA';
+    const chapDiam = String(o.chapDiam || '12');
+    const chapProfil = `${chapNuance}:${chapDiam}`;
+    chapeauxParProfil[chapProfil] = (chapeauxParProfil[chapProfil] || 0) + chapML;
+
+    tCof += cof; tSur += sur; tV += vol; tPouFerML += ferML; tChapML += chapML;
     $('u-ferml-' + o.id).innerText = fmt(ferML);
     $('u-ferbar-' + o.id).innerText = fmt(ferBarres);
+    $('u-chapml-' + o.id).innerText = fmt(chapML);
+    $('u-chapbar-' + o.id).innerText = fmt(chapBarres);
     $('u-cof-' + o.id).innerText = fmt(cof);
     $('u-sur-' + o.id).innerText = fmt(sur);
     $('u-vol-' + o.id).innerText = fmt(vol);
   });
   const profilsFerPoutres = Object.entries(fersPoutresParProfil).filter(([, ml]) => ml > 0);
+  const profilsChapeaux = Object.entries(chapeauxParProfil).filter(([, ml]) => ml > 0);
   const tPouFerExact = tPouFerML / 12;
   const tPouFerCommande = profilsFerPoutres.reduce((s, [, ml]) => s + Math.ceil(ml / 12 - 1e-9), 0);
+  const tChapExact = tChapML / 12;
+  const tChapCommande = profilsChapeaux.reduce((s, [, ml]) => s + Math.ceil(ml / 12 - 1e-9), 0);
   $('pou-coff').innerText = fmt(tCof); $('pou-surf').innerText = fmt(tSur); $('pou-vol').innerText = fmt(tV);
   $('pou-fer-ml').innerText = fmt(tPouFerML);
   $('pou-fer-exact').innerText = fmt(tPouFerExact);
   $('pou-fer-commande').innerText = fmt(tPouFerCommande);
+  $('pou-chap-ml').innerText = fmt(tChapML);
+  $('pou-chap-exact').innerText = fmt(tChapExact);
+  $('pou-chap-commande').innerText = fmt(tChapCommande);
   $('pou-fer-detail').innerHTML = profilsFerPoutres.length
-    ? `<i class="fa-solid fa-bars-staggered"></i><div><b>Détail par nuance :</b> ${profilsFerPoutres.map(([profil, ml]) => `${libelleFer(profil)} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
-    : '<i class="fa-solid fa-bars-staggered"></i><div>Aucune armature calculée.</div>';
+    ? `<i class="fa-solid fa-bars-staggered"></i><div><b>Fers longitudinaux :</b> ${profilsFerPoutres.map(([profil, ml]) => `${libelleFer(profil)} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
+    : '<i class="fa-solid fa-bars-staggered"></i><div>Aucune armature longitudinale calculée.</div>';
+  $('pou-chap-detail').innerHTML = profilsChapeaux.length
+    ? `<i class="fa-solid fa-arrows-left-right-to-line"></i><div><b>Chapeaux :</b> ${profilsChapeaux.map(([profil, ml]) => `${libelleFer(profil)} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
+    : '<i class="fa-solid fa-arrows-left-right-to-line"></i><div>Aucun chapeau calculé.</div>';
 
   // --- Dalles pleines ---
   let tDS = 0, tDV = 0;
@@ -1309,8 +1344,8 @@ function calculer() {
   $('cc-nerv').innerText = fmt(tCN); $('cc-lg').innerText = fmt(tCG);
 
   T = { sMur, nbPP: nb, ppArr: Math.ceil(nb - 1e-9), potSec: tSec, potLat: tLat, potVol: tVol, potFer: tFerCommande,
-        pouCof: tCof, pouSur: tSur, pouVol: tV, pouFer: tPouFerCommande, dalSurf: tDS, dalVol: tDV,
-        ccSurf: tCS, ccHour: tCH, ccNerv: tCN, ccLg: tCG };
+        pouCof: tCof, pouSur: tSur, pouVol: tV, pouFer: tPouFerCommande, pouChap: tChapCommande,
+        dalSurf: tDS, dalVol: tDV, ccSurf: tCS, ccHour: tCH, ccNerv: tCN, ccLg: tCG };
 
   G.hourdis = $('sel-corps').checked ? tCH : 0;
   G.nervures = $('sel-corps').checked ? tCG : 0;
@@ -1324,6 +1359,9 @@ function calculer() {
   G.ferPoutres = $('sel-poutre').checked
     ? Object.fromEntries(profilsFerPoutres.map(([profil, ml]) => [profil, Math.ceil(ml / 12 - 1e-9)]))
     : {};
+  G.ferChapeaux = $('sel-poutre').checked
+    ? Object.fromEntries(profilsChapeaux.map(([profil, ml]) => [profil, Math.ceil(ml / 12 - 1e-9)]))
+    : {};
   syncFersDevis();
   rendreDevis();
 }
@@ -1331,7 +1369,7 @@ function calculer() {
 /* ============================================================
    DEVIS QUANTITATIF
    ============================================================ */
-let G = { beton: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferPoteaux: {}, ferPoutres: {} };
+let G = { beton: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferPoteaux: {}, ferPoutres: {}, ferChapeaux: {} };
 let dvId = 1000;
 function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', auto }; }
 let devis = [
@@ -1347,6 +1385,8 @@ let devis = [
 ];
 const fmtM = n => n.toLocaleString('fr-FR', { maximumFractionDigits: 2 });
 const estLigneFer = l => typeof l.auto === 'string' && l.auto.startsWith('fer:');
+const estLigneChapeau = l => typeof l.auto === 'string' && l.auto.startsWith('chap:');
+const estLigneAcier = l => estLigneFer(l) || estLigneChapeau(l);
 const libelleFer = cle => {
   const [nuance, diametre] = cle.split(':');
   return `${nuance} Ø${diametre}`;
@@ -1358,18 +1398,27 @@ function fersDevisActifs() {
   });
   return total;
 }
+function aciersDevisActifs() {
+  const lignes = {};
+  Object.entries(fersDevisActifs()).forEach(([cle, qte]) => {
+    lignes[`fer:${cle}`] = { qte, des: libelleFer(cle) };
+  });
+  Object.entries(G.ferChapeaux || {}).forEach(([cle, qte]) => {
+    lignes[`chap:${cle}`] = { qte, des: `Chapeau ${libelleFer(cle)}` };
+  });
+  return lignes;
+}
 function syncFersDevis() {
   const materiaux = devis.find(s => s.n === 'II');
   if (!materiaux) return;
-  Object.keys(fersDevisActifs()).forEach(cle => {
-    const auto = `fer:${cle}`;
+  Object.entries(aciersDevisActifs()).forEach(([auto, info]) => {
     let l = materiaux.lignes.find(x => x.auto === auto);
     if (!l) {
-      l = { id: dvId++, des: libelleFer(cle), unite: 'barre', qte: null, pu: '0', auto };
+      l = { id: dvId++, des: info.des, unite: 'barre', qte: null, pu: '0', auto };
       const fil = materiaux.lignes.findIndex(x => /fil\s+d['’]?attache/i.test(x.des || ''));
       if (fil >= 0) materiaux.lignes.splice(fil, 0, l); else materiaux.lignes.push(l);
     }
-    l.des = libelleFer(cle);
+    l.des = info.des;
     l.unite = 'barre';
     l.qte = null;
   });
@@ -1392,7 +1441,7 @@ function migrerFersDevis() {
 
 function autoVal(l) {
   const b = G.beton;
-  if (estLigneFer(l)) return fersDevisActifs()[l.auto.slice(4)] || 0;
+  if (estLigneAcier(l)) return aciersDevisActifs()[l.auto]?.qte || 0;
   switch (l.auto) {
     case 'beton': return b;
     case 'parpaing': return G.parpaings;
@@ -1413,8 +1462,8 @@ function rendreDevis() {
     h += `<tr class="dv-sec"><td class="code-sec">${s.n}</td><td colspan="3">${esc(s.titre)}</td><td class="col-prix" colspan="2"></td>
       <td class="no-print" style="text-align:center"><button class="auto-btn" onclick="ajouterLigne('${s.n}')" title="Ajouter une ligne"><i class="fa-solid fa-plus"></i></button></td></tr>`;
     s.lignes.forEach(l => {
-      // Les fers automatiques non utilisés par les poteaux ou les poutres restent mémorisés mais sont masqués.
-      if (estLigneFer(l) && !(l.auto.slice(4) in fersDevisActifs())) return;
+      // Les aciers automatiques non utilisés (fers ou chapeaux) restent mémorisés mais sont masqués.
+      if (estLigneAcier(l) && !(l.auto in aciersDevisActifs())) return;
       const c = s.n === 'I' ? '' : ++code;
       h += `<tr>
         <td class="code-cell">${c}</td>
@@ -1515,11 +1564,11 @@ function updateDashboard() {
   // valeurs dans la sidebar
   $('nav-v-mur').textContent = fmt(T.sMur) + ' m² · ' + fmt(G.parpaings) + ' parpaings';
   $('nav-v-poteau').textContent = fmt(T.potVol) + ' m³ · ' + fmt(T.potFer) + ' barres';
-  $('nav-v-poutre').textContent = fmt(T.pouVol) + ' m³ · ' + fmt(T.pouFer) + ' barres';
+  $('nav-v-poutre').textContent = fmt(T.pouVol) + ' m³ · ' + fmt(T.pouFer) + ' fers · ' + fmt(T.pouChap) + ' chapeaux';
   $('nav-v-dalle').textContent = fmt(T.dalVol) + ' m³ · ' + fmt(T.dalSurf) + ' m²';
   $('nav-v-corps').textContent = fmt(T.ccHour) + ' hourdis · ' + fmt(T.ccSurf) + ' m²';
-  const fersActifs = fersDevisActifs();
-  const nbArt = devis.reduce((a, s) => a + s.lignes.filter(l => !estLigneFer(l) || l.auto.slice(4) in fersActifs).length, 0);
+  const aciersActifs = aciersDevisActifs();
+  const nbArt = devis.reduce((a, s) => a + s.lignes.filter(l => !estLigneAcier(l) || l.auto in aciersActifs).length, 0);
   $('nav-v-devis').textContent = nbArt + ' article' + (nbArt > 1 ? 's' : '') + ' · ' + fmtM(totTTC) + ' ' + dev;
   $('nav-badge-devis').textContent = totHT > 0 ? fmtM(totTTC) : '—';
   $('nav-v-dash').textContent = beton > 0 ? fmt(beton) + ' m³ de béton' : 'Synthèse du projet';
@@ -1640,8 +1689,9 @@ function charger() {
       ferH: o.ferH ?? o.H ?? '3'
     }));
     poutres = (d.poutres || []).map(o => ({
-      ferNuance: 'HA', ferDiam: '12', ferL: o.L ?? '', ferNb: '4', ...o,
-      ferL: o.ferL ?? o.L ?? ''
+      ferNuance: 'HA', ferDiam: '12', ferL: o.L ?? '', ferNb: '4',
+      chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2', ...o,
+      ferL: o.ferL ?? o.L ?? '', chapL: o.chapL ?? ''
     }));
     dalles = d.dalles || []; corps = d.corps || [];
     if (Array.isArray(d.devis) && d.devis.length) devis = d.devis;
