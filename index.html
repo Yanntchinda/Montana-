@@ -1335,7 +1335,7 @@ function retirerModuleDevis(cle) {
 }
 
 function ajouterMur()    { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', porteL: '0', porteH: '0', porteN: '1', fenetreL: '0', fenetreH: '0', fenetreN: '1' }); rendre(); }
-function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '0.15', b: '0.15', H: '3', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '3', ferNb: '4' }); rendre(); }
+function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '', b: '', H: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '', ferNb: '4' }); rendre(); }
 function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferNb: '4', chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2' }); rendre(); }
 function ajouterDalle()  { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1', ferNuanceLong: 'HA', ferDiamLong: '10', ferEspLong: '20', ferNuanceLarg: 'HA', ferDiamLarg: '10', ferEspLarg: '20' }); rendre(); }
 function ajouterCorps()  { corps.push({ id: uid++, nom: 'Panneau ' + (corps.length + 1), L: '', l: '', pb: '0.15', n: '1' }); rendre(); }
@@ -1550,8 +1550,9 @@ function calculer() {
   });
   $('mur-total').innerText = fmt(sMur);
   const nb = sPP > 0 ? (sMur / sPP) * (1 + num($('pp-m').value) / 100) : 0;
+  const ppArrondi = nb > 0 ? Math.ceil(nb - 1e-9) : 0;
   $('pp-exact').innerText = fmt(nb);
-  $('pp-arrondi').innerText = fmt(Math.ceil(nb - 1e-9));
+  $('pp-arrondi').innerText = fmt(ppArrondi);
 
   // --- Ciment & sable pour les parpaings (calcul en cascade sur l'exact) ---
   const cimentPP = nb / 30;                               // sacs de ciment = parpaings exact ÷ 30
@@ -1781,7 +1782,7 @@ function calculer() {
   const crepCiment = crepVolume * crepDosage;
   const crepDosageSable = Math.max(0, num($('crep-dosage-sable').value));
   const crepSable = crepVolume * crepDosageSable;
-  T = { sMur, nbPP: nb, ppArr: Math.ceil(nb - 1e-9), potSec: tSec, potLat: tLat, potVol: tVol, potFer: tFerCommande,
+  T = { sMur, nbPP: nb, ppArr: ppArrondi, potSec: tSec, potLat: tLat, potVol: tVol, potFer: tFerCommande,
         pouCof: tCof, pouSur: tSur, pouVol: tV, pouFer: tPouFerCommande, pouChap: tChapCommande,
         dalSurf: tDS, dalVol: tDV, dalFer: tDalFerCommande, semVol: tSemVol, semFer1: tSemFer1, semFer2: tSemFer2, semFer: tSemFerCommande,
         crepMurNet, crepMur, crepDalle, crepTotal, crepEpaisseur, crepVolume, crepDosage, crepCiment, crepDosageSable, crepSable,
@@ -1799,7 +1800,7 @@ function calculer() {
   const fersSemellesCommande = Object.fromEntries(Object.entries(fersSemellesParProfil)
     .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
   calculsModules = {
-    mur: { surface: sMur, parpaings: Math.ceil(nb - 1e-9), ciment: cimentPP, sable: sablePP },
+    mur: { surface: sMur, parpaings: ppArrondi, ciment: cimentPP, sable: sablePP },
     poteau: { volume: tVol, fers: fersPoteauxCommande },
     poutre: { volume: tV, fers: fersPoutresCommande, chapeaux: chapeauxCommande },
     dalle: { surface: tDS, volume: tDV, fers: fersDallesCommande },
