@@ -599,6 +599,10 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
         <span class="ni-txt"><b>Dalle corps creux</b><span class="ni-val" id="nav-v-corps">0 hourdis</span></span>
         <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-corps" checked onchange="majVisibilite()"><span class="track"></span></label>
       </button>
+      <button class="nav-item" data-tab="crepissage" onclick="aller('crepissage')">
+        <i class="fa-solid fa-paint-roller ni"></i>
+        <span class="ni-txt"><b>Crépissage</b><span class="ni-val" id="nav-v-crepissage">0 m²</span></span>
+      </button>
 
       <div class="nav-label">Livraison</div>
       <button class="nav-item" data-tab="devis" onclick="aller('devis')">
@@ -702,25 +706,6 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           </div>
         </div>
 
-        <div class="card" id="dash-crepissage-card">
-          <div class="card-head">
-            <div class="ch-txt">
-              <h3><i class="fa-solid fa-paint-roller"></i> Crépissage</h3>
-              <div class="ch-sub">Surface nette des murs sur deux faces + surface des dalles</div>
-            </div>
-            <span class="btn btn-sm btn-ghost" style="pointer-events:none"><b class="res" id="dash-crep-total">0</b>&nbsp;m²</span>
-          </div>
-          <div class="card-body">
-            <div class="tiles">
-              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-border-all"></i> Murs nets — une face</div><div class="t-val"><span id="dash-crep-mur-net">0</span><small>m²</small></div></div>
-              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-clone"></i> Murs nets — deux faces</div><div class="t-val"><span id="dash-crep-mur-double">0</span><small>m²</small></div></div>
-              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-vector-square"></i> Surface des dalles</div><div class="t-val"><span id="dash-crep-dalle">0</span><small>m²</small></div></div>
-              <div class="tile"><div class="t-lab"><i class="fa-solid fa-trowel"></i> Surface totale à crépir</div><div class="t-val"><span id="dash-crep-resultat">0</span><small>m²</small></div></div>
-            </div>
-            <div class="note" style="margin-top:14px"><i class="fa-solid fa-calculator"></i><div><b>Formule :</b> [(longueur × hauteur) − surface des portes et fenêtres] × nombre de murs × 2 + (longueur de dalle × largeur de dalle × nombre de dalles).</div></div>
-          </div>
-        </div>
-
         <div class="card">
           <div class="card-head">
             <div class="ch-txt">
@@ -731,6 +716,30 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           </div>
           <div class="card-body">
             <div class="tiles" id="dash-mat"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ONGLET : CRÉPISSAGE ============ -->
+      <section class="panel" id="bloc-crepissage">
+        <div class="card" id="crepissage-card">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-paint-roller"></i> Crépissage</h3>
+              <div class="ch-sub">Surface nette des murs sur deux faces + surface des dalles</div>
+            </div>
+            <div class="ch-act">
+              <span class="btn btn-sm btn-ghost" style="pointer-events:none"><b class="res" id="crep-total-entete">0</b>&nbsp;m²</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="tiles">
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-border-all"></i> Murs nets — une face</div><div class="t-val"><span id="crep-mur-net">0</span><small>m²</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-clone"></i> Murs nets — deux faces</div><div class="t-val"><span id="crep-mur-double">0</span><small>m²</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-vector-square"></i> Surface des dalles</div><div class="t-val"><span id="crep-dalle">0</span><small>m²</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-trowel"></i> Surface totale à crépir</div><div class="t-val"><span id="crep-resultat">0</span><small>m²</small></div></div>
+            </div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-calculator"></i><div><b>Formule :</b> [(longueur × hauteur) − surface des portes et fenêtres] × nombre de murs × 2 + (longueur de dalle × largeur de dalle × nombre de dalles).</div></div>
           </div>
         </div>
       </section>
@@ -1104,6 +1113,7 @@ const ONGLETS = {
   poutre:    { titre: 'Poutres', sub: 'Coffrage, surfaces et volumes de béton' },
   dalle:     { titre: 'Dalle pleine', sub: 'Surfaces, volumes et armatures dans les deux sens' },
   corps:     { titre: 'Dalle à corps creux', sub: 'Hourdis, nervures et longueurs' },
+  crepissage:{ titre: 'Crépissage', sub: 'Surface des murs sur deux faces et surface des dalles' },
   devis:     { titre: 'Devis quantitatif', sub: 'Document livrable, imprimable en A4' }
 };
 let ongletActif = 'dashboard';
@@ -1704,11 +1714,11 @@ function updateDashboard() {
   $('dash-nervures').innerText = fmt(G.nervures);
   $('dash-ht').innerText = fmtM(totHT);
   $('dash-tva').innerText = fmtM(totTTC - totHT);
-  $('dash-crep-mur-net').innerText = fmt(T.sMur);
-  $('dash-crep-mur-double').innerText = fmt(T.crepMur);
-  $('dash-crep-dalle').innerText = fmt(T.crepDalle);
-  $('dash-crep-resultat').innerText = fmt(T.crepTotal);
-  $('dash-crep-total').innerText = fmt(T.crepTotal);
+  $('crep-mur-net').innerText = fmt(T.sMur);
+  $('crep-mur-double').innerText = fmt(T.crepMur);
+  $('crep-dalle').innerText = fmt(T.crepDalle);
+  $('crep-resultat').innerText = fmt(T.crepTotal);
+  $('crep-total-entete').innerText = fmt(T.crepTotal);
 
   // valeurs dans la sidebar
   $('nav-v-mur').textContent = fmt(T.sMur) + ' m² · ' + fmt(G.parpaings) + ' parpaings';
@@ -1716,6 +1726,7 @@ function updateDashboard() {
   $('nav-v-poutre').textContent = fmt(T.pouVol) + ' m³ · ' + fmt(T.pouFer) + ' fers · ' + fmt(T.pouChap) + ' chapeaux';
   $('nav-v-dalle').textContent = fmt(T.dalVol) + ' m³ · ' + fmt(T.dalFer) + ' barres';
   $('nav-v-corps').textContent = fmt(T.ccHour) + ' hourdis · ' + fmt(T.ccSurf) + ' m²';
+  $('nav-v-crepissage').textContent = fmt(T.crepTotal) + ' m²';
   const aciersActifs = aciersDevisActifs();
   const nbArt = devis.reduce((a, s) => a + s.lignes.filter(l => !estLigneAcier(l) || l.auto in aciersActifs).length, 0);
   $('nav-v-devis').textContent = nbArt + ' article' + (nbArt > 1 ? 's' : '') + ' · ' + fmtM(totTTC) + ' ' + dev;
