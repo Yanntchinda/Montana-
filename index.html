@@ -1540,9 +1540,16 @@ function majPrix() {
   sauver();
 }
 function telechargerDevis() {
-  document.body.classList.add('print-devis');
-  toast('Choisissez « Enregistrer au format PDF » pour télécharger le devis', 'info', 'fa-file-pdf');
-  setTimeout(() => window.print(), 80);
+  // Depuis la sidebar ou la barre supérieure, le devis peut être masqué :
+  // on ouvre d'abord son onglet et on force son rendu avant de lancer le PDF.
+  if (ongletActif !== 'devis') aller('devis', { silent: true });
+  rendreDevis();
+  window.scrollTo({ top: 0, behavior: 'auto' });
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.body.classList.add('print-devis');
+    toast('Choisissez « Enregistrer au format PDF » pour télécharger le devis', 'info', 'fa-file-pdf');
+    setTimeout(() => window.print(), 120);
+  }));
 }
 function imprimerDevis() { telechargerDevis(); }
 function imprimerRapport() { document.body.classList.add('print-report'); window.print(); }
