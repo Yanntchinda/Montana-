@@ -338,6 +338,10 @@ html[data-theme="dark"] .kpi.k-money .k-val{color:#6ee7b7}
 .sign b{color:var(--text);font-size:12px;display:block;margin-bottom:4px}
 .sign.right{text-align:right}
 .prix-off .col-prix{display:none !important}
+/* La désignation reste largement lisible ; le tableau défile horizontalement sur les petits écrans. */
+#doc-devis table{min-width:1120px}
+#doc-devis th.dv-designation,#doc-devis td.dv-designation{width:42%;min-width:420px}
+#tb-devis td.dv-designation > .inp{width:100%;min-width:400px}
 tr.dv-sec td{background:var(--surface-3);color:var(--brand);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.09em;padding:8px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 tr.dv-sec td.code-sec{text-align:center;width:56px}
 .code-cell{text-align:center;color:var(--faint);font-family:var(--mono);font-size:11.5px}
@@ -501,6 +505,9 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
   .card,.doc,.subcard,.tbl-wrap{box-shadow:none !important;border-color:#cbd5e1 !important;break-inside:avoid}
   .inp{border:none !important;background:transparent !important;color:#000 !important;padding:1px 2px !important;font-weight:600}
   .w-sm,.w-md,.w-lg,.w-code{min-width:0 !important;width:auto !important}
+  #doc-devis table{min-width:0 !important;table-layout:fixed}
+  #doc-devis th.dv-designation,#doc-devis td.dv-designation{width:36% !important;min-width:0 !important}
+  #tb-devis td.dv-designation > .inp{min-width:0 !important;width:100% !important}
   #tb-mur .inp,#tb-poteau .inp,#tb-poutre .inp,#tb-dalle .inp,#tb-corps .inp,#tb-crep-murs .inp,#tb-crep-dalles .inp{min-width:0 !important;width:100% !important}
   #bloc-poutre .group-gap,#bloc-dalle .group-gap,#bloc-crepissage .group-gap{border-left:3px solid #fff !important;box-shadow:none !important;padding-left:4px !important}
   select.inp{background-image:none !important}
@@ -1157,7 +1164,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
             <div class="tbl-wrap" style="border:none;border-radius:0">
               <table>
                 <thead><tr>
-                  <th class="w-code" style="text-align:center">Code</th><th>Désignation</th><th class="w-sm">Unité</th><th class="w-lg">Quantité</th>
+                  <th class="w-code" style="text-align:center">Code</th><th class="dv-designation">Désignation</th><th class="w-sm">Unité</th><th class="w-lg">Quantité</th>
                   <th class="col-prix w-lg">Prix unitaire</th><th class="col-prix w-lg">Prix total</th><th class="w-sm no-print"></th>
                 </tr></thead>
                 <tbody id="tb-devis"></tbody>
@@ -2046,7 +2053,7 @@ function rendreDevis() {
       const c = s.n === 'I' ? '' : ++code;
       h += `<tr>
         <td class="code-cell">${c}</td>
-        <td><input class="inp inp-txt" value="${esc(l.des)}" oninput="majL(${l.id},'des',this.value)"></td>
+        <td class="dv-designation"><input class="inp inp-txt" value="${esc(l.des)}" title="${esc(l.des)}" oninput="majL(${l.id},'des',this.value);this.title=this.value"></td>
         <td><input class="inp" value="${esc(l.unite)}" oninput="majL(${l.id},'unite',this.value)"></td>
         <td><div class="qte-cell"><input class="inp" id="dq-${l.id}" value="${l.qte === null ? '' : esc(l.qte)}" oninput="majL(${l.id},'qte',this.value)">
           ${l.auto ? `<button class="auto-btn no-print" title="Revenir au calcul automatique" onclick="resetAuto(${l.id})"><i class="fa-solid fa-rotate-left"></i></button>` : ''}</div></td>
