@@ -1,517 +1,1435 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculateur Mur, Parpaings, Poteaux & Poutres</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<title>Calculateur de Gros Œuvre — Montana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-  body { font-family: 'Inter', sans-serif; background:#0f172a; color:#f8fafc; }
-  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
-  input[type=number] { -moz-appearance:textfield; }
-  .inp { width:100%; background:#1e293b; border:1px solid #475569; border-radius:.5rem; padding:.4rem .5rem; font-size:.85rem; color:#fbbf24; font-family:ui-monospace,monospace; }
-  .inp:focus { outline:none; border-color:#fbbf24; }
-  .inp-txt { color:#e2e8f0; font-family:'Inter',sans-serif; }
-  th { font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:#94a3b8; text-align:left; padding:.4rem .3rem; font-weight:600; }
-  td { padding:.3rem .3rem; vertical-align:middle; }
-  .res { font-family:ui-monospace,monospace; color:#fbbf24; font-weight:700; white-space:nowrap; }
-  .dv-sec td { background:#0f172a; color:#fbbf24; font-weight:700; letter-spacing:.04em; }
-  .prix-off .col-prix { display:none; }
-  @media print {
-    body.print-devis header, body.print-devis .card:not(#bloc-devis) { display:none !important; }
-    #bloc-devis { display:block !important; }
-    #bloc-devis table { border-collapse:collapse; width:100%; }
-    #bloc-devis th, #bloc-devis td { border:1px solid #000 !important; color:#000 !important; padding:4px 6px !important; }
-    #bloc-devis th { background:#e5e7eb !important; text-align:center; }
-    #bloc-devis .dv-sec td { background:#f1f5f9 !important; color:#000 !important; }
-    #bloc-devis .sign { border:1px solid #000 !important; }
-    .no-print { display:none !important; }
-    body { background:#fff !important; color:#000 !important; }
-    .card { background:#fff !important; border:1px solid #cbd5e1 !important; box-shadow:none !important; }
-    .inp { border:none !important; background:transparent !important; color:#000 !important; }
-    .res, h1, h2, .ptxt { color:#000 !important; }
-    th { color:#000 !important; }
-  }
+/* ============================================================
+   DESIGN SYSTEM
+   ============================================================ */
+:root{
+  --bg:#eef1f7; --bg-accent:radial-gradient(1100px 520px at 12% -12%, rgba(245,158,11,.16), transparent 62%);
+  --surface:#ffffff; --surface-2:#f6f8fc; --surface-3:#eef2f8;
+  --border:#e2e8f0; --border-strong:#cbd5e1;
+  --text:#0f172a; --muted:#64748b; --faint:#94a3b8;
+  --brand:#b45309; --brand-2:#f59e0b; --brand-soft:#fff7e8; --brand-border:#fde68a;
+  --navy:#0b1f3a; --navy-2:#123055; --navy-text:#cbd9ee;
+  --ok:#047857; --ok-bg:#ecfdf5; --warn:#b45309; --warn-bg:#fffbeb; --danger:#b91c1c;
+  --shadow:0 1px 2px rgba(15,23,42,.05), 0 12px 28px -14px rgba(15,23,42,.22);
+  --shadow-sm:0 1px 2px rgba(15,23,42,.06);
+  --radius:14px; --radius-sm:9px;
+  --sidebar-w:274px;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+html[data-theme="dark"]{
+  --bg:#070d18; --bg-accent:radial-gradient(1000px 520px at 10% -10%, rgba(245,158,11,.13), transparent 60%);
+  --surface:#0e1626; --surface-2:#131d31; --surface-3:#18243b;
+  --border:#1e2c45; --border-strong:#2b3d5c;
+  --text:#e8eefb; --muted:#93a4c0; --faint:#6f819f;
+  --brand:#fbbf24; --brand-2:#f59e0b; --brand-soft:#1d2434; --brand-border:#4a3b16;
+  --navy:#070d18; --navy-2:#0b1424; --navy-text:#93a4c0;
+  --ok:#34d399; --ok-bg:#0d2a22; --warn:#fbbf24; --warn-bg:#2a2413; --danger:#f87171;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 16px 34px -18px rgba(0,0,0,.8);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.35);
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background:var(--bg); background-image:var(--bg-accent); background-attachment:fixed;
+  color:var(--text); min-height:100vh; font-size:14px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.015em}
+p{margin:0}
+button{font-family:inherit}
+::selection{background:rgba(245,158,11,.28)}
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+.app{display:flex;min-height:100vh}
+.sidebar{
+  width:var(--sidebar-w);flex:0 0 var(--sidebar-w);position:sticky;top:0;height:100vh;
+  display:flex;flex-direction:column;gap:14px;padding:18px 14px 14px;
+  background:linear-gradient(180deg,var(--navy-2),var(--navy));color:var(--navy-text);
+  border-right:1px solid rgba(148,163,184,.18);z-index:40;
+}
+html[data-theme="light"] .sidebar{box-shadow:6px 0 24px -18px rgba(15,23,42,.5)}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 8px 14px;border-bottom:1px solid rgba(148,163,184,.16)}
+.brand-ico{
+  width:40px;height:40px;flex:0 0 40px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(140deg,#fbbf24,#d97706);color:#1e1b04;font-size:17px;
+  box-shadow:0 6px 16px -6px rgba(245,158,11,.85)
+}
+.brand-txt strong{display:block;color:#fff;font-size:14.5px;font-weight:700;letter-spacing:-.01em}
+.brand-txt span{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.13em;color:#8fa4c4;margin-top:2px}
+
+.nav{display:flex;flex-direction:column;gap:3px;overflow-y:auto;padding-right:2px;margin-right:-2px}
+.nav::-webkit-scrollbar{width:6px}
+.nav::-webkit-scrollbar-thumb{background:rgba(148,163,184,.28);border-radius:99px}
+.nav-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.16em;color:#6d84a6;padding:12px 10px 6px;font-weight:700}
+.nav-item{
+  position:relative;display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  padding:9px 11px;border:1px solid transparent;border-radius:11px;background:transparent;
+  color:var(--navy-text);cursor:pointer;transition:.16s;font-size:13.2px;font-weight:500
+}
+.nav-item i.ni{width:18px;text-align:center;font-size:13.5px;color:#7f96ba;transition:.16s}
+.nav-item .ni-txt{flex:1;min-width:0}
+.nav-item .ni-txt b{display:block;font-weight:600;color:#dbe6f7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-item .ni-val{display:block;font-family:var(--mono);font-size:10.5px;color:#7f96ba;margin-top:1px}
+.nav-item:hover{background:rgba(148,163,184,.11)}
+.nav-item.active{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.42)}
+.nav-item.active i.ni{color:#fbbf24}
+.nav-item.active .ni-txt b{color:#fff}
+.nav-item.active .ni-val{color:#fcd34d}
+.nav-item.active::before{content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:#fbbf24}
+.nav-item.off{opacity:.45}
+.nav-item.off .ni-txt b{text-decoration:line-through;text-decoration-thickness:1px}
+.nav-item .badge-count{
+  font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:99px;
+  background:rgba(148,163,184,.18);color:#c8d6ec
+}
+/* mini interrupteur "inclus au devis" */
+.sw{position:relative;display:inline-block;width:30px;height:17px;flex:0 0 30px}
+.sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
+.sw .track{position:absolute;inset:0;border-radius:99px;background:rgba(148,163,184,.28);transition:.18s;pointer-events:none}
+.sw .track::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#e7edf8;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.sw input:checked + .track{background:#f59e0b}
+.sw input:checked + .track::after{transform:translateX(13px);background:#1c1503}
+.sw input:focus-visible + .track{outline:2px solid #fbbf24;outline-offset:2px}
+
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:9px;padding-top:12px;border-top:1px solid rgba(148,163,184,.16)}
+.save-state{display:flex;align-items:center;gap:7px;font-size:10.8px;color:#7f96ba;padding:0 4px}
+.save-state i{color:#34d399}
+.save-state.dirty i{color:#fbbf24}
+.side-actions{display:flex;gap:6px}
+.side-actions button{
+  flex:1;padding:7px 4px;border-radius:9px;border:1px solid rgba(148,163,184,.22);
+  background:rgba(148,163,184,.09);color:#c8d6ec;font-size:11px;cursor:pointer;transition:.16s;font-weight:500
+}
+.side-actions button:hover{background:rgba(245,158,11,.2);border-color:rgba(245,158,11,.5);color:#fff}
+
+/* -------- zone principale -------- */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:14px;
+  padding:13px 26px;background:color-mix(in srgb,var(--surface) 88%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--border)
+}
+.burger{display:none;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);cursor:pointer;font-size:15px}
+.top-title{min-width:0;flex:1}
+.top-title h2{font-size:16.5px}
+.top-title p{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-actions{display:flex;align-items:center;gap:8px}
+
+/* ============================================================
+   COMPOSANTS
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:10px;cursor:pointer;
+  font-size:12.5px;font-weight:600;border:1px solid var(--border-strong);background:var(--surface);
+  color:var(--text);transition:.16s;white-space:nowrap;box-shadow:var(--shadow-sm)
+}
+.btn:hover{border-color:var(--brand-2);color:var(--brand);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:linear-gradient(140deg,#fbbf24,#ea9a06);border-color:#d98e04;color:#241c02;box-shadow:0 6px 16px -8px rgba(217,142,4,.9)}
+.btn-primary:hover{background:linear-gradient(140deg,#fcd34d,#f5a517);color:#241c02;border-color:#c8810a}
+.btn-ghost{background:transparent;border-color:transparent;box-shadow:none;color:var(--muted)}
+.btn-ghost:hover{background:var(--surface-3);color:var(--text);border-color:transparent}
+.btn-sm{padding:6px 10px;font-size:11.5px;border-radius:8px}
+.btn-icon{width:34px;height:34px;padding:0;justify-content:center;border-radius:9px}
+.btn-danger:hover{border-color:#f87171;color:var(--danger)}
+
+.content{padding:22px 26px 40px;display:flex;flex-direction:column;gap:18px;max-width:1420px;width:100%}
+.panel{display:none;flex-direction:column;gap:18px;animation:fade .22s ease}
+.panel.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-head{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;padding:16px 18px;border-bottom:1px solid var(--border)}
+.card-head .ch-txt{flex:1;min-width:190px}
+.card-head h3{font-size:15px;display:flex;align-items:center;gap:9px}
+.card-head h3 i{color:var(--brand-2);font-size:14px}
+.card-head .ch-sub{font-size:11.8px;color:var(--muted);margin-top:3px}
+.card-head .ch-act{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-body{padding:18px}
+.card-body.tight{padding:14px 18px}
+
+.incl{display:inline-flex;align-items:center;gap:8px;padding:5px 10px 5px 8px;border-radius:99px;
+  background:var(--surface-2);border:1px solid var(--border);font-size:11.2px;color:var(--muted);font-weight:500;cursor:pointer}
+.incl:hover{border-color:var(--brand-2)}
+.incl .sw{width:28px;height:16px;flex-basis:28px}
+.incl .sw .track::after{width:12px;height:12px;background:var(--surface)}
+.incl .sw input:checked + .track::after{transform:translateX(12px);background:#241c02}
+
+/* champs */
+.field label{display:block;font-size:10.8px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.inp{
+  width:100%;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border-strong);
+  background:var(--surface-2);color:var(--brand);font-family:var(--mono);font-size:12.8px;font-weight:600;transition:.15s
+}
+.inp:hover{border-color:var(--faint)}
+.inp:focus{outline:none;border-color:var(--brand-2);background:var(--surface);box-shadow:0 0 0 3px rgba(245,158,11,.16)}
+.inp-txt{color:var(--text);font-family:'Inter',sans-serif;font-weight:500}
+.inp::placeholder{color:var(--faint);font-weight:400}
+select.inp{cursor:pointer;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:26px}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g6{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media (max-width:1100px){.g6{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.g2,.g3,.g4,.g6{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.subcard{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px}
+.subcard-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--brand);margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.subcard-title i{font-size:11px}
+
+/* tableaux */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:12.8px}
+thead th{
+  position:sticky;top:0;background:var(--surface-3);font-size:9.8px;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--muted);font-weight:700;text-align:left;padding:9px 8px;border-bottom:1px solid var(--border);white-space:nowrap;z-index:1
+}
+tbody td{padding:5px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:color-mix(in srgb,var(--brand-soft) 55%,transparent)}
+td .inp{padding:6px 8px;font-size:12.2px}
+.th-r,td.res{text-align:right}
+.res{font-family:var(--mono);color:var(--brand);font-weight:700;white-space:nowrap;font-size:12.6px}
+.empty-row td{padding:22px;text-align:center;color:var(--faint);font-size:12.5px}
+.del-btn{background:none;border:none;color:var(--faint);cursor:pointer;padding:5px 7px;border-radius:7px;transition:.15s;font-size:12px}
+.del-btn:hover{color:var(--danger);background:rgba(185,28,28,.09)}
+.auto-btn{background:none;border:none;color:var(--faint);cursor:pointer;padding:4px 6px;border-radius:6px;font-size:11px;transition:.15s}
+.auto-btn:hover{color:var(--brand);background:var(--brand-soft)}
+.qte-cell{display:flex;align-items:center;gap:3px}
+.w-code{width:56px;text-align:center}
+.w-sm{width:74px}.w-md{width:98px}.w-lg{width:132px}
+
+/* tuiles de résultat */
+.tiles{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(178px,1fr))}
+.tile{
+  position:relative;overflow:hidden;padding:14px 15px;border-radius:12px;
+  background:linear-gradient(160deg,var(--brand-soft),var(--surface-2));
+  border:1px solid var(--brand-border)
+}
+.tile::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--brand-2),#d97706)}
+.tile .t-lab{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;display:flex;align-items:center;gap:6px}
+.tile .t-lab i{color:var(--brand-2);font-size:11px}
+.tile .t-val{font-family:var(--mono);font-size:23px;font-weight:800;color:var(--brand);margin-top:7px;line-height:1.1;letter-spacing:-.02em}
+.tile .t-val small{font-size:12px;font-weight:600;color:var(--muted);margin-left:3px;letter-spacing:0}
+.tile.flat{background:var(--surface-2);border-color:var(--border)}
+.tile.flat::after{background:var(--border-strong)}
+.tile.flat .t-val{color:var(--text)}
+
+/* dashboard */
+.dash-hero{
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:20px;border-radius:var(--radius);
+  background:linear-gradient(120deg,var(--navy-2),var(--navy) 55%,#1a3b63);color:#e7eefb;border:1px solid rgba(148,163,184,.2);
+  box-shadow:var(--shadow)
+}
+.dash-hero .dh-ico{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:22px;
+  background:linear-gradient(140deg,#fbbf24,#d97706);color:#201902;box-shadow:0 8px 20px -8px rgba(245,158,11,.9)}
+.dash-hero h3{font-size:19px;color:#fff}
+.dash-hero p{font-size:12.5px;color:#9db1d0;margin-top:4px;max-width:62ch}
+.dash-hero .dh-ttc{margin-left:auto;text-align:right}
+.dash-hero .dh-ttc span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#9db1d0;font-weight:700}
+.dash-hero .dh-ttc b{display:block;font-family:var(--mono);font-size:24px;color:#fbbf24;margin-top:4px;letter-spacing:-.02em}
+
+.kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(168px,1fr))}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--shadow-sm);transition:.18s;cursor:pointer;text-align:left}
+.kpi:hover{transform:translateY(-2px);border-color:var(--brand-border);box-shadow:var(--shadow)}
+.kpi .k-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.kpi .k-ico{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:12.5px;background:var(--brand-soft);color:var(--brand);border:1px solid var(--brand-border)}
+.kpi .k-tag{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--faint)}
+.kpi .k-val{font-family:var(--mono);font-size:21px;font-weight:800;margin-top:9px;letter-spacing:-.02em}
+.kpi .k-val small{font-size:11px;color:var(--muted);font-weight:600;margin-left:3px}
+.kpi .k-lab{font-size:11.2px;color:var(--muted);margin-top:2px}
+.kpi.k-beton .k-ico{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.kpi.k-beton .k-val{color:#1d4ed8}
+.kpi.k-coff .k-ico{background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe}
+.kpi.k-coff .k-val{color:#6d28d9}
+.kpi.k-mur .k-ico{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+.kpi.k-mur .k-val{color:#c2410c}
+.kpi.k-acier .k-ico{background:#ecfeff;color:#0e7490;border-color:#a5f3fc}
+.kpi.k-acier .k-val{color:#0e7490}
+.kpi.k-money .k-ico{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
+.kpi.k-money .k-val{color:#047857}
+html[data-theme="dark"] .kpi.k-beton .k-ico{background:#12233f;color:#93c5fd;border-color:#1e3a5f}
+html[data-theme="dark"] .kpi.k-beton .k-val{color:#93c5fd}
+html[data-theme="dark"] .kpi.k-coff .k-ico{background:#221a3d;color:#c4b5fd;border-color:#3a2c63}
+html[data-theme="dark"] .kpi.k-coff .k-val{color:#c4b5fd}
+html[data-theme="dark"] .kpi.k-mur .k-ico{background:#33200f;color:#fdba74;border-color:#5a3617}
+html[data-theme="dark"] .kpi.k-mur .k-val{color:#fdba74}
+html[data-theme="dark"] .kpi.k-acier .k-ico{background:#0d2b32;color:#67e8f9;border-color:#164e5a}
+html[data-theme="dark"] .kpi.k-acier .k-val{color:#67e8f9}
+html[data-theme="dark"] .kpi.k-money .k-ico{background:#0d2a22;color:#6ee7b7;border-color:#14533f}
+html[data-theme="dark"] .kpi.k-money .k-val{color:#6ee7b7}
+
+.dash-2{display:grid;gap:18px;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+@media (max-width:1050px){.dash-2{grid-template-columns:minmax(0,1fr)}}
+.list-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px dashed var(--border)}
+.list-row:last-child{border-bottom:none}
+.list-row .lr-ico{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:11.5px;background:var(--surface-3);color:var(--muted);flex:0 0 28px}
+.list-row .lr-txt{flex:1;min-width:0}
+.list-row .lr-txt b{display:block;font-size:12.6px;font-weight:600}
+.list-row .lr-txt span{display:block;font-size:10.8px;color:var(--faint)}
+.list-row .lr-val{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--brand);white-space:nowrap}
+.list-row.disabled{opacity:.45}
+.bar{height:5px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#fbbf24,#d97706)}
+
+.note{display:flex;gap:9px;padding:11px 13px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);
+  font-size:11.5px;color:var(--muted);line-height:1.55}
+.note i{color:var(--brand-2);margin-top:2px}
+.note b{color:var(--text)}
+
+/* devis */
+.doc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.doc-head{padding:20px 22px;border-bottom:2px solid var(--brand-border);background:linear-gradient(160deg,var(--brand-soft),var(--surface))}
+.doc-head .dh-row{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;justify-content:space-between}
+.doc-logo{display:flex;align-items:center;gap:11px}
+.doc-logo .dl-ico{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(140deg,#fbbf24,#d97706);color:#201902;font-size:16px}
+.doc-logo b{font-size:13.5px;display:block}
+.doc-logo span{font-size:10.8px;color:var(--muted)}
+.doc-meta{text-align:right;font-size:11.5px;color:var(--muted)}
+.doc-meta b{display:block;font-family:var(--mono);color:var(--text);font-size:12.5px}
+.doc-title{text-align:center;padding:16px 22px 4px}
+.doc-title .inp{border:none;background:transparent;text-align:center;font-family:'Inter',sans-serif;font-weight:800;font-size:16.5px;color:var(--brand);padding:4px}
+.doc-title .inp.sub{font-weight:600;font-size:12.8px;color:var(--muted)}
+.doc-title .inp:focus{background:var(--surface-2);border-radius:8px;box-shadow:none;border:1px dashed var(--brand-border)}
+.doc-parties{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));padding:14px 22px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+.totaux{display:flex;flex-direction:column;gap:7px;margin-left:auto;max-width:340px;min-width:250px;padding:14px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border)}
+.totaux .tx{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;color:var(--muted)}
+.totaux .tx b{font-family:var(--mono);color:var(--text);font-weight:700}
+.totaux .tx.grand{border-top:1px solid var(--border-strong);padding-top:9px;margin-top:3px;font-size:13.5px;color:var(--text);font-weight:700}
+.totaux .tx.grand b{color:var(--brand);font-size:17px}
+.signatures{display:grid;grid-template-columns:1fr 1fr;gap:26px;padding:26px 22px 30px}
+.sign{border:1px solid var(--border-strong);border-radius:12px;padding:13px;height:118px;font-size:11.2px;color:var(--muted);background:var(--surface-2)}
+.sign b{color:var(--text);font-size:12px;display:block;margin-bottom:4px}
+.sign.right{text-align:right}
+.prix-off .col-prix{display:none !important}
+tr.dv-sec td{background:var(--surface-3);color:var(--brand);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.09em;padding:8px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+tr.dv-sec td.code-sec{text-align:center;width:56px}
+.code-cell{text-align:center;color:var(--faint);font-family:var(--mono);font-size:11.5px}
+
+/* toasts */
+.toasts{position:fixed;right:18px;bottom:18px;z-index:200;display:flex;flex-direction:column;gap:9px;max-width:min(340px,88vw)}
+.toast{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:11px;font-size:12.5px;font-weight:500;
+  background:var(--navy-2);color:#e7eefb;box-shadow:0 18px 40px -16px rgba(0,0,0,.7);border:1px solid rgba(148,163,184,.25);
+  animation:tin .24s ease}
+.toast i{color:#fbbf24}
+.toast.ok i{color:#34d399}.toast.err i{color:#f87171}
+@keyframes tin{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(8,14,26,.62);backdrop-filter:blur(3px);z-index:150;display:none;place-items:center;padding:20px}
+.modal-bg.open{display:grid}
+.modal{width:min(430px,100%);background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,.6);overflow:hidden;animation:fade .2s ease}
+.modal header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.modal header i{color:var(--danger)}
+.modal header b{font-size:14px}
+.modal .m-body{padding:16px 18px;font-size:12.8px;color:var(--muted);line-height:1.6}
+.modal footer{padding:13px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--surface-2)}
+.btn-solid-danger{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn-solid-danger:hover{background:#991b1b;color:#fff;border-color:#991b1b}
+
+.scrim{display:none;position:fixed;inset:0;background:rgba(8,14,26,.55);z-index:35}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:980px){
+  .sidebar{position:fixed;left:0;top:0;bottom:0;height:100dvh;transform:translateX(-102%);transition:transform .24s ease}
+  body.nav-open .sidebar{transform:none}
+  body.nav-open .scrim{display:block}
+  .burger{display:grid;place-items:center}
+  .content{padding:16px 14px 34px}
+  .topbar{padding:11px 14px}
+  .dash-hero .dh-ttc{margin-left:0;width:100%;text-align:left}
+}
+@media (max-width:560px){
+  .signatures{grid-template-columns:1fr}
+  .top-actions .lbl{display:none}
+  .btn{padding:8px 10px}
+}
+
+/* ============================================================
+   IMPRESSION
+   ============================================================ */
+@page{size:A4;margin:12mm}
+@media print{
+  body{background:#fff !important;color:#000 !important;font-size:10.5px}
+  .sidebar,.topbar,.toasts,.modal-bg,.scrim,.no-print{display:none !important}
+  .app{display:block}
+  .main{display:block}
+  .content{padding:0;max-width:none;display:block}
+  .panel{display:none !important}
+  .card,.doc,.subcard,.tbl-wrap{box-shadow:none !important;border-color:#cbd5e1 !important;break-inside:avoid}
+  .inp{border:none !important;background:transparent !important;color:#000 !important;padding:1px 2px !important;font-weight:600}
+  select.inp{background-image:none !important}
+  .res,.tile .t-val,.kpi .k-val{color:#000 !important}
+  thead th{background:#eef2f7 !important;color:#334155 !important}
+  tbody tr:hover td{background:transparent !important}
+  /* mode "devis seul" */
+  body.print-devis #bloc-devis{display:block !important}
+  body.print-devis .doc{border:none}
+  body.print-devis .doc-head{background:#fff !important;border-bottom:2px solid #000}
+  body.print-devis .doc-logo .dl-ico{background:#000 !important;color:#fff !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.print-devis .doc-title .inp{color:#000 !important}
+  body.print-devis tr.dv-sec td{background:#e5e7eb !important;color:#000 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.print-devis .totaux{background:#fff !important;border:1px solid #000}
+  body.print-devis .sign{background:#fff !important;border:1px solid #000}
+  /* mode "rapport complet" */
+  body.print-report .panel{display:block !important;page-break-after:always}
+  body.print-report .panel:last-child{page-break-after:auto}
+  body.print-report .tile,body.print-report .kpi{background:#fff !important;border:1px solid #cbd5e1 !important}
+  body.print-report .tile::after,body.print-report .kpi .k-ico{display:none}
+  body.print-report .dash-hero{background:#fff !important;color:#000 !important;border:1px solid #000}
+  body.print-report .dash-hero h3,body.print-report .dash-hero .dh-ttc b{color:#000 !important}
+  body.print-report .dash-hero .dh-ico{background:#000 !important;color:#fff !important}
+  body.print-report .dash-hero p,body.print-report .dash-hero .dh-ttc span{color:#334155 !important}
+}
 </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen">
-<div class="max-w-6xl mx-auto space-y-6">
+<body>
+<div class="app">
 
-  <header class="card flex flex-col md:flex-row justify-between items-start md:items-center p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl">
-    <div>
-      <h1 class="text-2xl md:text-3xl font-bold text-amber-400 flex items-center gap-3"><i class="fa-solid fa-trowel-bricks"></i> Calculateur de Gros Œuvre</h1>
-      <p class="text-slate-400 text-sm mt-1 ptxt">Murs & parpaings · Poteaux · Poutres</p>
+  <!-- ==================== SIDEBAR / ONGLETS ==================== -->
+  <aside class="sidebar no-print">
+    <div class="brand">
+      <div class="brand-ico"><i class="fa-solid fa-helmet-safety"></i></div>
+      <div class="brand-txt">
+        <strong>Gros Œuvre Pro</strong>
+        <span>Montana · Quantitatifs</span>
+      </div>
     </div>
-    <button onclick="window.print()" class="no-print mt-4 md:mt-0 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-xl border border-slate-600 flex items-center gap-2 transition">
-      <i class="fa-solid fa-print"></i> Imprimer / PDF
-    </button>
-  </header>
 
-  <!-- Sélection des calculs -->
-  <div class="card no-print p-5 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl">
-    <h2 class="text-sm font-semibold text-amber-400 mb-3 uppercase tracking-wider">Choisir les calculs à effectuer</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-      <label class="flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-700 rounded-xl cursor-pointer">
-        <input type="checkbox" id="sel-mur" checked onchange="majVisibilite()" class="w-5 h-5 accent-amber-400">
-        <span class="font-medium"><i class="fa-solid fa-border-all text-amber-400 mr-1"></i> Surface mur + parpaings</span>
-      </label>
-      <label class="flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-700 rounded-xl cursor-pointer">
-        <input type="checkbox" id="sel-poteau" checked onchange="majVisibilite()" class="w-5 h-5 accent-amber-400">
-        <span class="font-medium"><i class="fa-solid fa-grip-lines-vertical text-amber-400 mr-1"></i> Poteaux (surface & volume)</span>
-      </label>
-      <label class="flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-700 rounded-xl cursor-pointer">
-        <input type="checkbox" id="sel-poutre" checked onchange="majVisibilite()" class="w-5 h-5 accent-amber-400">
-        <span class="font-medium"><i class="fa-solid fa-grip-lines text-amber-400 mr-1"></i> Poutres (surface & volume)</span>
-      </label>
-      <label class="flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-700 rounded-xl cursor-pointer">
-        <input type="checkbox" id="sel-dalle" checked onchange="majVisibilite()" class="w-5 h-5 accent-amber-400">
-        <span class="font-medium"><i class="fa-solid fa-square text-amber-400 mr-1"></i> Dalle pleine (surface & volume)</span>
-      </label>
-      <label class="flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-700 rounded-xl cursor-pointer">
-        <input type="checkbox" id="sel-corps" checked onchange="majVisibilite()" class="w-5 h-5 accent-amber-400">
-        <span class="font-medium"><i class="fa-solid fa-table-cells text-amber-400 mr-1"></i> Dalle à corps creux (hourdis & nervures)</span>
-      </label>
+    <nav class="nav" id="nav">
+      <div class="nav-label">Pilotage</div>
+      <button class="nav-item active" data-tab="dashboard" onclick="aller('dashboard')">
+        <i class="fa-solid fa-gauge-high ni"></i>
+        <span class="ni-txt"><b>Tableau de bord</b><span class="ni-val" id="nav-v-dash">Synthèse du projet</span></span>
+      </button>
+
+      <div class="nav-label">Modules de calcul</div>
+      <button class="nav-item" data-tab="mur" onclick="aller('mur')">
+        <i class="fa-solid fa-border-all ni"></i>
+        <span class="ni-txt"><b>Murs &amp; parpaings</b><span class="ni-val" id="nav-v-mur">0 m²</span></span>
+        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-mur" checked onchange="majVisibilite()"><span class="track"></span></label>
+      </button>
+      <button class="nav-item" data-tab="poteau" onclick="aller('poteau')">
+        <i class="fa-solid fa-grip-lines-vertical ni"></i>
+        <span class="ni-txt"><b>Poteaux</b><span class="ni-val" id="nav-v-poteau">0 m³</span></span>
+        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-poteau" checked onchange="majVisibilite()"><span class="track"></span></label>
+      </button>
+      <button class="nav-item" data-tab="poutre" onclick="aller('poutre')">
+        <i class="fa-solid fa-grip-lines ni"></i>
+        <span class="ni-txt"><b>Poutres</b><span class="ni-val" id="nav-v-poutre">0 m³</span></span>
+        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-poutre" checked onchange="majVisibilite()"><span class="track"></span></label>
+      </button>
+      <button class="nav-item" data-tab="dalle" onclick="aller('dalle')">
+        <i class="fa-solid fa-square ni"></i>
+        <span class="ni-txt"><b>Dalle pleine</b><span class="ni-val" id="nav-v-dalle">0 m³</span></span>
+        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-dalle" checked onchange="majVisibilite()"><span class="track"></span></label>
+      </button>
+      <button class="nav-item" data-tab="corps" onclick="aller('corps')">
+        <i class="fa-solid fa-table-cells ni"></i>
+        <span class="ni-txt"><b>Dalle corps creux</b><span class="ni-val" id="nav-v-corps">0 hourdis</span></span>
+        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-corps" checked onchange="majVisibilite()"><span class="track"></span></label>
+      </button>
+
+      <div class="nav-label">Livraison</div>
+      <button class="nav-item" data-tab="devis" onclick="aller('devis')">
+        <i class="fa-solid fa-file-invoice ni"></i>
+        <span class="ni-txt"><b>Devis quantitatif</b><span class="ni-val" id="nav-v-devis">0 article</span></span>
+        <span class="badge-count" id="nav-badge-devis">—</span>
+      </button>
+    </nav>
+
+    <div class="side-foot">
+      <div class="save-state" id="save-state"><i class="fa-solid fa-circle-check"></i><span>Sauvegardé automatiquement</span></div>
+      <div class="side-actions">
+        <button onclick="exporter()" title="Exporter le projet (JSON)"><i class="fa-solid fa-download"></i> Exporter</button>
+        <button onclick="$('file-import').click()" title="Importer un projet (JSON)"><i class="fa-solid fa-upload"></i> Importer</button>
+      </div>
+      <div class="side-actions">
+        <button onclick="demanderReset()" title="Tout réinitialiser"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</button>
+      </div>
+      <input type="file" id="file-import" accept="application/json,.json" style="display:none" onchange="importer(this)">
+    </div>
+  </aside>
+  <div class="scrim" onclick="document.body.classList.remove('nav-open')"></div>
+
+  <!-- ==================== PRINCIPAL ==================== -->
+  <div class="main">
+    <div class="topbar no-print">
+      <button class="burger" onclick="document.body.classList.toggle('nav-open')"><i class="fa-solid fa-bars"></i></button>
+      <div class="top-title">
+        <h2 id="top-titre">Tableau de bord</h2>
+        <p id="top-sub">Vue d'ensemble des quantités et du devis</p>
+      </div>
+      <div class="top-actions">
+        <button class="btn btn-icon btn-ghost" id="btn-theme" onclick="basculerTheme()" title="Basculer clair / sombre"><i class="fa-solid fa-moon"></i></button>
+        <button class="btn" onclick="imprimerRapport()"><i class="fa-solid fa-table-list"></i><span class="lbl">Synthèse</span></button>
+        <button class="btn btn-primary" onclick="imprimerDevis()"><i class="fa-solid fa-file-pdf"></i><span class="lbl">Devis PDF</span></button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ============ ONGLET : TABLEAU DE BORD ============ -->
+      <section class="panel active" id="panel-dashboard">
+        <div class="dash-hero">
+          <div class="dh-ico"><i class="fa-solid fa-trowel-bricks"></i></div>
+          <div>
+            <h3 id="dash-projet">Projet de construction</h3>
+            <p>Renseignez les modules de calcul : les quantités de béton, de parpaings, d'hourdis et de coffrage alimentent automatiquement le devis quantitatif, prêt à imprimer en A4.</p>
+          </div>
+          <div class="dh-ttc">
+            <span>Total TTC du devis</span>
+            <b id="dash-ttc">0</b>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <button class="kpi k-beton" onclick="aller('poteau')">
+            <div class="k-top"><span class="k-ico"><i class="fa-solid fa-cube"></i></span><span class="k-tag">Béton</span></div>
+            <div class="k-val"><span id="dash-beton">0</span><small>m³</small></div>
+            <div class="k-lab">Poteaux + poutres + dalles + divers</div>
+          </button>
+          <button class="kpi k-mur" onclick="aller('mur')">
+            <div class="k-top"><span class="k-ico"><i class="fa-solid fa-border-all"></i></span><span class="k-tag">Maçonnerie</span></div>
+            <div class="k-val"><span id="dash-parpaings">0</span><small>u</small></div>
+            <div class="k-lab">Parpaings à commander</div>
+          </button>
+          <button class="kpi k-coff" onclick="aller('poutre')">
+            <div class="k-top"><span class="k-ico"><i class="fa-solid fa-ruler-combined"></i></span><span class="k-tag">Coffrage</span></div>
+            <div class="k-val"><span id="dash-coffrage">0</span><small>m²</small></div>
+            <div class="k-lab">Poteaux + poutres (faces à coffrer)</div>
+          </button>
+          <button class="kpi k-acier" onclick="aller('corps')">
+            <div class="k-top"><span class="k-ico"><i class="fa-solid fa-table-cells"></i></span><span class="k-tag">Corps creux</span></div>
+            <div class="k-val"><span id="dash-hourdis">0</span><small>u</small></div>
+            <div class="k-lab">Hourdis · <span id="dash-nervures">0</span> ml de nervures</div>
+          </button>
+          <button class="kpi k-money" onclick="aller('devis')">
+            <div class="k-top"><span class="k-ico"><i class="fa-solid fa-sack-dollar"></i></span><span class="k-tag">Devis</span></div>
+            <div class="k-val"><span id="dash-ht">0</span></div>
+            <div class="k-lab">Total HT · TVA <span id="dash-tva">0</span></div>
+          </button>
+        </div>
+
+        <div class="dash-2">
+          <div class="card">
+            <div class="card-head">
+              <div class="ch-txt">
+                <h3><i class="fa-solid fa-layer-group"></i> Répartition des volumes de béton</h3>
+                <div class="ch-sub">Part de chaque élément structurel dans le béton total</div>
+              </div>
+              <span class="btn btn-sm btn-ghost" style="pointer-events:none"><b class="res" id="dash-beton-tot">0</b>&nbsp;m³</span>
+            </div>
+            <div class="card-body tight" id="dash-repart">
+              <div class="note"><i class="fa-solid fa-circle-info"></i><div>Ajoutez des poteaux, poutres ou dalles pour voir la répartition.</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="ch-txt">
+                <h3><i class="fa-solid fa-list-check"></i> État des modules</h3>
+                <div class="ch-sub">Éléments saisis et inclusion dans le devis</div>
+              </div>
+            </div>
+            <div class="card-body tight" id="dash-modules"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-boxes-stacked"></i> Matériaux déduits du dosage</h3>
+              <div class="ch-sub">Calculés à partir du volume de béton et des dosages saisis dans l'onglet Devis</div>
+            </div>
+            <button class="btn btn-sm" onclick="aller('devis')"><i class="fa-solid fa-sliders"></i> Régler les dosages</button>
+          </div>
+          <div class="card-body">
+            <div class="tiles" id="dash-mat"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ONGLET : MURS ============ -->
+      <section class="panel" id="bloc-mur">
+        <div class="card">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-border-all"></i> Murs &amp; nombre de parpaings</h3>
+              <div class="ch-sub">Surface = (longueur × hauteur − ouvertures) × nombre de murs</div>
+            </div>
+            <div class="ch-act">
+              <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-mur" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
+              <button class="btn btn-sm btn-danger" onclick="viderModule('mur')"><i class="fa-solid fa-eraser"></i> Vider</button>
+              <button class="btn btn-sm btn-primary" onclick="ajouterMur()"><i class="fa-solid fa-plus"></i> Ajouter un mur</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="subcard" style="margin-bottom:16px">
+              <div class="subcard-title"><i class="fa-solid fa-cubes"></i> Dimensions du parpaing (face posée)</div>
+              <div class="grid g4">
+                <div class="field"><label for="pp-l">Longueur (cm)</label><input class="inp" id="pp-l" value="50" oninput="calculer()"></div>
+                <div class="field"><label for="pp-h">Hauteur (cm)</label><input class="inp" id="pp-h" value="20" oninput="calculer()"></div>
+                <div class="field"><label for="pp-j">Joint (cm)</label><input class="inp" id="pp-j" value="0" oninput="calculer()"></div>
+                <div class="field"><label for="pp-m">Marge de casse (%)</label><input class="inp" id="pp-m" value="0" oninput="calculer()"></div>
+              </div>
+              <div class="note" style="margin-top:12px"><i class="fa-solid fa-ruler"></i><div>Surface d'un parpaing, joint inclus : <b class="res" id="pp-surface">0</b> m²</div></div>
+            </div>
+
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr>
+                  <th>Désignation</th><th class="w-md">Long. (m)</th><th class="w-md">Haut. (m)</th><th class="w-sm">Nb murs</th>
+                  <th class="w-lg">Ouvertures (m²)</th><th class="th-r w-lg">Surface (m²)</th><th class="w-sm no-print"></th>
+                </tr></thead>
+                <tbody id="tb-mur"></tbody>
+              </table>
+            </div>
+
+            <div class="tiles" style="margin-top:16px">
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-vector-square"></i> Surface totale des murs</div><div class="t-val"><span id="mur-total">0</span><small>m²</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-calculator"></i> Parpaings (exact)</div><div class="t-val" id="pp-exact">0</div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-truck-ramp-box"></i> À commander (arrondi sup.)</div><div class="t-val" id="pp-arrondi">0</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ONGLET : POTEAUX ============ -->
+      <section class="panel" id="bloc-poteau">
+        <div class="card">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-grip-lines-vertical"></i> Poteaux</h3>
+              <div class="ch-sub">Section, surface latérale de coffrage et volume de béton</div>
+            </div>
+            <div class="ch-act">
+              <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-poteau" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
+              <button class="btn btn-sm btn-danger" onclick="viderModule('poteau')"><i class="fa-solid fa-eraser"></i> Vider</button>
+              <button class="btn btn-sm btn-primary" onclick="ajouterPoteau()"><i class="fa-solid fa-plus"></i> Ajouter un poteau</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr>
+                  <th>Désignation</th><th class="w-lg">Forme</th><th class="w-md">a / Ø (m)</th><th class="w-md">b (m)</th>
+                  <th class="w-md">Haut. (m)</th><th class="w-sm">Nb</th>
+                  <th class="th-r">Section (m²)</th><th class="th-r">Surf. latérale (m²)</th><th class="th-r">Volume (m³)</th><th class="w-sm no-print"></th>
+                </tr></thead>
+                <tbody id="tb-poteau"></tbody>
+              </table>
+            </div>
+            <div class="tiles" style="margin-top:16px">
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-vector-square"></i> Section totale</div><div class="t-val"><span id="pot-section">0</span><small>m²</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-ruler-combined"></i> Surface latérale (coffrage)</div><div class="t-val"><span id="pot-lat">0</span><small>m²</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-cube"></i> Volume total</div><div class="t-val"><span id="pot-vol">0</span><small>m³</small></div></div>
+            </div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><div>Rectangulaire : <b>a × b</b>. Circulaire : seul le Ø (colonne a) est utilisé — section <b>π·Ø²/4</b>, périmètre <b>π·Ø</b>. La surface latérale correspond au coffrage : périmètre × hauteur × nombre.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ONGLET : POUTRES ============ -->
+      <section class="panel" id="bloc-poutre">
+        <div class="card">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-grip-lines"></i> Poutres</h3>
+              <div class="ch-sub">Coffrage (fond + 2 côtés), surface totale et volume</div>
+            </div>
+            <div class="ch-act">
+              <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-poutre" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
+              <button class="btn btn-sm btn-danger" onclick="viderModule('poutre')"><i class="fa-solid fa-eraser"></i> Vider</button>
+              <button class="btn btn-sm btn-primary" onclick="ajouterPoutre()"><i class="fa-solid fa-plus"></i> Ajouter une poutre</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr>
+                  <th>Désignation</th><th class="w-md">Larg. b (m)</th><th class="w-md">Haut. h (m)</th><th class="w-md">Long. (m)</th><th class="w-sm">Nb</th>
+                  <th class="th-r">Coffrage 3 faces (m²)</th><th class="th-r">Surf. 4 faces (m²)</th><th class="th-r">Volume (m³)</th><th class="w-sm no-print"></th>
+                </tr></thead>
+                <tbody id="tb-poutre"></tbody>
+              </table>
+            </div>
+            <div class="tiles" style="margin-top:16px">
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-ruler-combined"></i> Coffrage total (3 faces)</div><div class="t-val"><span id="pou-coff">0</span><small>m²</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-vector-square"></i> Surface totale (4 faces)</div><div class="t-val"><span id="pou-surf">0</span><small>m²</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-cube"></i> Volume total</div><div class="t-val"><span id="pou-vol">0</span><small>m³</small></div></div>
+            </div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><div>Volume = <b>b × h × L</b>. Coffrage = <b>(b + 2h) × L</b> (fond + 2 côtés). Surface totale = <b>2 × (b + h) × L</b>.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ONGLET : DALLE PLEINE ============ -->
+      <section class="panel" id="bloc-dalle">
+        <div class="card">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-square"></i> Dalle pleine</h3>
+              <div class="ch-sub">Surface et volume de béton par dalle</div>
+            </div>
+            <div class="ch-act">
+              <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-dalle" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
+              <button class="btn btn-sm btn-danger" onclick="viderModule('dalle')"><i class="fa-solid fa-eraser"></i> Vider</button>
+              <button class="btn btn-sm btn-primary" onclick="ajouterDalle()"><i class="fa-solid fa-plus"></i> Ajouter une dalle</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr>
+                  <th>Désignation</th><th class="w-md">Long. (m)</th><th class="w-md">Larg. (m)</th><th class="w-lg">Épaisseur (m)</th><th class="w-sm">Nb</th>
+                  <th class="th-r">Surface (m²)</th><th class="th-r">Volume (m³)</th><th class="w-sm no-print"></th>
+                </tr></thead>
+                <tbody id="tb-dalle"></tbody>
+              </table>
+            </div>
+            <div class="tiles" style="margin-top:16px">
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-vector-square"></i> Surface totale des dalles</div><div class="t-val"><span id="dal-surf">0</span><small>m²</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-cube"></i> Volume total des dalles</div><div class="t-val"><span id="dal-vol">0</span><small>m³</small></div></div>
+            </div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><div>Surface = <b>L × l</b> ; volume = <b>L × l × épaisseur</b>. Le volume est ajouté automatiquement au béton du devis.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ONGLET : CORPS CREUX ============ -->
+      <section class="panel" id="bloc-corps">
+        <div class="card">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-table-cells"></i> Dalle à corps creux</h3>
+              <div class="ch-sub">Hourdis, nervures et longueur totale de nervures</div>
+            </div>
+            <div class="ch-act">
+              <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-corps" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
+              <button class="btn btn-sm btn-danger" onclick="viderModule('corps')"><i class="fa-solid fa-eraser"></i> Vider</button>
+              <button class="btn btn-sm btn-primary" onclick="ajouterCorps()"><i class="fa-solid fa-plus"></i> Ajouter un panneau</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="subcard" style="margin-bottom:16px;max-width:520px">
+              <div class="subcard-title"><i class="fa-solid fa-sliders"></i> Hypothèses de calcul</div>
+              <div class="grid g2">
+                <div class="field"><label for="cc-h">Hourdis par m²</label><input class="inp" id="cc-h" value="9" oninput="calculer()"></div>
+                <div class="field"><label for="cc-e">Entraxe des nervures (m)</label><input class="inp" id="cc-e" value="0.55" oninput="calculer()"></div>
+              </div>
+            </div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr>
+                  <th>Désignation</th><th class="w-lg">Long. panneau (m)</th><th class="w-lg">Larg. panneau (m)</th><th class="w-lg">Larg. poutre (m)</th><th class="w-sm">Nb</th>
+                  <th class="th-r">Surface (m²)</th><th class="th-r">Hourdis</th><th class="th-r">Nervures / panneau</th><th class="th-r">Long. nervures (m)</th><th class="w-sm no-print"></th>
+                </tr></thead>
+                <tbody id="tb-corps"></tbody>
+              </table>
+            </div>
+            <div class="tiles" style="margin-top:16px">
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-vector-square"></i> Surface totale</div><div class="t-val"><span id="cc-surf">0</span><small>m²</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-cubes"></i> Hourdis (total)</div><div class="t-val" id="cc-hour">0</div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-grip-lines"></i> Nervures (total)</div><div class="t-val" id="cc-nerv">0</div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-ruler"></i> Longueur totale nervures</div><div class="t-val"><span id="cc-lg">0</span><small>m</small></div></div>
+            </div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><div>Hourdis = surface × hourdis/m² (arrondi sup.). Nervures par panneau = longueur ÷ entraxe (arrondi sup.). Longueur des nervures = nb de nervures × (largeur panneau + largeur poutre) × nb de panneaux.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ONGLET : DEVIS ============ -->
+      <section class="panel" id="bloc-devis">
+
+        <!-- Paramètres (jamais imprimés) -->
+        <div class="card no-print">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-sliders"></i> Paramètres du devis</h3>
+              <div class="ch-sub">Dosages du béton, devise, TVA et affichage des prix</div>
+            </div>
+            <div class="ch-act">
+              <label class="incl" style="cursor:pointer"><input type="checkbox" id="dv-prix" onchange="majPrix()" style="accent-color:#f59e0b;width:15px;height:15px"> Afficher les prix (P.U &amp; totaux)</label>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="subcard" style="margin-bottom:14px">
+              <div class="subcard-title"><i class="fa-solid fa-flask"></i> Dosages &amp; compléments</div>
+              <div class="grid g4">
+                <div class="field"><label for="dos-c">Ciment (sacs / m³ béton)</label><input class="inp" id="dos-c" value="7" oninput="updateDevis()"></div>
+                <div class="field"><label for="dos-s">Sable (m³ / m³ béton)</label><input class="inp" id="dos-s" value="0.45" oninput="updateDevis()"></div>
+                <div class="field"><label for="dos-g">Gravier (m³ / m³ béton)</label><input class="inp" id="dos-g" value="0.8" oninput="updateDevis()"></div>
+                <div class="field"><label for="dos-autre">Autre béton : fondations… (m³)</label><input class="inp" id="dos-autre" value="0" oninput="calculer()"></div>
+              </div>
+            </div>
+            <div class="grid g2" style="max-width:420px">
+              <div class="field"><label for="dv-devise">Devise</label><input class="inp inp-txt" id="dv-devise" value="FCFA" oninput="updateDevis()"></div>
+              <div class="field"><label for="dv-tva">TVA (%)</label><input class="inp" id="dv-tva" value="19.25" oninput="updateDevis()"></div>
+            </div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-lightbulb"></i><div><b>Béton</b> = volume des poteaux + poutres + dalles (modules activés) + « autre béton ». Parpaings, ciment, sable et gravier se calculent seuls ; vous pouvez écraser n'importe quelle quantité, puis revenir au calcul automatique avec <i class="fa-solid fa-rotate-left"></i>. Armatures et matériels sont à saisir.</div></div>
+          </div>
+        </div>
+
+        <!-- Document imprimable -->
+        <div class="doc prix-off" id="doc-devis">
+          <div class="doc-head">
+            <div class="dh-row">
+              <div class="doc-logo">
+                <div class="dl-ico"><i class="fa-solid fa-helmet-safety"></i></div>
+                <div>
+                  <b id="doc-ent-aff">Votre entreprise</b>
+                  <span>Gros œuvre · Maçonnerie · Béton armé</span>
+                </div>
+              </div>
+              <div class="doc-meta">
+                <div>Référence</div><b id="doc-ref-aff">—</b>
+                <div style="margin-top:7px">Date</div><b id="doc-date-aff">—</b>
+              </div>
+            </div>
+          </div>
+
+          <div class="doc-title">
+            <input id="dv-titre" class="inp" value="DEVIS QUANTITATIF D'UN R+2 : GROS ŒUVRE" oninput="sauver()">
+            <input id="dv-projet" class="inp sub" value="PROJET DE CONSTRUCTION D'UNE CITÉ UNIVERSITAIRE À LA CITÉ CHIRAC" oninput="syncProjet()">
+          </div>
+
+          <div class="doc-parties">
+            <div class="field"><label for="dv-ent">Entreprise</label><input class="inp inp-txt" id="dv-ent" placeholder="Nom de l'entreprise" oninput="syncEntete()"></div>
+            <div class="field"><label for="dv-client">Client / Maître d'ouvrage</label><input class="inp inp-txt" id="dv-client" placeholder="Nom du client" oninput="sauver()"></div>
+            <div class="field"><label for="dv-ref">Référence du devis</label><input class="inp inp-txt" id="dv-ref" placeholder="DEV-001" oninput="syncEntete()"></div>
+            <div class="field"><label for="dv-date">Date</label><input class="inp inp-txt" id="dv-date" oninput="syncEntete()"></div>
+          </div>
+
+          <div style="padding:0 0 4px">
+            <div class="tbl-wrap" style="border:none;border-radius:0">
+              <table>
+                <thead><tr>
+                  <th class="w-code" style="text-align:center">Code</th><th>Désignation</th><th class="w-sm">Unité</th><th class="w-lg">Quantité</th>
+                  <th class="col-prix w-md">P.U</th><th class="col-prix th-r w-lg">Total</th><th class="w-sm no-print"></th>
+                </tr></thead>
+                <tbody id="tb-devis"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style="padding:16px 22px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+            <div class="note col-prix" style="flex:1;min-width:220px"><i class="fa-solid fa-circle-info"></i><div>Devis quantitatif établi sur la base des relevés de dimensions ci-contre. Quantités à confirmer sur site.</div></div>
+            <div class="totaux col-prix">
+              <div class="tx"><span>Total HT</span><b id="dv-ht">0</b></div>
+              <div class="tx"><span>TVA (<span id="dv-tva-aff">19,25</span> %)</span><b id="dv-tvamt">0</b></div>
+              <div class="tx grand"><span>Total TTC</span><b id="dv-ttc">0</b></div>
+            </div>
+          </div>
+
+          <div class="signatures">
+            <div class="sign"><b>Le Client</b>Bon pour accord — date et signature</div>
+            <div class="sign right"><b>L'Entreprise</b>Cachet et signature</div>
+          </div>
+        </div>
+
+        <div class="no-print" style="display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="btn" onclick="imprimerRapport()"><i class="fa-solid fa-table-list"></i> Imprimer la synthèse complète</button>
+          <button class="btn btn-primary" onclick="imprimerDevis()"><i class="fa-solid fa-file-pdf"></i> Imprimer le devis / PDF</button>
+        </div>
+      </section>
+
     </div>
   </div>
-
-  <!-- MUR -->
-  <section id="bloc-mur" class="card p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl space-y-4">
-    <div class="flex justify-between items-center">
-      <h2 class="text-lg font-semibold text-amber-400"><i class="fa-solid fa-border-all mr-2"></i>Murs & nombre de parpaings</h2>
-      <button onclick="ajouterMur()" class="no-print px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg text-xs"><i class="fa-solid fa-plus"></i> Ajouter un mur</button>
-    </div>
-
-    <div class="p-4 bg-slate-900/60 border border-slate-700/60 rounded-xl">
-      <div class="text-xs font-bold text-amber-400 tracking-wider mb-2">DIMENSIONS DU PARPAING (face posée)</div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div><label class="block text-xs text-slate-400 mb-1">Longueur (cm)</label><input class="inp" id="pp-l" value="50" oninput="calculer()"></div>
-        <div><label class="block text-xs text-slate-400 mb-1">Hauteur (cm)</label><input class="inp" id="pp-h" value="20" oninput="calculer()"></div>
-        <div><label class="block text-xs text-slate-400 mb-1">Joint (cm)</label><input class="inp" id="pp-j" value="0" oninput="calculer()"></div>
-        <div><label class="block text-xs text-slate-400 mb-1">Marge de casse (%)</label><input class="inp" id="pp-m" value="0" oninput="calculer()"></div>
-      </div>
-      <div class="text-xs text-slate-400 mt-2">Surface d'un parpaing (joint inclus) : <span id="pp-surface" class="res">0</span> m²</div>
-    </div>
-
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead><tr>
-          <th>Désignation</th><th class="w-24">Long. (m)</th><th class="w-24">Haut. (m)</th><th class="w-20">Nb murs</th><th class="w-28">Ouvertures (m²)</th><th class="w-28 text-right">Surface (m²)</th><th class="w-8 no-print"></th>
-        </tr></thead>
-        <tbody id="tb-mur"></tbody>
-      </table>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Surface totale des murs</div><div class="res text-xl"><span id="mur-total">0</span> m²</div></div>
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Nombre de parpaings (exact)</div><div class="res text-xl" id="pp-exact">0</div></div>
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">À commander (arrondi sup.)</div><div class="res text-xl" id="pp-arrondi">0</div></div>
-    </div>
-  </section>
-
-  <!-- POTEAUX -->
-  <section id="bloc-poteau" class="card p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl space-y-4">
-    <div class="flex justify-between items-center">
-      <h2 class="text-lg font-semibold text-amber-400"><i class="fa-solid fa-grip-lines-vertical mr-2"></i>Poteaux</h2>
-      <button onclick="ajouterPoteau()" class="no-print px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg text-xs"><i class="fa-solid fa-plus"></i> Ajouter un poteau</button>
-    </div>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead><tr>
-          <th>Désignation</th><th class="w-28">Forme</th><th class="w-24">a / Ø (m)</th><th class="w-24">b (m)</th><th class="w-24">Haut. (m)</th><th class="w-16">Nb</th>
-          <th class="text-right">Section (m²)</th><th class="text-right">Surf. latérale (m²)</th><th class="text-right">Volume (m³)</th><th class="w-8 no-print"></th>
-        </tr></thead>
-        <tbody id="tb-poteau"></tbody>
-      </table>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Section totale</div><div class="res text-xl"><span id="pot-section">0</span> m²</div></div>
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Surface latérale totale (coffrage)</div><div class="res text-xl"><span id="pot-lat">0</span> m²</div></div>
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Volume total</div><div class="res text-xl"><span id="pot-vol">0</span> m³</div></div>
-    </div>
-    <p class="text-xs text-slate-500 ptxt">Rectangulaire : a × b. Circulaire : seul Ø (colonne a) est utilisé. Section = surface de la coupe horizontale ; surface latérale = périmètre × hauteur.</p>
-  </section>
-
-  <!-- POUTRES -->
-  <section id="bloc-poutre" class="card p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl space-y-4">
-    <div class="flex justify-between items-center">
-      <h2 class="text-lg font-semibold text-amber-400"><i class="fa-solid fa-grip-lines mr-2"></i>Poutres</h2>
-      <button onclick="ajouterPoutre()" class="no-print px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg text-xs"><i class="fa-solid fa-plus"></i> Ajouter une poutre</button>
-    </div>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead><tr>
-          <th>Désignation</th><th class="w-24">Larg. b (m)</th><th class="w-24">Haut. h (m)</th><th class="w-24">Long. (m)</th><th class="w-16">Nb</th>
-          <th class="text-right">Coffrage 3 faces (m²)</th><th class="text-right">Surf. totale 4 faces (m²)</th><th class="text-right">Volume (m³)</th><th class="w-8 no-print"></th>
-        </tr></thead>
-        <tbody id="tb-poutre"></tbody>
-      </table>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Coffrage total (3 faces)</div><div class="res text-xl"><span id="pou-coff">0</span> m²</div></div>
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Surface totale (4 faces)</div><div class="res text-xl"><span id="pou-surf">0</span> m²</div></div>
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Volume total</div><div class="res text-xl"><span id="pou-vol">0</span> m³</div></div>
-    </div>
-    <p class="text-xs text-slate-500 ptxt">Volume = b × h × longueur. Coffrage = (b + 2h) × longueur (fond + 2 côtés). Surface totale = 2 × (b + h) × longueur.</p>
-  </section>
-
-  <!-- DALLES -->
-  <section id="bloc-dalle" class="card p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl space-y-4">
-    <div class="flex justify-between items-center">
-      <h2 class="text-lg font-semibold text-amber-400"><i class="fa-solid fa-square mr-2"></i>Dalle pleine</h2>
-      <button onclick="ajouterDalle()" class="no-print px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg text-xs"><i class="fa-solid fa-plus"></i> Ajouter une dalle</button>
-    </div>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead><tr>
-          <th>Désignation</th><th class="w-24">Long. (m)</th><th class="w-24">Larg. (m)</th><th class="w-28">Épaisseur (m)</th><th class="w-16">Nb</th>
-          <th class="text-right">Surface (m²)</th><th class="text-right">Volume (m³)</th><th class="w-8 no-print"></th>
-        </tr></thead>
-        <tbody id="tb-dalle"></tbody>
-      </table>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Surface totale des dalles</div><div class="res text-xl"><span id="dal-surf">0</span> m²</div></div>
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Volume total des dalles</div><div class="res text-xl"><span id="dal-vol">0</span> m³</div></div>
-    </div>
-    <p class="text-xs text-slate-500 ptxt">Surface = longueur × largeur. Volume = longueur × largeur × épaisseur. Le volume est ajouté automatiquement au béton du devis.</p>
-  </section>
-
-  <!-- DALLE À CORPS CREUX -->
-  <section id="bloc-corps" class="card p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl space-y-4">
-    <div class="flex justify-between items-center">
-      <h2 class="text-lg font-semibold text-amber-400"><i class="fa-solid fa-table-cells mr-2"></i>Dalle à corps creux</h2>
-      <button onclick="ajouterCorps()" class="no-print px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg text-xs"><i class="fa-solid fa-plus"></i> Ajouter un panneau</button>
-    </div>
-    <div class="p-4 bg-slate-900/60 border border-slate-700/60 rounded-xl grid grid-cols-2 gap-3 max-w-md">
-      <div><label class="block text-xs text-slate-400 mb-1">Hourdis par m²</label><input class="inp" id="cc-h" value="9" oninput="calculer()"></div>
-      <div><label class="block text-xs text-slate-400 mb-1">Entraxe des nervures (m)</label><input class="inp" id="cc-e" value="0.55" oninput="calculer()"></div>
-    </div>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead><tr>
-          <th>Désignation</th><th class="w-24">Long. panneau (m)</th><th class="w-24">Larg. panneau (m)</th><th class="w-24">Larg. poutre (m)</th><th class="w-16">Nb</th>
-          <th class="text-right">Surface (m²)</th><th class="text-right">Hourdis</th><th class="text-right">Nervures / panneau</th><th class="text-right">Long. totale nervures (m)</th><th class="w-8 no-print"></th>
-        </tr></thead>
-        <tbody id="tb-corps"></tbody>
-      </table>
-    </div>
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Surface totale</div><div class="res text-xl"><span id="cc-surf">0</span> m²</div></div>
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Hourdis (total)</div><div class="res text-xl" id="cc-hour">0</div></div>
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Nervures (total)</div><div class="res text-xl" id="cc-nerv">0</div></div>
-      <div><div class="text-xs text-slate-400 uppercase font-semibold">Longueur totale nervures</div><div class="res text-xl"><span id="cc-lg">0</span> m</div></div>
-    </div>
-    <p class="text-xs text-slate-500 ptxt">Hourdis = surface × nombre de hourdis par m² (arrondi au supérieur). Nervures par panneau = longueur du panneau ÷ entraxe (arrondi au supérieur). Longueur des nervures = nombre de nervures × (largeur du panneau + largeur de la poutre) × nombre de panneaux.</p>
-  </section>
-
-  <!-- DEVIS QUANTITATIF -->
-  <section id="bloc-devis" class="card prix-off p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl space-y-5">
-    <div class="no-print flex flex-wrap justify-between items-center gap-3">
-      <h2 class="text-lg font-semibold text-amber-400"><i class="fa-solid fa-file-invoice mr-2"></i>Devis quantitatif</h2>
-      <button onclick="imprimerDevis()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-xl flex items-center gap-2 transition">
-        <i class="fa-solid fa-file-pdf"></i> Imprimer le devis / PDF
-      </button>
-    </div>
-
-    <!-- Paramètres (non imprimés) -->
-    <div class="no-print p-4 bg-slate-900/60 border border-slate-700/60 rounded-xl space-y-3">
-      <div class="text-xs font-bold text-amber-400 tracking-wider">PARAMÈTRES DE CALCUL AUTOMATIQUE (modifiables)</div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div><label class="block text-xs text-slate-400 mb-1">Ciment (sacs / m³ béton)</label><input class="inp" id="dos-c" value="7" oninput="updateDevis()"></div>
-        <div><label class="block text-xs text-slate-400 mb-1">Sable (m³ / m³ béton)</label><input class="inp" id="dos-s" value="0.45" oninput="updateDevis()"></div>
-        <div><label class="block text-xs text-slate-400 mb-1">Gravier (m³ / m³ béton)</label><input class="inp" id="dos-g" value="0.8" oninput="updateDevis()"></div>
-        <div><label class="block text-xs text-slate-400 mb-1">Autre béton : fondations, dalles… (m³)</label><input class="inp" id="dos-autre" value="0" oninput="calculer()"></div>
-      </div>
-      <div class="flex flex-wrap items-center gap-4 pt-2 border-t border-slate-800">
-        <label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" id="dv-prix" onchange="majPrix()" class="w-4 h-4 accent-amber-400"> Afficher les prix (P.U et totaux)</label>
-        <div class="flex items-center gap-2 text-xs text-slate-400">Devise <input class="inp w-24" id="dv-devise" value="FCFA" oninput="updateDevis()"></div>
-        <div class="flex items-center gap-2 text-xs text-slate-400">TVA (%) <input class="inp w-20" id="dv-tva" value="19.25" oninput="updateDevis()"></div>
-      </div>
-      <p class="text-xs text-slate-500">Béton = volume des poteaux + poutres + dalles (cochés ci-dessus) + autre béton. Parpaings, ciment, sable et gravier se calculent seuls ; vous pouvez écraser n'importe quelle quantité (bouton ↺ pour revenir au calcul automatique). Les armatures et matériels sont à saisir.</p>
-    </div>
-
-    <!-- En-tête du document -->
-    <div class="text-center space-y-2 pb-3 border-b border-slate-700">
-      <input id="dv-titre" class="inp inp-txt text-center font-bold text-lg" style="color:#fbbf24" value="DEVIS QUANTITATIF D'UN R+2 : GROS ŒUVRE">
-      <input id="dv-projet" class="inp inp-txt text-center font-semibold" value="PROJET DE CONSTRUCTION D'UNE CITÉ UNIVERSITAIRE À LA CITÉ CHIRAC">
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
-      <div><label class="block text-xs text-slate-400 mb-1">Entreprise</label><input class="inp inp-txt" id="dv-ent" placeholder="Nom de l'entreprise"></div>
-      <div><label class="block text-xs text-slate-400 mb-1">Client / Maître d'ouvrage</label><input class="inp inp-txt" id="dv-client" placeholder="Nom du client"></div>
-      <div><label class="block text-xs text-slate-400 mb-1">Référence du devis</label><input class="inp inp-txt" id="dv-ref" placeholder="DEV-001"></div>
-      <div><label class="block text-xs text-slate-400 mb-1">Date</label><input class="inp inp-txt" id="dv-date"></div>
-    </div>
-
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead><tr>
-          <th class="w-14 text-center">Code</th><th>Désignation</th><th class="w-24">Unité</th><th class="w-36">Quantité</th>
-          <th class="col-prix w-32">P.U</th><th class="col-prix w-36 text-right">Total</th><th class="w-8 no-print"></th>
-        </tr></thead>
-        <tbody id="tb-devis"></tbody>
-      </table>
-    </div>
-
-    <div class="col-prix ml-auto max-w-sm space-y-1 text-sm">
-      <div class="flex justify-between"><span class="text-slate-400 ptxt">Total HT</span><span class="res" id="dv-ht">0</span></div>
-      <div class="flex justify-between"><span class="text-slate-400 ptxt">TVA</span><span class="res" id="dv-tvamt">0</span></div>
-      <div class="flex justify-between pt-1 border-t border-slate-700 text-base"><span class="font-bold text-amber-400 ptxt">Total TTC</span><span class="res text-lg" id="dv-ttc">0</span></div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-6 pt-4">
-      <div class="sign border border-slate-700 rounded-xl p-3 h-28 text-xs text-slate-400 ptxt"><b>Le Client</b><br>Bon pour accord – date et signature</div>
-      <div class="sign border border-slate-700 rounded-xl p-3 h-28 text-xs text-slate-400 text-right ptxt"><b>L'Entreprise</b><br>Cachet et signature</div>
-    </div>
-  </section>
-
 </div>
 
+<!-- modale de confirmation -->
+<div class="modal-bg" id="modal-reset">
+  <div class="modal">
+    <header><i class="fa-solid fa-triangle-exclamation"></i><b>Réinitialiser le projet ?</b></header>
+    <div class="m-body">Toutes les saisies (murs, poteaux, poutres, dalles, corps creux, devis et paramètres) seront effacées et remplacées par un projet vierge. Cette action est irréversible — pensez à exporter votre projet avant.</div>
+    <footer>
+      <button class="btn" onclick="fermerModal()">Annuler</button>
+      <button class="btn btn-solid-danger" onclick="reinitialiser()"><i class="fa-solid fa-trash-can"></i> Tout effacer</button>
+    </footer>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
 <script>
-  const num = v => { const n = parseFloat(String(v ?? '').replace(',', '.').trim()); return isNaN(n) ? 0 : n; };
-  const fmt = n => (Math.round(n * 1e6) / 1e6).toLocaleString('fr-FR', { maximumFractionDigits: 4 });
-  const $ = id => document.getElementById(id);
-  let uid = 1;
-  let murs = [], poteaux = [], poutres = [];
+/* ============================================================
+   UTILITAIRES
+   ============================================================ */
+const num = v => { const n = parseFloat(String(v ?? '').replace(',', '.').trim()); return isNaN(n) ? 0 : n; };
+const fmt = n => (Math.round(n * 1e6) / 1e6).toLocaleString('fr-FR', { maximumFractionDigits: 4 });
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-  function ajouterMur() { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', ouv: '0' }); rendre(); }
-  function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '0.15', b: '0.15', H: '3', n: '1' }); rendre(); }
-  function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1' }); rendre(); }
+function toast(msg, type = 'info', ico) {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<i class="fa-solid ${ico || (type === 'ok' ? 'fa-circle-check' : type === 'err' ? 'fa-circle-exclamation' : 'fa-circle-info')}"></i><span>${esc(msg)}</span>`;
+  $('toasts').appendChild(el);
+  setTimeout(() => { el.style.transition = '.3s'; el.style.opacity = '0'; el.style.transform = 'translateY(8px)'; setTimeout(() => el.remove(), 300); }, 2900);
+}
 
-  let corps = [];
-  function ajouterCorps() { corps.push({ id: uid++, nom: 'Panneau ' + (corps.length + 1), L: '', l: '', pb: '0.15', n: '1' }); rendre(); }
-  let dalles = [];
-  function ajouterDalle() { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1' }); rendre(); }
+/* ============================================================
+   ONGLETS
+   ============================================================ */
+const ONGLETS = {
+  dashboard: { titre: 'Tableau de bord', sub: "Vue d'ensemble des quantités et du devis" },
+  mur:       { titre: 'Murs & parpaings', sub: 'Surface des murs et nombre de parpaings à commander' },
+  poteau:    { titre: 'Poteaux', sub: 'Sections, coffrage et volumes de béton' },
+  poutre:    { titre: 'Poutres', sub: 'Coffrage, surfaces et volumes de béton' },
+  dalle:     { titre: 'Dalle pleine', sub: 'Surfaces et volumes de béton' },
+  corps:     { titre: 'Dalle à corps creux', sub: 'Hourdis, nervures et longueurs' },
+  devis:     { titre: 'Devis quantitatif', sub: 'Document livrable, imprimable en A4' }
+};
+let ongletActif = 'dashboard';
 
-  function supprimer(type, id) {
-    if (type === 'dalle') dalles = dalles.filter(x => x.id !== id);
-    if (type === 'corps') corps = corps.filter(x => x.id !== id);
-    if (type === 'mur') murs = murs.filter(x => x.id !== id);
-    if (type === 'poteau') poteaux = poteaux.filter(x => x.id !== id);
-    if (type === 'poutre') poutres = poutres.filter(x => x.id !== id);
-    rendre();
-  }
-  function maj(type, id, champ, val) {
-    const liste = type === 'mur' ? murs : type === 'poteau' ? poteaux : type === 'dalle' ? dalles : type === 'corps' ? corps : poutres;
-    const o = liste.find(x => x.id === id);
-    if (!o) return;
-    o[champ] = val;
-    if (champ === 'forme') rendre(); else calculer();
-  }
+function aller(tab, opts = {}) {
+  if (!ONGLETS[tab]) tab = 'dashboard';
+  // un module désactivé se réactive quand on ouvre son onglet
+  const sel = $('sel-' + tab);
+  if (sel && !sel.checked && !opts.silent) { sel.checked = true; majVisibilite(); toast('Module réactivé et réintégré au devis', 'ok'); }
 
-  const inp = (type, o, champ, cls = '') =>
-    `<input class="inp ${cls}" value="${String(o[champ]).replace(/"/g, '&quot;')}" oninput="maj('${type}',${o.id},'${champ}',this.value)">`;
-  const delBtn = (type, id) =>
-    `<td class="no-print text-center"><button onclick="supprimer('${type}',${id})" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash-can"></i></button></td>`;
+  ongletActif = tab;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const cible = $('panel-' + tab) || $('bloc-' + tab);
+  if (cible) cible.classList.add('active');
 
-  function rendre() {
-    $('tb-mur').innerHTML = murs.map(o => `<tr class="border-b border-slate-700/50">
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  $('top-titre').textContent = ONGLETS[tab].titre;
+  $('top-sub').textContent = ONGLETS[tab].sub;
+
+  document.body.classList.remove('nav-open');
+  if (history.replaceState) history.replaceState(null, '', '#' + tab);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  updateDashboard();
+}
+window.addEventListener('hashchange', () => { const t = location.hash.replace('#', ''); if (t && t !== ongletActif) aller(t, { silent: true }); });
+window.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') { e.preventDefault(); if (ongletActif !== 'devis') aller('devis', { silent: true }); imprimerDevis(); }
+});
+
+function dupSwitch(box) { const m = $('sel-' + box.dataset.for); if (m) { m.checked = box.checked; majVisibilite(); } }
+function syncSwitches() {
+  document.querySelectorAll('.dup-sel').forEach(b => { const m = $('sel-' + b.dataset.for); if (m) b.checked = m.checked; });
+}
+
+/* ============================================================
+   DONNÉES
+   ============================================================ */
+let uid = 1;
+let murs = [], poteaux = [], poutres = [], dalles = [], corps = [];
+let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, pouCof: 0, pouSur: 0, pouVol: 0, dalSurf: 0, dalVol: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
+
+function ajouterMur()    { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', ouv: '0' }); rendre(); }
+function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '0.15', b: '0.15', H: '3', n: '1' }); rendre(); }
+function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1' }); rendre(); }
+function ajouterDalle()  { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1' }); rendre(); }
+function ajouterCorps()  { corps.push({ id: uid++, nom: 'Panneau ' + (corps.length + 1), L: '', l: '', pb: '0.15', n: '1' }); rendre(); }
+
+function supprimer(type, id) {
+  if (type === 'dalle') dalles = dalles.filter(x => x.id !== id);
+  if (type === 'corps') corps = corps.filter(x => x.id !== id);
+  if (type === 'mur') murs = murs.filter(x => x.id !== id);
+  if (type === 'poteau') poteaux = poteaux.filter(x => x.id !== id);
+  if (type === 'poutre') poutres = poutres.filter(x => x.id !== id);
+  rendre();
+}
+function viderModule(type) {
+  const map = { mur: 'murs', poteau: 'poteaux', poutre: 'poutres', dalle: 'dalles', corps: 'corps' };
+  const nom = { mur: 'les murs', poteau: 'les poteaux', poutre: 'les poutres', dalle: 'les dalles', corps: 'les panneaux' }[type];
+  if (!window.confirm('Supprimer toutes les lignes : ' + nom + ' ?')) return;
+  ({ mur: () => murs = [], poteau: () => poteaux = [], poutre: () => poutres = [], dalle: () => dalles = [], corps: () => corps = [] })[type]();
+  rendre(); toast('Lignes supprimées (' + map[type] + ')', 'ok');
+}
+function maj(type, id, champ, val) {
+  const liste = type === 'mur' ? murs : type === 'poteau' ? poteaux : type === 'dalle' ? dalles : type === 'corps' ? corps : poutres;
+  const o = liste.find(x => x.id === id);
+  if (!o) return;
+  o[champ] = val;
+  if (champ === 'forme') rendre(); else calculer();
+}
+
+const inp = (type, o, champ, cls = '') =>
+  `<input class="inp ${cls}" value="${esc(o[champ])}" oninput="maj('${type}',${o.id},'${champ}',this.value)">`;
+const delBtn = (type, id) =>
+  `<td class="no-print" style="text-align:center"><button class="del-btn" onclick="supprimer('${type}',${id})" title="Supprimer la ligne"><i class="fa-solid fa-trash-can"></i></button></td>`;
+const ligneVide = (nbCol, texte) => `<tr class="empty-row"><td colspan="${nbCol}"><i class="fa-solid fa-inbox" style="margin-right:7px"></i>${texte}</td></tr>`;
+
+function rendre() {
+  $('tb-mur').innerHTML = murs.length ? murs.map(o => `<tr>
       <td>${inp('mur', o, 'nom', 'inp-txt')}</td><td>${inp('mur', o, 'L')}</td><td>${inp('mur', o, 'H')}</td>
       <td>${inp('mur', o, 'n')}</td><td>${inp('mur', o, 'ouv')}</td>
-      <td class="text-right res" id="m-s-${o.id}">0</td>${delBtn('mur', o.id)}</tr>`).join('');
+      <td class="res" id="m-s-${o.id}">0</td>${delBtn('mur', o.id)}</tr>`).join('')
+    : ligneVide(7, 'Aucun mur — cliquez sur « Ajouter un mur »');
 
-    $('tb-poteau').innerHTML = poteaux.map(o => `<tr class="border-b border-slate-700/50">
+  $('tb-poteau').innerHTML = poteaux.length ? poteaux.map(o => `<tr>
       <td>${inp('poteau', o, 'nom', 'inp-txt')}</td>
       <td><select class="inp" onchange="maj('poteau',${o.id},'forme',this.value)">
         <option value="rect" ${o.forme === 'rect' ? 'selected' : ''}>Rectangulaire</option>
         <option value="circ" ${o.forme === 'circ' ? 'selected' : ''}>Circulaire</option></select></td>
       <td>${inp('poteau', o, 'a')}</td>
-      <td>${o.forme === 'rect' ? inp('poteau', o, 'b') : '<span class="text-slate-600 text-xs">—</span>'}</td>
+      <td>${o.forme === 'rect' ? inp('poteau', o, 'b') : '<span style="color:var(--faint);font-size:11px">— Ø seul —</span>'}</td>
       <td>${inp('poteau', o, 'H')}</td><td>${inp('poteau', o, 'n')}</td>
-      <td class="text-right res" id="p-sec-${o.id}">0</td><td class="text-right res" id="p-lat-${o.id}">0</td><td class="text-right res" id="p-vol-${o.id}">0</td>
-      ${delBtn('poteau', o.id)}</tr>`).join('');
+      <td class="res" id="p-sec-${o.id}">0</td><td class="res" id="p-lat-${o.id}">0</td><td class="res" id="p-vol-${o.id}">0</td>
+      ${delBtn('poteau', o.id)}</tr>`).join('')
+    : ligneVide(10, 'Aucun poteau — cliquez sur « Ajouter un poteau »');
 
-    $('tb-poutre').innerHTML = poutres.map(o => `<tr class="border-b border-slate-700/50">
+  $('tb-poutre').innerHTML = poutres.length ? poutres.map(o => `<tr>
       <td>${inp('poutre', o, 'nom', 'inp-txt')}</td><td>${inp('poutre', o, 'b')}</td><td>${inp('poutre', o, 'h')}</td>
       <td>${inp('poutre', o, 'L')}</td><td>${inp('poutre', o, 'n')}</td>
-      <td class="text-right res" id="u-cof-${o.id}">0</td><td class="text-right res" id="u-sur-${o.id}">0</td><td class="text-right res" id="u-vol-${o.id}">0</td>
-      ${delBtn('poutre', o.id)}</tr>`).join('');
-    $('tb-corps').innerHTML = corps.map(o => `<tr class="border-b border-slate-700/50">
+      <td class="res" id="u-cof-${o.id}">0</td><td class="res" id="u-sur-${o.id}">0</td><td class="res" id="u-vol-${o.id}">0</td>
+      ${delBtn('poutre', o.id)}</tr>`).join('')
+    : ligneVide(9, 'Aucune poutre — cliquez sur « Ajouter une poutre »');
+
+  $('tb-corps').innerHTML = corps.length ? corps.map(o => `<tr>
       <td>${inp('corps', o, 'nom', 'inp-txt')}</td><td>${inp('corps', o, 'L')}</td><td>${inp('corps', o, 'l')}</td>
       <td>${inp('corps', o, 'pb')}</td><td>${inp('corps', o, 'n')}</td>
-      <td class="text-right res" id="c-s-${o.id}">0</td><td class="text-right res" id="c-h-${o.id}">0</td>
-      <td class="text-right res" id="c-n-${o.id}">0</td><td class="text-right res" id="c-g-${o.id}">0</td>
-      ${delBtn('corps', o.id)}</tr>`).join('');
+      <td class="res" id="c-s-${o.id}">0</td><td class="res" id="c-h-${o.id}">0</td>
+      <td class="res" id="c-n-${o.id}">0</td><td class="res" id="c-g-${o.id}">0</td>
+      ${delBtn('corps', o.id)}</tr>`).join('')
+    : ligneVide(10, 'Aucun panneau — cliquez sur « Ajouter un panneau »');
 
-    $('tb-dalle').innerHTML = dalles.map(o => `<tr class="border-b border-slate-700/50">
+  $('tb-dalle').innerHTML = dalles.length ? dalles.map(o => `<tr>
       <td>${inp('dalle', o, 'nom', 'inp-txt')}</td><td>${inp('dalle', o, 'L')}</td><td>${inp('dalle', o, 'l')}</td>
       <td>${inp('dalle', o, 'e')}</td><td>${inp('dalle', o, 'n')}</td>
-      <td class="text-right res" id="d-s-${o.id}">0</td><td class="text-right res" id="d-v-${o.id}">0</td>
-      ${delBtn('dalle', o.id)}</tr>`).join('');
-    calculer();
+      <td class="res" id="d-s-${o.id}">0</td><td class="res" id="d-v-${o.id}">0</td>
+      ${delBtn('dalle', o.id)}</tr>`).join('')
+    : ligneVide(8, 'Aucune dalle — cliquez sur « Ajouter une dalle »');
+
+  calculer();
+}
+
+/* ============================================================
+   CALCULS (formules inchangées)
+   ============================================================ */
+function calculer() {
+  // --- Parpaing ---
+  const j = num($('pp-j').value) / 100;
+  const sPP = (num($('pp-l').value) / 100 + j) * (num($('pp-h').value) / 100 + j);
+  $('pp-surface').innerText = fmt(sPP);
+
+  // --- Murs : surface = (L×H − ouvertures) × nb ---
+  let sMur = 0;
+  murs.forEach(o => {
+    const s = Math.max(0, num(o.L) * num(o.H) - num(o.ouv)) * num(o.n);
+    sMur += s;
+    const c = $('m-s-' + o.id); if (c) c.innerText = fmt(s);
+  });
+  $('mur-total').innerText = fmt(sMur);
+  const nb = sPP > 0 ? (sMur / sPP) * (1 + num($('pp-m').value) / 100) : 0;
+  $('pp-exact').innerText = fmt(nb);
+  $('pp-arrondi').innerText = fmt(Math.ceil(nb - 1e-9));
+
+  // --- Poteaux ---
+  let tSec = 0, tLat = 0, tVol = 0;
+  poteaux.forEach(o => {
+    const a = num(o.a), b = num(o.b), H = num(o.H), n = num(o.n);
+    let sec, per;
+    if (o.forme === 'circ') { sec = Math.PI * a * a / 4; per = Math.PI * a; }
+    else { sec = a * b; per = 2 * (a + b); }
+    const lat = per * H * n, vol = sec * H * n;
+    tSec += sec * n; tLat += lat; tVol += vol;
+    $('p-sec-' + o.id).innerText = fmt(sec * n);
+    $('p-lat-' + o.id).innerText = fmt(lat);
+    $('p-vol-' + o.id).innerText = fmt(vol);
+  });
+  $('pot-section').innerText = fmt(tSec); $('pot-lat').innerText = fmt(tLat); $('pot-vol').innerText = fmt(tVol);
+
+  // --- Poutres ---
+  let tCof = 0, tSur = 0, tV = 0;
+  poutres.forEach(o => {
+    const b = num(o.b), h = num(o.h), L = num(o.L), n = num(o.n);
+    const cof = (b + 2 * h) * L * n, sur = 2 * (b + h) * L * n, vol = b * h * L * n;
+    tCof += cof; tSur += sur; tV += vol;
+    $('u-cof-' + o.id).innerText = fmt(cof);
+    $('u-sur-' + o.id).innerText = fmt(sur);
+    $('u-vol-' + o.id).innerText = fmt(vol);
+  });
+  $('pou-coff').innerText = fmt(tCof); $('pou-surf').innerText = fmt(tSur); $('pou-vol').innerText = fmt(tV);
+
+  // --- Dalles pleines ---
+  let tDS = 0, tDV = 0;
+  dalles.forEach(o => {
+    const s = num(o.L) * num(o.l) * num(o.n), v = s * num(o.e);
+    tDS += s; tDV += v;
+    $('d-s-' + o.id).innerText = fmt(s);
+    $('d-v-' + o.id).innerText = fmt(v);
+  });
+  $('dal-surf').innerText = fmt(tDS); $('dal-vol').innerText = fmt(tDV);
+
+  // --- Dalle à corps creux ---
+  let tCS = 0, tCH = 0, tCN = 0, tCG = 0;
+  const entraxe = num($('cc-e').value), hParM2 = num($('cc-h').value);
+  corps.forEach(o => {
+    const L = num(o.L), l = num(o.l), pb = num(o.pb), n = num(o.n);
+    const surf = L * l * n;
+    const hourdis = Math.ceil(surf * hParM2 - 1e-9);
+    const nervPan = entraxe > 0 ? Math.ceil(L / entraxe - 1e-9) : 0;
+    const lg = nervPan * (l + pb) * n;
+    tCS += surf; tCH += hourdis; tCN += nervPan * n; tCG += lg;
+    $('c-s-' + o.id).innerText = fmt(surf);
+    $('c-h-' + o.id).innerText = fmt(hourdis);
+    $('c-n-' + o.id).innerText = fmt(nervPan);
+    $('c-g-' + o.id).innerText = fmt(lg);
+  });
+  $('cc-surf').innerText = fmt(tCS); $('cc-hour').innerText = fmt(tCH);
+  $('cc-nerv').innerText = fmt(tCN); $('cc-lg').innerText = fmt(tCG);
+
+  T = { sMur, nbPP: nb, ppArr: Math.ceil(nb - 1e-9), potSec: tSec, potLat: tLat, potVol: tVol,
+        pouCof: tCof, pouSur: tSur, pouVol: tV, dalSurf: tDS, dalVol: tDV, ccSurf: tCS, ccHour: tCH, ccNerv: tCN, ccLg: tCG };
+
+  G.hourdis = $('sel-corps').checked ? tCH : 0;
+  G.nervures = $('sel-corps').checked ? tCG : 0;
+
+  // --- Alimentation du devis ---
+  G.beton = ($('sel-poteau').checked ? tVol : 0) + ($('sel-poutre').checked ? tV : 0) + ($('sel-dalle').checked ? tDV : 0) + num($('dos-autre').value);
+  G.parpaings = $('sel-mur').checked ? Math.ceil(nb - 1e-9) : 0;
+  updateDevis();
+}
+
+/* ============================================================
+   DEVIS QUANTITATIF
+   ============================================================ */
+let G = { beton: 0, parpaings: 0, hourdis: 0, nervures: 0 };
+let dvId = 1000;
+function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', auto }; }
+let devis = [
+  { n: 'I', titre: 'BÉTON', lignes: [ligne('Béton', 'm³', 'beton')] },
+  { n: 'II', titre: 'MATÉRIAUX', lignes: [
+    ligne('Parpaing agglo 20', 'u', 'parpaing'), ligne('Hourdis', 'u', 'hourdis'), ligne('Nervures (longueur totale)', 'ml', 'nervure'),
+    ligne('Ciment', 'sacs', 'ciment'), ligne('Sable', 'm³', 'sable'), ligne('Gravier', 'm³', 'gravier'),
+    ligne('HA 14', 'barre'), ligne('HA 12', 'barre'), ligne('HA 10', 'barre'), ligne('HA 8', 'barre'), ligne('RL6', 'barre'), ligne("Fil d'attache", 'botte')] },
+  { n: 'III', titre: 'MATÉRIELS', lignes: [
+    ligne('Planche de 28', '/'), ligne('Latte', '/'), ligne('Fonds de 20', '/'), ligne('Fonds de 15', '/'),
+    ligne('Pointe de 80', 'paquet'), ligne('Pointe tock 60', 'paquet')] }
+];
+const fmtM = n => n.toLocaleString('fr-FR', { maximumFractionDigits: 2 });
+
+function autoVal(l) {
+  const b = G.beton;
+  switch (l.auto) {
+    case 'beton': return b;
+    case 'parpaing': return G.parpaings;
+    case 'hourdis': return G.hourdis;
+    case 'nervure': return G.nervures;
+    case 'ciment': return Math.ceil(b * num($('dos-c').value) - 1e-9);
+    case 'sable': return b * num($('dos-s').value);
+    case 'gravier': return b * num($('dos-g').value);
   }
+  return 0;
+}
+const valL = l => (l.qte === null ? autoVal(l) : num(l.qte));
+function trouverL(id) { for (const s of devis) { const l = s.lignes.find(x => x.id === id); if (l) return l; } return null; }
 
-  function calculer() {
-    // --- Parpaing ---
-    const j = num($('pp-j').value) / 100;
-    const sPP = (num($('pp-l').value) / 100 + j) * (num($('pp-h').value) / 100 + j);
-    $('pp-surface').innerText = fmt(sPP);
-
-    // --- Murs : surface = (L×H − ouvertures) × nb ---
-    let sMur = 0;
-    murs.forEach(o => {
-      const s = Math.max(0, num(o.L) * num(o.H) - num(o.ouv)) * num(o.n);
-      sMur += s;
-      const c = $('m-s-' + o.id); if (c) c.innerText = fmt(s);
+function rendreDevis() {
+  let code = 0, h = '';
+  devis.forEach(s => {
+    h += `<tr class="dv-sec"><td class="code-sec">${s.n}</td><td colspan="3">${esc(s.titre)}</td><td class="col-prix" colspan="2"></td>
+      <td class="no-print" style="text-align:center"><button class="auto-btn" onclick="ajouterLigne('${s.n}')" title="Ajouter une ligne"><i class="fa-solid fa-plus"></i></button></td></tr>`;
+    s.lignes.forEach(l => {
+      const c = s.n === 'I' ? '' : ++code;
+      h += `<tr>
+        <td class="code-cell">${c}</td>
+        <td><input class="inp inp-txt" value="${esc(l.des)}" oninput="majL(${l.id},'des',this.value)"></td>
+        <td><input class="inp" value="${esc(l.unite)}" oninput="majL(${l.id},'unite',this.value)"></td>
+        <td><div class="qte-cell"><input class="inp" id="dq-${l.id}" value="${l.qte === null ? '' : esc(l.qte)}" oninput="majL(${l.id},'qte',this.value)">
+          ${l.auto ? `<button class="auto-btn no-print" title="Revenir au calcul automatique" onclick="resetAuto(${l.id})"><i class="fa-solid fa-rotate-left"></i></button>` : ''}</div></td>
+        <td class="col-prix"><input class="inp" value="${esc(l.pu)}" oninput="majL(${l.id},'pu',this.value)"></td>
+        <td class="col-prix res" id="dt-${l.id}">0</td>
+        <td class="no-print" style="text-align:center"><button class="del-btn" onclick="supprimerLigne(${l.id})" title="Supprimer"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
     });
-    $('mur-total').innerText = fmt(sMur);
-    // nombre de parpaings = surface mur ÷ surface d'un parpaing
-    const nb = sPP > 0 ? (sMur / sPP) * (1 + num($('pp-m').value) / 100) : 0;
-    $('pp-exact').innerText = fmt(nb);
-    $('pp-arrondi').innerText = fmt(Math.ceil(nb - 1e-9));
+  });
+  $('tb-devis').innerHTML = h;
+  updateDevis();
+}
+function majL(id, champ, val) { const l = trouverL(id); if (l) { l[champ] = val; updateDevis(); } }
+function resetAuto(id) { const l = trouverL(id); if (l) { l.qte = null; rendreDevis(); toast('Quantité recalculée automatiquement', 'ok'); } }
+function ajouterLigne(n) { devis.find(s => s.n === n).lignes.push({ id: dvId++, des: 'Nouvel article', unite: 'u', qte: '', pu: '0', auto: null }); rendreDevis(); sauver(); }
+function supprimerLigne(id) { devis.forEach(s => s.lignes = s.lignes.filter(x => x.id !== id)); rendreDevis(); sauver(); }
 
-    // --- Poteaux ---
-    let tSec = 0, tLat = 0, tVol = 0;
-    poteaux.forEach(o => {
-      const a = num(o.a), b = num(o.b), H = num(o.H), n = num(o.n);
-      let sec, per;
-      if (o.forme === 'circ') { sec = Math.PI * a * a / 4; per = Math.PI * a; }
-      else { sec = a * b; per = 2 * (a + b); }
-      const lat = per * H * n, vol = sec * H * n;
-      tSec += sec * n; tLat += lat; tVol += vol;
-      $('p-sec-' + o.id).innerText = fmt(sec * n);
-      $('p-lat-' + o.id).innerText = fmt(lat);
-      $('p-vol-' + o.id).innerText = fmt(vol);
-    });
-    $('pot-section').innerText = fmt(tSec); $('pot-lat').innerText = fmt(tLat); $('pot-vol').innerText = fmt(tVol);
+let totHT = 0, totTTC = 0;
+function updateDevis() {
+  if (!$('tb-devis')) return;
+  const dev = ($('dv-devise').value || '').trim();
+  let ht = 0;
+  devis.forEach(s => s.lignes.forEach(l => {
+    const v = valL(l), t = v * num(l.pu);
+    ht += t;
+    const q = $('dq-' + l.id);
+    if (q && l.qte === null) q.value = String(Math.round(v * 1000) / 1000).replace('.', ',');
+    const c = $('dt-' + l.id); if (c) c.innerText = fmtM(t);
+  }));
+  const txTva = num($('dv-tva').value);
+  const tva = ht * txTva / 100;
+  totHT = ht; totTTC = ht + tva;
+  $('dv-ht').innerText = fmtM(ht) + ' ' + dev;
+  $('dv-tvamt').innerText = fmtM(tva) + ' ' + dev;
+  $('dv-ttc').innerText = fmtM(ht + tva) + ' ' + dev;
+  $('dv-tva-aff').innerText = String(txTva).replace('.', ',');
+  updateDashboard();
+  marquerModifie();
+}
+function majPrix() {
+  const on = $('dv-prix').checked;
+  $('doc-devis').classList.toggle('prix-off', !on);
+  $('bloc-devis').classList.toggle('prix-off', !on);
+  sauver();
+}
+function imprimerDevis() { document.body.classList.add('print-devis'); window.print(); }
+function imprimerRapport() { document.body.classList.add('print-report'); window.print(); }
+window.addEventListener('afterprint', () => document.body.classList.remove('print-devis', 'print-report'));
 
-    // --- Poutres ---
-    let tCof = 0, tSur = 0, tV = 0;
-    poutres.forEach(o => {
-      const b = num(o.b), h = num(o.h), L = num(o.L), n = num(o.n);
-      const cof = (b + 2 * h) * L * n, sur = 2 * (b + h) * L * n, vol = b * h * L * n;
-      tCof += cof; tSur += sur; tV += vol;
-      $('u-cof-' + o.id).innerText = fmt(cof);
-      $('u-sur-' + o.id).innerText = fmt(sur);
-      $('u-vol-' + o.id).innerText = fmt(vol);
-    });
-    $('pou-coff').innerText = fmt(tCof); $('pou-surf').innerText = fmt(tSur); $('pou-vol').innerText = fmt(tV);
+/* entête du document : synchronisation affichée */
+function syncEntete() {
+  $('doc-ent-aff').textContent = $('dv-ent').value.trim() || 'Votre entreprise';
+  $('doc-ref-aff').textContent = $('dv-ref').value.trim() || '—';
+  $('doc-date-aff').textContent = $('dv-date').value.trim() || '—';
+  sauver();
+}
+function syncProjet() { $('dash-projet').textContent = $('dv-projet').value.trim() || 'Projet de construction'; sauver(); }
 
-    // --- Dalles ---
-    let tDS = 0, tDV = 0;
-    dalles.forEach(o => {
-      const s = num(o.L) * num(o.l) * num(o.n), v = s * num(o.e);
-      tDS += s; tDV += v;
-      $('d-s-' + o.id).innerText = fmt(s);
-      $('d-v-' + o.id).innerText = fmt(v);
-    });
-    $('dal-surf').innerText = fmt(tDS); $('dal-vol').innerText = fmt(tDV);
+/* ============================================================
+   VISIBILITÉ DES MODULES (inclusion au devis + état des onglets)
+   ============================================================ */
+function majVisibilite() {
+  syncSwitches();
+  ['mur', 'poteau', 'poutre', 'dalle', 'corps'].forEach(k => {
+    const on = $('sel-' + k).checked;
+    const nav = document.querySelector(`.nav-item[data-tab="${k}"]`);
+    if (nav) nav.classList.toggle('off', !on);
+    const panel = $('bloc-' + k);
+    if (panel) panel.classList.toggle('module-off', !on);
+  });
+  calculer();
+}
 
-    // --- Dalle à corps creux ---
-    let tCS = 0, tCH = 0, tCN = 0, tCG = 0;
-    const entraxe = num($('cc-e').value), hParM2 = num($('cc-h').value);
-    corps.forEach(o => {
-      const L = num(o.L), l = num(o.l), pb = num(o.pb), n = num(o.n);
-      const surf = L * l * n;
-      const hourdis = Math.ceil(surf * hParM2 - 1e-9);
-      const nervPan = entraxe > 0 ? Math.ceil(L / entraxe - 1e-9) : 0;
-      const lg = nervPan * (l + pb) * n;
-      tCS += surf; tCH += hourdis; tCN += nervPan * n; tCG += lg;
-      $('c-s-' + o.id).innerText = fmt(surf);
-      $('c-h-' + o.id).innerText = fmt(hourdis);
-      $('c-n-' + o.id).innerText = fmt(nervPan);
-      $('c-g-' + o.id).innerText = fmt(lg);
-    });
-    $('cc-surf').innerText = fmt(tCS); $('cc-hour').innerText = fmt(tCH);
-    $('cc-nerv').innerText = fmt(tCN); $('cc-lg').innerText = fmt(tCG);
-    G.hourdis = $('sel-corps').checked ? tCH : 0;
-    G.nervures = $('sel-corps').checked ? tCG : 0;
+/* ============================================================
+   TABLEAU DE BORD
+   ============================================================ */
+function tuile(icone, label, valeur, unite) {
+  return `<div class="tile flat"><div class="t-lab"><i class="fa-solid ${icone}"></i> ${label}</div>
+    <div class="t-val">${valeur}${unite ? `<small>${unite}</small>` : ''}</div></div>`;
+}
+function updateDashboard() {
+  if (!$('dash-beton')) return;
+  const dev = ($('dv-devise').value || '').trim();
+  const beton = G.beton;
+  $('dash-beton').innerText = fmt(beton);
+  $('dash-beton-tot').innerText = fmt(beton);
+  $('dash-parpaings').innerText = fmt(G.parpaings);
+  $('dash-coffrage').innerText = fmt(($('sel-poteau').checked ? T.potLat : 0) + ($('sel-poutre').checked ? T.pouCof : 0));
+  $('dash-hourdis').innerText = fmt(G.hourdis);
+  $('dash-nervures').innerText = fmt(G.nervures);
+  $('dash-ht').innerText = fmtM(totHT);
+  $('dash-tva').innerText = fmtM(totTTC - totHT);
+  $('dash-ttc').innerText = fmtM(totTTC) + ' ' + dev;
 
-    // --- Alimentation du devis ---
-    G.beton = ($('sel-poteau').checked ? tVol : 0) + ($('sel-poutre').checked ? tV : 0) + ($('sel-dalle').checked ? tDV : 0) + num($('dos-autre').value);
-    G.parpaings = $('sel-mur').checked ? Math.ceil(nb - 1e-9) : 0;
-    updateDevis();
-  }
+  // valeurs dans la sidebar
+  $('nav-v-mur').textContent = fmt(T.sMur) + ' m² · ' + fmt(G.parpaings) + ' parpaings';
+  $('nav-v-poteau').textContent = fmt(T.potVol) + ' m³ · ' + fmt(T.potLat) + ' m² coffrage';
+  $('nav-v-poutre').textContent = fmt(T.pouVol) + ' m³ · ' + fmt(T.pouCof) + ' m² coffrage';
+  $('nav-v-dalle').textContent = fmt(T.dalVol) + ' m³ · ' + fmt(T.dalSurf) + ' m²';
+  $('nav-v-corps').textContent = fmt(T.ccHour) + ' hourdis · ' + fmt(T.ccSurf) + ' m²';
+  const nbArt = devis.reduce((a, s) => a + s.lignes.length, 0);
+  $('nav-v-devis').textContent = nbArt + ' article' + (nbArt > 1 ? 's' : '') + ' · ' + fmtM(totTTC) + ' ' + dev;
+  $('nav-badge-devis').textContent = totHT > 0 ? fmtM(totTTC) : '—';
+  $('nav-v-dash').textContent = beton > 0 ? fmt(beton) + ' m³ de béton' : 'Synthèse du projet';
 
-  // ================= DEVIS QUANTITATIF =================
-  let G = { beton: 0, parpaings: 0, hourdis: 0, nervures: 0 };
-  let dvId = 1000;
-  function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', auto }; }
-  let devis = [
-    { n: 'I', titre: 'BÉTON', lignes: [ligne('Béton', 'm³', 'beton')] },
-    { n: 'II', titre: 'MATÉRIAUX', lignes: [
-      ligne('Parpaing agglo 20', 'u', 'parpaing'), ligne('Hourdis', 'u', 'hourdis'), ligne('Nervures (longueur totale)', 'ml', 'nervure'), ligne('Ciment', 'sacs', 'ciment'), ligne('Sable', 'm³', 'sable'), ligne('Gravier', 'm³', 'gravier'),
-      ligne('HA 14', 'barre'), ligne('HA 12', 'barre'), ligne('HA 10', 'barre'), ligne('HA 8', 'barre'), ligne('RL6', 'barre'), ligne("Fil d'attache", 'botte')] },
-    { n: 'III', titre: 'MATÉRIELS', lignes: [
-      ligne('Planche de 28', '/'), ligne('Latte', '/'), ligne('Fonds de 20', '/'), ligne('Fonds de 15', '/'), ligne('Pointe de 80', 'paquet'), ligne('Pointe tock 60', 'paquet')] }
+  // répartition du béton
+  const parts = [
+    { k: 'poteau', label: 'Poteaux', ico: 'fa-grip-lines-vertical', v: $('sel-poteau').checked ? T.potVol : 0 },
+    { k: 'poutre', label: 'Poutres', ico: 'fa-grip-lines', v: $('sel-poutre').checked ? T.pouVol : 0 },
+    { k: 'dalle', label: 'Dalles pleines', ico: 'fa-square', v: $('sel-dalle').checked ? T.dalVol : 0 },
+    { k: 'autre', label: 'Autre béton (fondations…)', ico: 'fa-plus', v: num($('dos-autre').value) }
   ];
-  const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-  const fmtM = n => n.toLocaleString('fr-FR', { maximumFractionDigits: 2 });
+  const tot = parts.reduce((a, p) => a + p.v, 0);
+  $('dash-repart').innerHTML = tot > 0 ? parts.filter(p => p.v > 0).map(p => `
+    <div class="list-row">
+      <span class="lr-ico"><i class="fa-solid ${p.ico}"></i></span>
+      <span class="lr-txt"><b>${p.label}</b>
+        <span class="bar"><i style="width:${Math.max(2, (p.v / tot) * 100).toFixed(1)}%"></i></span></span>
+      <span class="lr-val">${fmt(p.v)} m³ · ${((p.v / tot) * 100).toFixed(1)} %</span>
+    </div>`).join('')
+    : `<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun volume de béton pour l'instant. Saisissez des dimensions dans les modules Poteaux, Poutres ou Dalles.</div></div>`;
 
-  function autoVal(l) {
-    const b = G.beton;
-    switch (l.auto) {
-      case 'beton': return b;
-      case 'parpaing': return G.parpaings;
-      case 'hourdis': return G.hourdis;
-      case 'nervure': return G.nervures;
-      case 'ciment': return Math.ceil(b * num($('dos-c').value) - 1e-9);
-      case 'sable': return b * num($('dos-s').value);
-      case 'gravier': return b * num($('dos-g').value);
-    }
-    return 0;
-  }
-  const valL = l => (l.qte === null ? autoVal(l) : num(l.qte));
-  const trouverL = id => { for (const s of devis) { const l = s.lignes.find(x => x.id === id); if (l) return l; } return null; };
+  // état des modules
+  const mods = [
+    { k: 'mur', ico: 'fa-border-all', label: 'Murs & parpaings', detail: murs.length + ' mur(s) saisi(s)', val: fmt(T.sMur) + ' m²' },
+    { k: 'poteau', ico: 'fa-grip-lines-vertical', label: 'Poteaux', detail: poteaux.length + ' poteau(x) saisi(s)', val: fmt(T.potVol) + ' m³' },
+    { k: 'poutre', ico: 'fa-grip-lines', label: 'Poutres', detail: poutres.length + ' poutre(s) saisie(s)', val: fmt(T.pouVol) + ' m³' },
+    { k: 'dalle', ico: 'fa-square', label: 'Dalles pleines', detail: dalles.length + ' dalle(s) saisie(s)', val: fmt(T.dalSurf) + ' m²' },
+    { k: 'corps', ico: 'fa-table-cells', label: 'Dalle à corps creux', detail: corps.length + ' panneau(x) saisi(s)', val: fmt(T.ccHour) + ' hourdis' }
+  ];
+  $('dash-modules').innerHTML = mods.map(m => {
+    const on = $('sel-' + m.k).checked;
+    return `<div class="list-row ${on ? '' : 'disabled'}">
+      <span class="lr-ico"><i class="fa-solid ${m.ico}"></i></span>
+      <span class="lr-txt"><b>${m.label}</b><span>${m.detail} · ${on ? 'inclus au devis' : 'exclu du devis'}</span></span>
+      <span class="lr-val">${m.val}</span>
+    </div>`;
+  }).join('');
 
-  function rendreDevis() {
-    let code = 0, h = '';
-    devis.forEach(s => {
-      h += `<tr class="dv-sec"><td class="text-center">${s.n}</td><td colspan="3">${s.titre}</td><td class="col-prix" colspan="2"></td>
-        <td class="no-print text-center"><button onclick="ajouterLigne('${s.n}')" title="Ajouter une ligne" class="text-amber-400 hover:text-amber-300"><i class="fa-solid fa-plus"></i></button></td></tr>`;
-      s.lignes.forEach(l => {
-        const c = s.n === 'I' ? '' : ++code;
-        h += `<tr class="border-b border-slate-700/50">
-          <td class="text-center text-slate-400">${c}</td>
-          <td><input class="inp inp-txt" value="${esc(l.des)}" oninput="majL(${l.id},'des',this.value)"></td>
-          <td><input class="inp" value="${esc(l.unite)}" oninput="majL(${l.id},'unite',this.value)"></td>
-          <td><div class="flex items-center gap-1"><input class="inp" id="dq-${l.id}" value="${l.qte === null ? '' : esc(l.qte)}" oninput="majL(${l.id},'qte',this.value)">
-            ${l.auto ? `<button class="no-print text-slate-500 hover:text-amber-400" title="Revenir au calcul automatique" onclick="resetAuto(${l.id})"><i class="fa-solid fa-rotate-left"></i></button>` : ''}</div></td>
-          <td class="col-prix"><input class="inp" value="${esc(l.pu)}" oninput="majL(${l.id},'pu',this.value)"></td>
-          <td class="col-prix text-right res" id="dt-${l.id}">0</td>
-          <td class="no-print text-center"><button onclick="supprimerLigne(${l.id})" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
-      });
+  // matériaux
+  const c = Math.ceil(beton * num($('dos-c').value) - 1e-9);
+  $('dash-mat').innerHTML =
+    tuile('fa-cube', 'Béton', fmt(beton), 'm³') +
+    tuile('fa-industry', 'Ciment', fmt(c), 'sacs') +
+    tuile('fa-mountain', 'Sable', fmt(beton * num($('dos-s').value)), 'm³') +
+    tuile('fa-gem', 'Gravier', fmt(beton * num($('dos-g').value)), 'm³') +
+    tuile('fa-cubes', 'Parpaings', fmt(G.parpaings), 'u') +
+    tuile('fa-table-cells', 'Hourdis', fmt(G.hourdis), 'u');
+}
+
+/* ============================================================
+   THÈME
+   ============================================================ */
+function basculerTheme() {
+  const dark = document.documentElement.dataset.theme !== 'dark';
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  $('btn-theme').innerHTML = `<i class="fa-solid ${dark ? 'fa-sun' : 'fa-moon'}"></i>`;
+  try { localStorage.setItem('go-theme', dark ? 'dark' : 'light'); } catch (e) {}
+}
+
+/* ============================================================
+   PERSISTANCE (localStorage) + EXPORT / IMPORT
+   ============================================================ */
+const CLE = 'gros-oeuvre-projet-v2';
+const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
+  'dv-prix', 'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
+  'sel-mur', 'sel-poteau', 'sel-poutre', 'sel-dalle', 'sel-corps'];
+let saveTimer = null;
+
+function marquerModifie() {
+  const s = $('save-state');
+  if (!s) return;
+  s.classList.add('dirty');
+  s.innerHTML = '<i class="fa-solid fa-circle-dot"></i><span>Modifications en cours…</span>';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(sauver, 550);
+}
+function sauver(silencieux = true) {
+  try {
+    const champs = {};
+    CHAMPS.forEach(id => { const el = $(id); if (el) champs[id] = el.type === 'checkbox' ? el.checked : el.value; });
+    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, poutres, dalles, corps, champs, devis };
+    localStorage.setItem(CLE, JSON.stringify(data));
+    const s = $('save-state');
+    s.classList.remove('dirty');
+    s.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>Sauvegardé à ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>`;
+  } catch (e) { if (!silencieux) toast('Sauvegarde impossible (stockage indisponible)', 'err'); }
+}
+function charger() {
+  let raw = null;
+  try { raw = localStorage.getItem(CLE); } catch (e) {}
+  if (!raw) return false;
+  try {
+    const d = JSON.parse(raw);
+    if (!d || d.v !== 2) return false;
+    murs = d.murs || []; poteaux = d.poteaux || []; poutres = d.poutres || [];
+    dalles = d.dalles || []; corps = d.corps || [];
+    if (Array.isArray(d.devis) && d.devis.length) devis = d.devis;
+    uid = Math.max(d.uid || 1, ...[murs, poteaux, poutres, dalles, corps].flat().map(o => o.id + 1), 1);
+    dvId = Math.max(1000, ...devis.flatMap(s => s.lignes.map(l => l.id + 1)));
+    CHAMPS.forEach(id => {
+      const el = $(id); if (!el || !(id in (d.champs || {}))) return;
+      if (el.type === 'checkbox') el.checked = !!d.champs[id]; else el.value = d.champs[id];
     });
-    $('tb-devis').innerHTML = h;
-    updateDevis();
-  }
-  function majL(id, champ, val) { const l = trouverL(id); if (l) { l[champ] = val; updateDevis(); } }
-  function resetAuto(id) { const l = trouverL(id); if (l) { l.qte = null; rendreDevis(); } }
-  function ajouterLigne(n) { devis.find(s => s.n === n).lignes.push({ id: dvId++, des: 'Nouvel article', unite: 'u', qte: '', pu: '0', auto: null }); rendreDevis(); }
-  function supprimerLigne(id) { devis.forEach(s => s.lignes = s.lignes.filter(x => x.id !== id)); rendreDevis(); }
+    return true;
+  } catch (e) { return false; }
+}
+function exporter() {
+  sauver();
+  let raw = '';
+  try { raw = localStorage.getItem(CLE) || ''; } catch (e) {}
+  if (!raw) { toast('Rien à exporter', 'err'); return; }
+  const nom = ($('dv-ref').value.trim() || 'projet-gros-oeuvre').replace(/[^\w\-]+/g, '_');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([raw], { type: 'application/json' }));
+  a.download = nom + '.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  toast('Projet exporté (' + a.download + ')', 'ok');
+}
+function importer(input) {
+  const f = input.files && input.files[0];
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const d = JSON.parse(rd.result);
+      if (!d || d.v !== 2) throw new Error('format');
+      localStorage.setItem(CLE, rd.result);
+      charger();
+      appliquerTout();
+      toast('Projet importé : ' + f.name, 'ok');
+    } catch (e) { toast('Fichier invalide — JSON attendu', 'err'); }
+    input.value = '';
+  };
+  rd.readAsText(f);
+}
+function demanderReset() { $('modal-reset').classList.add('open'); }
+function fermerModal() { $('modal-reset').classList.remove('open'); }
+function reinitialiser() {
+  try { localStorage.removeItem(CLE); } catch (e) {}
+  fermerModal();
+  location.hash = '';
+  location.reload();
+}
+window.addEventListener('beforeunload', () => sauver());
 
-  function updateDevis() {
-    if (!$('tb-devis')) return;
-    const dev = ($('dv-devise').value || '').trim();
-    let ht = 0;
-    devis.forEach(s => s.lignes.forEach(l => {
-      const v = valL(l), t = v * num(l.pu);
-      ht += t;
-      const q = $('dq-' + l.id);
-      if (q && l.qte === null) q.value = String(Math.round(v * 1000) / 1000).replace('.', ',');
-      const c = $('dt-' + l.id); if (c) c.innerText = fmtM(t);
-    }));
-    const tva = ht * num($('dv-tva').value) / 100;
-    $('dv-ht').innerText = fmtM(ht) + ' ' + dev;
-    $('dv-tvamt').innerText = fmtM(tva) + ' ' + dev;
-    $('dv-ttc').innerText = fmtM(ht + tva) + ' ' + dev;
-  }
-  function majPrix() { $('bloc-devis').classList.toggle('prix-off', !$('dv-prix').checked); }
-  function imprimerDevis() { document.body.classList.add('print-devis'); window.print(); }
-  window.addEventListener('afterprint', () => document.body.classList.remove('print-devis'));
+/* ============================================================
+   DÉMARRAGE
+   ============================================================ */
+function appliquerTout() {
+  rendre();
+  rendreDevis();
+  majPrix();
+  syncEntete();
+  syncProjet();
+  majVisibilite();
+  updateDashboard();
+}
 
-  function majVisibilite() {
-    $('bloc-mur').style.display = $('sel-mur').checked ? '' : 'none';
-    $('bloc-poteau').style.display = $('sel-poteau').checked ? '' : 'none';
-    $('bloc-poutre').style.display = $('sel-poutre').checked ? '' : 'none';
-    $('bloc-dalle').style.display = $('sel-dalle').checked ? '' : 'none';
-    $('bloc-corps').style.display = $('sel-corps').checked ? '' : 'none';
-    calculer();
-  }
+(function init() {
+  try {
+    const t = localStorage.getItem('go-theme');
+    if (t === 'dark') { document.documentElement.dataset.theme = 'dark'; }
+  } catch (e) {}
+  $('btn-theme').innerHTML = `<i class="fa-solid ${document.documentElement.dataset.theme === 'dark' ? 'fa-sun' : 'fa-moon'}"></i>`;
 
-  $('dv-date').value = new Date().toLocaleDateString('fr-FR');
-  ajouterMur(); ajouterPoteau(); ajouterPoutre(); ajouterDalle(); ajouterCorps(); rendreDevis(); majVisibilite();
+  const restaure = charger();
+  if (!restaure) {
+    ajouterMur(); ajouterPoteau(); ajouterPoutre(); ajouterDalle(); ajouterCorps();
+    $('dv-date').value = new Date().toLocaleDateString('fr-FR');
+  }
+  appliquerTout();
+  if (!restaure) $('dv-date').value = $('dv-date').value || new Date().toLocaleDateString('fr-FR');
+  syncEntete();
+
+  const h = location.hash.replace('#', '');
+  aller(h && ONGLETS[h] ? h : 'dashboard', { silent: true });
+
+  if (restaure) toast('Projet restauré depuis la dernière session', 'ok');
+  else toast('Nouveau projet prêt — saisie libre', 'info', 'fa-helmet-safety');
+  sauver();
+})();
 </script>
 </body>
 </html>
