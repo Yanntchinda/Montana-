@@ -806,9 +806,9 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
 
             <div class="subcard" style="margin-top:14px">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-                <div class="note" id="crep-validation-statut" style="flex:1;min-width:260px"><i class="fa-solid fa-circle-info"></i><div>Calculs non validés. Aucune quantité de crépissage n’est encore enregistrée dans le devis.</div></div>
+                <div class="note" id="crep-validation-statut" style="flex:1;min-width:260px"><i class="fa-solid fa-circle-info"></i><div>Calculs non validés. Le ciment et le sable du crépissage ne sont pas encore enregistrés dans le devis.</div></div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap">
-                  <button class="btn btn-primary" id="btn-crep-valider" onclick="validerCrepissage()"><i class="fa-solid fa-circle-check"></i> Valider et enregistrer dans le devis</button>
+                  <button class="btn btn-primary" id="btn-crep-valider" onclick="validerCrepissage()"><i class="fa-solid fa-circle-check"></i> Valider le ciment et le sable</button>
                   <button class="btn" onclick="aller('devis')"><i class="fa-solid fa-file-invoice"></i> Voir le devis</button>
                   <button class="btn btn-danger" id="btn-crep-retirer" onclick="retirerCrepissageDevis()" style="display:none"><i class="fa-solid fa-trash-can"></i> Retirer du devis</button>
                 </div>
@@ -1649,8 +1649,6 @@ let devis = [
     ligne('Pointe de 80', 'paquet'), ligne('Pointe tock 60', 'paquet')] }
 ];
 const CREPISSAGE_DEVIS = [
-  { auto: 'crep-surface', des: 'Crépissage — surface totale', unite: 'm²' },
-  { auto: 'crep-volume', des: 'Mortier de crépissage — volume', unite: 'm³' },
   { auto: 'crep-ciment', des: 'Ciment pour crépissage', unite: 'sacs' },
   { auto: 'crep-sable', des: 'Sable pour crépissage', unite: 'm³' }
 ];
@@ -1664,6 +1662,8 @@ function syncCrepissageDevis() {
     section = { n: 'IV', titre: 'CRÉPISSAGE', auto: 'crepissage', lignes: [] };
     devis.push(section);
   }
+  // Les anciennes lignes intermédiaires ne doivent jamais partir dans le devis.
+  section.lignes = section.lignes.filter(l => l.auto !== 'crep-surface' && l.auto !== 'crep-volume');
   CREPISSAGE_DEVIS.forEach(def => {
     let l = section.lignes.find(x => x.auto === def.auto);
     if (!l) {
@@ -1686,16 +1686,16 @@ function majStatutCrepissage() {
   const statut = $('crep-validation-statut'), valider = $('btn-crep-valider'), retirer = $('btn-crep-retirer');
   if (!statut || !valider || !retirer) return;
   if (!crepValidation) {
-    statut.innerHTML = '<i class="fa-solid fa-circle-info"></i><div>Calculs non validés. Aucune quantité de crépissage n’est encore enregistrée dans le devis.</div>';
-    valider.innerHTML = '<i class="fa-solid fa-circle-check"></i> Valider et enregistrer dans le devis';
+    statut.innerHTML = '<i class="fa-solid fa-circle-info"></i><div>Calculs non validés. Le ciment et le sable du crépissage ne sont pas encore enregistrés dans le devis.</div>';
+    valider.innerHTML = '<i class="fa-solid fa-circle-check"></i> Valider le ciment et le sable';
     retirer.style.display = 'none';
     return;
   }
   retirer.style.display = 'inline-flex';
   if (crepissageValideAJour()) {
     const date = new Date(crepValidation.date).toLocaleString('fr-FR');
-    statut.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><b>Validé et enregistré dans le devis.</b> Surface, volume, ciment et sable enregistrés le ${esc(date)}.</div>`;
-    valider.innerHTML = '<i class="fa-solid fa-circle-check"></i> Revalider les résultats';
+    statut.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><b>Validé et enregistré dans le devis.</b> Seules les quantités de ciment et de sable ont été enregistrées le ${esc(date)}.</div>`;
+    valider.innerHTML = '<i class="fa-solid fa-circle-check"></i> Revalider le ciment et le sable';
   } else {
     statut.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><div><b>Calculs modifiés depuis la dernière validation.</b> Le devis conserve les anciennes quantités jusqu’à votre confirmation.</div>';
     valider.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Mettre à jour le devis';
@@ -1715,7 +1715,7 @@ function validerCrepissage() {
   rendreDevis();
   majStatutCrepissage();
   sauver(false);
-  toast('Crépissage validé et enregistré dans le devis', 'ok', 'fa-file-circle-check');
+  toast('Ciment et sable du crépissage enregistrés dans le devis', 'ok', 'fa-file-circle-check');
 }
 function retirerCrepissageDevis() {
   if (!crepValidation || !window.confirm('Retirer les quantités de crépissage du devis ?')) return;
@@ -1797,8 +1797,6 @@ function autoVal(l) {
     case 'ciment': return Math.ceil(b * num($('dos-c').value) - 1e-9) + G.cimentMur;
     case 'sable': return b * num($('dos-s').value) + G.sableMur;
     case 'gravier': return b * num($('dos-g').value);
-    case 'crep-surface': return crepValidation?.surface || 0;
-    case 'crep-volume': return crepValidation?.volume || 0;
     case 'crep-ciment': return crepValidation?.ciment || 0;
     case 'crep-sable': return crepValidation?.sable || 0;
   }
