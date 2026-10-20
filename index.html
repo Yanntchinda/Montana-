@@ -786,10 +786,11 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
 
             <div class="subcard" style="margin-bottom:14px">
               <div class="subcard-title"><i class="fa-solid fa-scale-balanced"></i> Épaisseur et dosage du crépissage</div>
-              <div class="grid g3" style="max-width:900px;align-items:end">
+              <div class="grid g4" style="align-items:end">
                 <div class="field"><label for="crep-epaisseur">Épaisseur saisie (cm)</label><input class="inp" id="crep-epaisseur" type="number" min="0" step="0.1" value="1.5" oninput="calculer()"></div>
                 <div class="field"><label for="crep-dosage">Dosage ciment (sacs / m³)</label><input class="inp" id="crep-dosage" type="number" min="0" step="0.1" value="7" oninput="calculer()"></div>
-                <div class="note"><i class="fa-solid fa-calculator"></i><div><b>Volume :</b> surface × épaisseur en mètres. <b>Ciment :</b> volume × dosage saisi.</div></div>
+                <div class="field"><label for="crep-dosage-sable">Dosage sable (m³ / m³ de crépissage)</label><input class="inp" id="crep-dosage-sable" type="number" min="0" step="0.01" value="1" oninput="calculer()"></div>
+                <div class="note"><i class="fa-solid fa-calculator"></i><div><b>Ciment :</b> volume × dosage ciment. <b>Sable :</b> volume × dosage sable.</div></div>
               </div>
             </div>
 
@@ -800,8 +801,9 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-trowel"></i> Surface totale à crépir</div><div class="t-val"><span id="crep-resultat">0</span><small>m²</small></div></div>
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-cube"></i> Volume de crépissage</div><div class="t-val"><span id="crep-volume">0</span><small>m³</small></div></div>
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-bag-shopping"></i> Quantité de ciment</div><div class="t-val"><span id="crep-ciment">0</span><small>sacs</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-mountain"></i> Quantité de sable</div><div class="t-val"><span id="crep-sable">0</span><small>m³</small></div></div>
             </div>
-            <div class="note" style="margin-top:14px"><i class="fa-solid fa-calculator"></i><div><b>Ouvertures :</b> (longueur porte × hauteur porte × nombre de portes) + (longueur fenêtre × hauteur fenêtre × nombre de fenêtres). <b>Surface :</b> [(longueur mur × hauteur mur) − ouvertures] × nombre de murs × 2 + surface des dalles. <b>Volume :</b> surface totale × (épaisseur en cm ÷ 100). <b>Ciment :</b> volume de crépissage × dosage ciment saisi.</div></div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-calculator"></i><div><b>Ouvertures :</b> (longueur porte × hauteur porte × nombre de portes) + (longueur fenêtre × hauteur fenêtre × nombre de fenêtres). <b>Surface :</b> [(longueur mur × hauteur mur) − ouvertures] × nombre de murs × 2 + surface des dalles. <b>Volume :</b> surface totale × (épaisseur en cm ÷ 100). <b>Ciment :</b> volume × dosage ciment. <b>Sable :</b> volume × dosage sable saisi.</div></div>
           </div>
         </div>
       </section>
@@ -1215,7 +1217,7 @@ function syncSwitches() {
    ============================================================ */
 let uid = 1;
 let murs = [], poteaux = [], poutres = [], dalles = [], corps = [], crepMurs = [], crepDalles = [];
-let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, dalSurf: 0, dalVol: 0, dalFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
+let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, dalSurf: 0, dalVol: 0, dalFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
 
 function ajouterMur()    { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', porteL: '0', porteH: '0', porteN: '1', fenetreL: '0', fenetreH: '0', fenetreN: '1' }); rendre(); }
 function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '0.15', b: '0.15', H: '3', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '3', ferNb: '4' }); rendre(); }
@@ -1586,9 +1588,11 @@ function calculer() {
   const crepVolume = crepTotal * crepEpaisseur;
   const crepDosage = Math.max(0, num($('crep-dosage').value));
   const crepCiment = crepVolume * crepDosage;
+  const crepDosageSable = Math.max(0, num($('crep-dosage-sable').value));
+  const crepSable = crepVolume * crepDosageSable;
   T = { sMur, nbPP: nb, ppArr: Math.ceil(nb - 1e-9), potSec: tSec, potLat: tLat, potVol: tVol, potFer: tFerCommande,
         pouCof: tCof, pouSur: tSur, pouVol: tV, pouFer: tPouFerCommande, pouChap: tChapCommande,
-        dalSurf: tDS, dalVol: tDV, dalFer: tDalFerCommande, crepMurNet, crepMur, crepDalle, crepTotal, crepEpaisseur, crepVolume, crepDosage, crepCiment,
+        dalSurf: tDS, dalVol: tDV, dalFer: tDalFerCommande, crepMurNet, crepMur, crepDalle, crepTotal, crepEpaisseur, crepVolume, crepDosage, crepCiment, crepDosageSable, crepSable,
         ccSurf: tCS, ccHour: tCH, ccNerv: tCN, ccLg: tCG };
 
   G.hourdis = $('sel-corps').checked ? tCH : 0;
@@ -1829,6 +1833,7 @@ function updateDashboard() {
   $('crep-resultat').innerText = fmt(T.crepTotal);
   $('crep-volume').innerText = fmt(T.crepVolume);
   $('crep-ciment').innerText = fmt(T.crepCiment);
+  $('crep-sable').innerText = fmt(T.crepSable);
   $('crep-total-entete').innerText = fmt(T.crepTotal);
 
   // valeurs dans la sidebar
@@ -1837,7 +1842,7 @@ function updateDashboard() {
   $('nav-v-poutre').textContent = fmt(T.pouVol) + ' m³ · ' + fmt(T.pouFer) + ' fers · ' + fmt(T.pouChap) + ' chapeaux';
   $('nav-v-dalle').textContent = fmt(T.dalVol) + ' m³ · ' + fmt(T.dalFer) + ' barres';
   $('nav-v-corps').textContent = fmt(T.ccHour) + ' hourdis · ' + fmt(T.ccSurf) + ' m²';
-  $('nav-v-crepissage').textContent = fmt(T.crepTotal) + ' m² · ' + fmt(T.crepVolume) + ' m³ · ' + fmt(T.crepCiment) + ' sacs';
+  $('nav-v-crepissage').textContent = fmt(T.crepTotal) + ' m² · ' + fmt(T.crepVolume) + ' m³ · ' + fmt(T.crepCiment) + ' sacs · ' + fmt(T.crepSable) + ' m³ sable';
   const aciersActifs = aciersDevisActifs();
   const nbArt = devis.reduce((a, s) => a + s.lignes.filter(l => !estLigneAcier(l) || l.auto in aciersActifs).length, 0);
   $('nav-v-devis').textContent = nbArt + ' article' + (nbArt > 1 ? 's' : '') + ' · ' + fmtM(totTTC) + ' ' + dev;
@@ -1903,7 +1908,7 @@ function basculerTheme() {
    PERSISTANCE (localStorage) + EXPORT / IMPORT
    ============================================================ */
 const CLE = 'gros-oeuvre-projet-v2';
-const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'crep-epaisseur', 'crep-dosage', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
+const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
   'dv-prix', 'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
   'sel-mur', 'sel-poteau', 'sel-poutre', 'sel-dalle', 'sel-corps'];
 let saveTimer = null;
