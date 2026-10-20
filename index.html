@@ -1085,7 +1085,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-cart-flatbed"></i> Barres à commander</div><div class="t-val" id="sem-fer-commande">0</div></div>
             </div>
             <div class="note" id="sem-fer-detail" style="margin-top:14px"><i class="fa-solid fa-layer-group"></i><div>Aucune armature de semelle calculée.</div></div>
-            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Volume béton :</b> longueur × largeur × hauteur × nombre. <b>Pour chaque nappe :</b> ((longueur − enrobage) ÷ espacement) × (largeur + longueur des crochets) + ((largeur − enrobage) ÷ espacement) × (longueur + longueur des crochets). Les valeurs d’enrobage, d’espacement et de crochets sont saisies en centimètres puis converties en mètres. Le résultat est multiplié par le nombre de semelles et divisé par <b>12 m</b> pour la commande.</div></div>
+            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Volume béton :</b> longueur × largeur × hauteur × nombre. <b>Pour chaque nappe :</b> ((longueur − enrobage) ÷ espacement) × (largeur + longueur des crochets) + ((largeur − enrobage) ÷ espacement) × (longueur + longueur des crochets). Les valeurs d’enrobage, d’espacement et de crochets sont saisies en centimètres puis converties en mètres. Le résultat est multiplié par le nombre de semelles et divisé par <b>12 m</b> pour la commande. Après validation, seules les lignes <b>Volume total béton</b> et <b>Barres à commander</b> sont envoyées au devis.</div></div>
             <div id="validation-module-semelle"></div>
           </div>
         </div>
@@ -1314,6 +1314,7 @@ function validerModuleDevis(cle) {
   if (!(cle in MODULES_VALIDABLES)) return;
   validationsModules[cle] = { donnees: copierCalcul(calculsModules[cle]), date: new Date().toISOString() };
   calculer();
+  if (cle === 'semelle') { syncSemellesDevis(); rendreDevis(); }
   sauver(false);
   toast(`${MODULES_VALIDABLES[cle]} validé et enregistré dans le devis`, 'ok', 'fa-file-circle-check');
 }
@@ -1322,6 +1323,7 @@ function retirerModuleDevis(cle) {
       || !window.confirm(`Retirer le module ${MODULES_VALIDABLES[cle]} du devis ?`)) return;
   validationsModules[cle] = null;
   calculer();
+  if (cle === 'semelle') { syncSemellesDevis(); rendreDevis(); }
   sauver(false);
   toast(`${MODULES_VALIDABLES[cle]} retiré du devis`, 'ok');
 }
@@ -1331,7 +1333,10 @@ function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.l
 function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferNb: '4', chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2' }); rendre(); }
 function ajouterDalle()  { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1', ferNuanceLong: 'HA', ferDiamLong: '10', ferEspLong: '20', ferNuanceLarg: 'HA', ferDiamLarg: '10', ferEspLarg: '20' }); rendre(); }
 function ajouterCorps()  { corps.push({ id: uid++, nom: 'Panneau ' + (corps.length + 1), L: '', l: '', pb: '0.15', n: '1' }); rendre(); }
-function ajouterSemelle() { semelles.push({ id: uid++, nom: 'Semelle ' + (semelles.length + 1), L: '', l: '', h: '0.25', n: '1', n1Nuance: 'HA', n1Diam: '10', n1Enrobage: '5', n1Espacement: '15', n1Crochet: '15', n2Nuance: 'HA', n2Diam: '10', n2Enrobage: '5', n2Espacement: '15', n2Crochet: '15' }); rendre(); }
+function nouvelleSemelle(id, numero = 1) {
+  return { id, nom: 'Semelle ' + numero, L: '', l: '', h: '0.25', n: '1', n1Nuance: 'HA', n1Diam: '10', n1Enrobage: '5', n1Espacement: '15', n1Crochet: '15', n2Nuance: 'HA', n2Diam: '10', n2Enrobage: '5', n2Espacement: '15', n2Crochet: '15' };
+}
+function ajouterSemelle() { semelles.push(nouvelleSemelle(uid++, semelles.length + 1)); rendre(); }
 function ajouterCrepMur() { crepMurs.push({ id: uid++, nom: 'Mur crépissage ' + (crepMurs.length + 1), L: '', H: '3', n: '1', porteL: '0', porteH: '0', porteN: '1', fenetreL: '0', fenetreH: '0', fenetreN: '1' }); rendre(); }
 function ajouterCrepDalle() { crepDalles.push({ id: uid++, nom: 'Dalle crépissage ' + (crepDalles.length + 1), L: '', l: '', n: '1' }); rendre(); }
 
@@ -1793,14 +1798,15 @@ function calculer() {
     poutre: { volume: tV, fers: fersPoutresCommande, chapeaux: chapeauxCommande },
     dalle: { surface: tDS, volume: tDV, fers: fersDallesCommande },
     corps: { surface: tCS, hourdis: tCH, nervures: tCG },
-    semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, fers: fersSemellesCommande }
+    semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande }
   };
   const valideActif = cle => $('sel-' + cle).checked ? validationsModules[cle]?.donnees : null;
   const murValide = valideActif('mur'), poteauValide = valideActif('poteau');
   const poutreValide = valideActif('poutre'), dalleValidee = valideActif('dalle'), corpsValide = valideActif('corps'), semelleValidee = valideActif('semelle');
 
   // --- Alimentation du devis à partir des derniers instantanés validés ---
-  G.beton = (poteauValide?.volume || 0) + (poutreValide?.volume || 0) + (dalleValidee?.volume || 0) + (semelleValidee?.volume || 0) + num($('dos-autre').value);
+  G.betonHorsSemelles = (poteauValide?.volume || 0) + (poutreValide?.volume || 0) + (dalleValidee?.volume || 0) + num($('dos-autre').value);
+  G.beton = G.betonHorsSemelles + (semelleValidee?.volume || 0);
   G.parpaings = murValide?.parpaings || 0;
   G.cimentMur = murValide?.ciment || 0;
   G.sableMur = murValide?.sable || 0;
@@ -1818,7 +1824,7 @@ function calculer() {
 /* ============================================================
    DEVIS QUANTITATIF
    ============================================================ */
-let G = { beton: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferPoteaux: {}, ferPoutres: {}, ferChapeaux: {}, ferDalles: {}, ferSemelles: {} };
+let G = { beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferPoteaux: {}, ferPoutres: {}, ferChapeaux: {}, ferDalles: {}, ferSemelles: {} };
 let dvId = 1000;
 function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', auto }; }
 let devis = [
@@ -1836,10 +1842,45 @@ const CREPISSAGE_DEVIS = [
   { auto: 'crep-ciment', des: 'Ciment pour crépissage', unite: 'sacs' },
   { auto: 'crep-sable', des: 'Sable pour crépissage', unite: 'm³' }
 ];
+const SEMELLES_DEVIS = [
+  { auto: 'semelle-volume', des: 'Volume total béton', unite: 'm³' },
+  { auto: 'semelle-barres', des: 'Barres à commander', unite: 'barres de 12 m' }
+];
+function ordonnerEtNumeroterDevis() {
+  const fixes = devis.filter(s => !s.auto);
+  const dynamiques = ['crepissage', 'semelles'].map(auto => devis.find(s => s.auto === auto)).filter(Boolean);
+  devis = [...fixes, ...dynamiques];
+  const romains = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+  devis.forEach((section, index) => { section.n = romains[index] || String(index + 1); });
+}
+function syncSemellesDevis() {
+  // Nettoyage des anciennes lignes par référence : seules les deux valeurs globales demandées restent au devis.
+  const materiaux = devis.find(s => s.n === 'II' || s.titre === 'MATÉRIAUX');
+  if (materiaux) materiaux.lignes = materiaux.lignes.filter(l => !(typeof l.auto === 'string' && l.auto.startsWith('semellefer:')));
+  let section = devis.find(s => s.auto === 'semelles');
+  const validation = validationsModules.semelle;
+  if (!validation) {
+    if (section) devis = devis.filter(s => s !== section);
+    ordonnerEtNumeroterDevis();
+    return;
+  }
+  if (!section) {
+    section = { n: '', titre: 'SEMELLES', auto: 'semelles', lignes: [] };
+    devis.push(section);
+  }
+  SEMELLES_DEVIS.forEach(def => {
+    let l = section.lignes.find(x => x.auto === def.auto);
+    if (!l) { l = ligne(def.des, def.unite, def.auto); section.lignes.push(l); }
+    l.des = def.des; l.unite = def.unite; l.qte = null;
+  });
+  section.lignes = section.lignes.filter(l => SEMELLES_DEVIS.some(def => def.auto === l.auto));
+  ordonnerEtNumeroterDevis();
+}
 function syncCrepissageDevis() {
   let section = devis.find(s => s.auto === 'crepissage');
   if (!crepValidation) {
     if (section) devis = devis.filter(s => s !== section);
+    ordonnerEtNumeroterDevis();
     return;
   }
   if (!section) {
@@ -1858,6 +1899,7 @@ function syncCrepissageDevis() {
     l.unite = def.unite;
     l.qte = null;
   });
+  ordonnerEtNumeroterDevis();
 }
 function crepissageValideAJour() {
   if (!crepValidation) return false;
@@ -1938,9 +1980,6 @@ function aciersDevisActifs() {
   Object.entries(G.ferDalles || {}).forEach(([cle, qte]) => {
     lignes[`dallefer:${cle}`] = { qte, des: `Fer dalle pleine à commander — ${libelleFer(cle)}`, unite: 'barre 12 m' };
   });
-  Object.entries(G.ferSemelles || {}).forEach(([cle, qte]) => {
-    lignes[`semellefer:${cle}`] = { qte, des: `Fer semelles à commander — ${libelleFer(cle)}`, unite: 'barre 12 m' };
-  });
   return lignes;
 }
 function syncFersDevis() {
@@ -1976,9 +2015,12 @@ function migrerFersDevis() {
 
 function autoVal(l) {
   const b = G.beton;
+  const semelleValidee = validationsModules.semelle?.donnees;
   if (estLigneAcier(l)) return aciersDevisActifs()[l.auto]?.qte || 0;
   switch (l.auto) {
-    case 'beton': return b;
+    case 'beton': return G.betonHorsSemelles;
+    case 'semelle-volume': return semelleValidee?.volume || 0;
+    case 'semelle-barres': return semelleValidee?.barres ?? Object.values(semelleValidee?.fers || {}).reduce((total, qte) => total + num(qte), 0);
     case 'parpaing': return G.parpaings;
     case 'hourdis': return G.hourdis;
     case 'nervure': return G.nervures;
@@ -2211,7 +2253,7 @@ function sauver(silencieux = true) {
   try {
     const champs = {};
     CHAMPS.forEach(id => { const el = $(id); if (el) champs[id] = el.type === 'checkbox' ? el.checked : el.value; });
-    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, poutres, dalles, corps, semelles, crepMurs, crepDalles, crepValidation, validationsModules, champs, devis };
+    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, poutres, dalles, corps, semelles, moduleSemellesInitialise: true, crepMurs, crepDalles, crepValidation, validationsModules, champs, devis };
     localStorage.setItem(CLE, JSON.stringify(data));
     const s = $('save-state');
     s.classList.remove('dirty');
@@ -2269,6 +2311,8 @@ function charger() {
       n1Nuance: 'HA', n1Diam: '10', n1Enrobage: '5', n1Espacement: '15', n1Crochet: '15',
       n2Nuance: 'HA', n2Diam: '10', n2Enrobage: '5', n2Espacement: '15', n2Crochet: '15', ...o
     }));
+    // Les projets enregistrés avant l’ajout du module reçoivent automatiquement un premier espace de saisie.
+    if (!d.moduleSemellesInitialise && !semelles.length) semelles.push(nouvelleSemelle(d.uid || 1, 1));
     crepMurs = (d.crepMurs || []).map(o => ({
       ...o,
       porteL: o.porteL ?? '0', porteH: o.porteH ?? '0', porteN: o.porteN ?? '1',
@@ -2278,11 +2322,14 @@ function charger() {
     crepValidation = d.crepValidation || null;
     const validationsSauvees = d.validationsModules || {};
     Object.keys(MODULES_VALIDABLES).forEach(cle => { validationsModules[cle] = validationsSauvees[cle] || null; });
+    const semelleSauvee = validationsModules.semelle?.donnees;
+    if (semelleSauvee && semelleSauvee.barres == null) semelleSauvee.barres = Object.values(semelleSauvee.fers || {}).reduce((total, qte) => total + num(qte), 0);
     if (Array.isArray(d.devis) && d.devis.length) devis = d.devis;
     migrerFersDevis();
     uid = Math.max(d.uid || 1, ...[murs, poteaux, poutres, dalles, corps, semelles, crepMurs, crepDalles].flat().map(o => o.id + 1), 1);
     dvId = Math.max(1000, ...devis.flatMap(s => s.lignes.map(l => l.id + 1)));
     syncCrepissageDevis();
+    syncSemellesDevis();
     dvId = Math.max(dvId, ...devis.flatMap(s => s.lignes.map(l => l.id + 1)));
     CHAMPS.forEach(id => {
       const el = $(id); if (!el || !(id in (d.champs || {}))) return;
