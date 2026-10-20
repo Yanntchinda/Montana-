@@ -707,7 +707,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <table>
                 <thead><tr>
                   <th>Désignation</th><th class="w-md">Long. (m)</th><th class="w-md">Haut. (m)</th><th class="w-sm">Nb murs</th>
-                  <th class="w-lg">Ouvertures (m²)</th><th class="th-r w-lg">Surface (m²)</th><th class="w-sm no-print"></th>
+                  <th class="w-lg">Porte L × H × nb</th><th class="w-lg">Fenêtre L × H × nb</th><th class="th-r w-lg">Surf. ouvertures (m²)</th><th class="th-r w-lg">Surface mur (m²)</th><th class="w-sm no-print"></th>
                 </tr></thead>
                 <tbody id="tb-mur"></tbody>
               </table>
@@ -1085,9 +1085,24 @@ const ligneVide = (nbCol, texte) => `<tr class="empty-row"><td colspan="${nbCol}
 function rendre() {
   $('tb-mur').innerHTML = murs.length ? murs.map(o => `<tr>
       <td>${inp('mur', o, 'nom', 'inp-txt')}</td><td>${inp('mur', o, 'L')}</td><td>${inp('mur', o, 'H')}</td>
-      <td>${inp('mur', o, 'n')}</td><td>${inp('mur', o, 'ouv')}</td>
-      <td class="res" id="m-s-${o.id}">0</td>${delBtn('mur', o.id)}</tr>`).join('')
-    : ligneVide(7, 'Aucun mur — cliquez sur « Ajouter un mur »');
+      <td>${inp('mur', o, 'n')}</td>
+      <td class="w-lg"><div class="flex items-center gap-1">
+        <input class="inp" style="width:40px;padding:4px 6px;font-size:11.5px" value="${esc(o.porteL)}" oninput="maj('mur',${o.id},'porteL',this.value)">
+        <span class="text-[10px] text-slate-500">×</span>
+        <input class="inp" style="width:40px;padding:4px 6px;font-size:11.5px" value="${esc(o.porteH)}" oninput="maj('mur',${o.id},'porteH',this.value)">
+        <span class="text-[10px] text-slate-500">×</span>
+        <input class="inp" style="width:32px;padding:4px 6px;font-size:11.5px" value="${esc(o.porteN)}" oninput="maj('mur',${o.id},'porteN',this.value)">
+      </div></td>
+      <td class="w-lg"><div class="flex items-center gap-1">
+        <input class="inp" style="width:40px;padding:4px 6px;font-size:11.5px" value="${esc(o.fenetreL)}" oninput="maj('mur',${o.id},'fenetreL',this.value)">
+        <span class="text-[10px] text-slate-500">×</span>
+        <input class="inp" style="width:40px;padding:4px 6px;font-size:11.5px" value="${esc(o.fenetreH)}" oninput="maj('mur',${o.id},'fenetreH',this.value)">
+        <span class="text-[10px] text-slate-500">×</span>
+        <input class="inp" style="width:32px;padding:4px 6px;font-size:11.5px" value="${esc(o.fenetreN)}" oninput="maj('mur',${o.id},'fenetreN',this.value)">
+      </div></td>
+      <td class="text-right res" id="m-o-${o.id}">0</td>
+      <td class="text-right res" id="m-s-${o.id}">0</td>${delBtn('mur', o.id)}</tr>`).join('')
+    : ligneVide(9, 'Aucun mur — cliquez sur « Ajouter un mur »');
 
   $('tb-poteau').innerHTML = poteaux.length ? poteaux.map(o => `<tr>
       <td>${inp('poteau', o, 'nom', 'inp-txt')}</td>
@@ -1135,10 +1150,14 @@ function calculer() {
   const sPP = (num($('pp-l').value) / 100 + j) * (num($('pp-h').value) / 100 + j);
   $('pp-surface').innerText = fmt(sPP);
 
-  // --- Murs : surface = (L×H − ouvertures) × nb ---
+  // --- Murs : surface = (L×H − ouvertures porte/fenêtre) × nb ---
   let sMur = 0;
   murs.forEach(o => {
-    const s = Math.max(0, num(o.L) * num(o.H) - num(o.ouv)) * num(o.n);
+    const surfPorte = num(o.porteL) * num(o.porteH) * num(o.porteN);
+    const surfFenetre = num(o.fenetreL) * num(o.fenetreH) * num(o.fenetreN);
+    const surfOuvertures = surfPorte + surfFenetre;
+    const co = $('m-o-' + o.id); if (co) co.innerText = fmt(surfOuvertures);
+    const s = Math.max(0, num(o.L) * num(o.H) - surfOuvertures) * num(o.n);
     sMur += s;
     const c = $('m-s-' + o.id); if (c) c.innerText = fmt(s);
   });
