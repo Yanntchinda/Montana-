@@ -331,7 +331,6 @@ html[data-theme="dark"] .kpi.k-money .k-val{color:#6ee7b7}
 .sign{border:1px solid var(--border-strong);border-radius:12px;padding:13px;height:118px;font-size:11.2px;color:var(--muted);background:var(--surface-2)}
 .sign b{color:var(--text);font-size:12px;display:block;margin-bottom:4px}
 .sign.right{text-align:right}
-.prix-off .col-prix{display:none !important}
 tr.dv-sec td{background:var(--surface-3);color:var(--brand);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.09em;padding:8px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 tr.dv-sec td.code-sec{text-align:center;width:56px}
 .code-cell{text-align:center;color:var(--faint);font-family:var(--mono);font-size:11.5px}
@@ -953,10 +952,10 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           <div class="card-head">
             <div class="ch-txt">
               <h3><i class="fa-solid fa-sliders"></i> Paramètres du devis</h3>
-              <div class="ch-sub">Dosages du béton, devise, TVA et affichage des prix</div>
+              <div class="ch-sub">Dosages du béton, devise, TVA et prix unitaires</div>
             </div>
             <div class="ch-act">
-              <label class="incl" style="cursor:pointer"><input type="checkbox" id="dv-prix" onchange="majPrix()" style="accent-color:#f59e0b;width:15px;height:15px"> Afficher les prix (P.U &amp; totaux)</label>
+              <span class="incl"><i class="fa-solid fa-tags"></i> Prix activés sur chaque élément</span>
             </div>
           </div>
           <div class="card-body">
@@ -973,12 +972,12 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="field"><label for="dv-devise">Devise</label><input class="inp inp-txt" id="dv-devise" value="FCFA" oninput="updateDevis()"></div>
               <div class="field"><label for="dv-tva">TVA (%)</label><input class="inp" id="dv-tva" value="19.25" oninput="updateDevis()"></div>
             </div>
-            <div class="note" style="margin-top:14px"><i class="fa-solid fa-lightbulb"></i><div><b>Béton</b> = volume des poteaux + poutres + dalles (modules activés) + « autre béton ». Parpaings, ciment, sable et gravier se calculent seuls ; vous pouvez écraser n'importe quelle quantité, puis revenir au calcul automatique avec <i class="fa-solid fa-rotate-left"></i>. Armatures et matériels sont à saisir.</div></div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-lightbulb"></i><div><b>Béton</b> = volume des poteaux + poutres + dalles (modules activés) + « autre béton ». Les quantités automatiques peuvent être corrigées puis restaurées avec <i class="fa-solid fa-rotate-left"></i>. Saisissez le prix unitaire de chaque élément : son montant et le prix total du devis sont recalculés immédiatement.</div></div>
           </div>
         </div>
 
         <!-- Document imprimable -->
-        <div class="doc prix-off" id="doc-devis">
+        <div class="doc" id="doc-devis">
           <div class="doc-head">
             <div class="dh-row">
               <div class="doc-logo">
@@ -1012,7 +1011,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <table>
                 <thead><tr>
                   <th class="w-code" style="text-align:center">Code</th><th>Désignation</th><th class="w-sm">Unité</th><th class="w-lg">Quantité</th>
-                  <th class="col-prix w-md">P.U</th><th class="col-prix th-r w-lg">Total</th><th class="w-sm no-print"></th>
+                  <th class="col-prix w-lg">Prix unitaire</th><th class="col-prix th-r w-lg">Montant</th><th class="w-sm no-print"></th>
                 </tr></thead>
                 <tbody id="tb-devis"></tbody>
               </table>
@@ -1024,7 +1023,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
             <div class="totaux col-prix">
               <div class="tx"><span>Total HT</span><b id="dv-ht">0</b></div>
               <div class="tx"><span>TVA (<span id="dv-tva-aff">19,25</span> %)</span><b id="dv-tvamt">0</b></div>
-              <div class="tx grand"><span>Total TTC</span><b id="dv-ttc">0</b></div>
+              <div class="tx grand"><span>Prix total</span><b id="dv-ttc">0</b></div>
             </div>
           </div>
 
@@ -1617,10 +1616,9 @@ function updateDevis() {
   marquerModifie();
 }
 function majPrix() {
-  const on = $('dv-prix').checked;
-  $('doc-devis').classList.toggle('prix-off', !on);
-  $('bloc-devis').classList.toggle('prix-off', !on);
-  sauver();
+  // Les prix unitaires, les montants et le prix total sont toujours visibles dans le devis et le PDF.
+  $('doc-devis').classList.remove('prix-off');
+  $('bloc-devis').classList.remove('prix-off');
 }
 function telechargerDevis() {
   // Depuis la sidebar ou la barre supérieure, le devis peut être masqué :
@@ -1754,7 +1752,7 @@ function basculerTheme() {
    ============================================================ */
 const CLE = 'gros-oeuvre-projet-v2';
 const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
-  'dv-prix', 'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
+  'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
   'sel-mur', 'sel-poteau', 'sel-poutre', 'sel-dalle', 'sel-corps'];
 let saveTimer = null;
 
