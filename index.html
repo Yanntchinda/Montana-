@@ -331,6 +331,7 @@ html[data-theme="dark"] .kpi.k-money .k-val{color:#6ee7b7}
 .sign{border:1px solid var(--border-strong);border-radius:12px;padding:13px;height:118px;font-size:11.2px;color:var(--muted);background:var(--surface-2)}
 .sign b{color:var(--text);font-size:12px;display:block;margin-bottom:4px}
 .sign.right{text-align:right}
+.prix-off .col-prix{display:none !important}
 tr.dv-sec td{background:var(--surface-3);color:var(--brand);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.09em;padding:8px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 tr.dv-sec td.code-sec{text-align:center;width:56px}
 .code-cell{text-align:center;color:var(--faint);font-family:var(--mono);font-size:11.5px}
@@ -701,6 +702,25 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           </div>
         </div>
 
+        <div class="card" id="dash-crepissage-card">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-paint-roller"></i> Crépissage</h3>
+              <div class="ch-sub">Surface nette des murs sur deux faces + surface des dalles</div>
+            </div>
+            <span class="btn btn-sm btn-ghost" style="pointer-events:none"><b class="res" id="dash-crep-total">0</b>&nbsp;m²</span>
+          </div>
+          <div class="card-body">
+            <div class="tiles">
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-border-all"></i> Murs nets — une face</div><div class="t-val"><span id="dash-crep-mur-net">0</span><small>m²</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-clone"></i> Murs nets — deux faces</div><div class="t-val"><span id="dash-crep-mur-double">0</span><small>m²</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-vector-square"></i> Surface des dalles</div><div class="t-val"><span id="dash-crep-dalle">0</span><small>m²</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-trowel"></i> Surface totale à crépir</div><div class="t-val"><span id="dash-crep-resultat">0</span><small>m²</small></div></div>
+            </div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-calculator"></i><div><b>Formule :</b> [(longueur × hauteur) − surface des portes et fenêtres] × nombre de murs × 2 + (longueur de dalle × largeur de dalle × nombre de dalles).</div></div>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-head">
             <div class="ch-txt">
@@ -952,10 +972,10 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           <div class="card-head">
             <div class="ch-txt">
               <h3><i class="fa-solid fa-sliders"></i> Paramètres du devis</h3>
-              <div class="ch-sub">Dosages du béton, devise, TVA et prix unitaires</div>
+              <div class="ch-sub">Dosages du béton, devise, TVA et affichage des prix</div>
             </div>
             <div class="ch-act">
-              <span class="incl"><i class="fa-solid fa-tags"></i> Prix activés sur chaque élément</span>
+              <label class="incl" style="cursor:pointer"><input type="checkbox" id="dv-prix" onchange="majPrix()" style="accent-color:#f59e0b;width:15px;height:15px"> Afficher les prix (P.U &amp; totaux)</label>
             </div>
           </div>
           <div class="card-body">
@@ -972,12 +992,12 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="field"><label for="dv-devise">Devise</label><input class="inp inp-txt" id="dv-devise" value="FCFA" oninput="updateDevis()"></div>
               <div class="field"><label for="dv-tva">TVA (%)</label><input class="inp" id="dv-tva" value="19.25" oninput="updateDevis()"></div>
             </div>
-            <div class="note" style="margin-top:14px"><i class="fa-solid fa-lightbulb"></i><div><b>Béton</b> = volume des poteaux + poutres + dalles (modules activés) + « autre béton ». Les quantités automatiques peuvent être corrigées puis restaurées avec <i class="fa-solid fa-rotate-left"></i>. Saisissez le prix unitaire de chaque élément : son montant et le prix total du devis sont recalculés immédiatement.</div></div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-lightbulb"></i><div><b>Béton</b> = volume des poteaux + poutres + dalles (modules activés) + « autre béton ». Parpaings, ciment, sable et gravier se calculent seuls ; vous pouvez écraser n'importe quelle quantité, puis revenir au calcul automatique avec <i class="fa-solid fa-rotate-left"></i>. Armatures et matériels sont à saisir.</div></div>
           </div>
         </div>
 
         <!-- Document imprimable -->
-        <div class="doc" id="doc-devis">
+        <div class="doc prix-off" id="doc-devis">
           <div class="doc-head">
             <div class="dh-row">
               <div class="doc-logo">
@@ -1011,7 +1031,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <table>
                 <thead><tr>
                   <th class="w-code" style="text-align:center">Code</th><th>Désignation</th><th class="w-sm">Unité</th><th class="w-lg">Quantité</th>
-                  <th class="col-prix w-lg">Prix unitaire</th><th class="col-prix th-r w-lg">Montant</th><th class="w-sm no-print"></th>
+                  <th class="col-prix w-md">P.U</th><th class="col-prix th-r w-lg">Total</th><th class="w-sm no-print"></th>
                 </tr></thead>
                 <tbody id="tb-devis"></tbody>
               </table>
@@ -1023,7 +1043,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
             <div class="totaux col-prix">
               <div class="tx"><span>Total HT</span><b id="dv-ht">0</b></div>
               <div class="tx"><span>TVA (<span id="dv-tva-aff">19,25</span> %)</span><b id="dv-tvamt">0</b></div>
-              <div class="tx grand"><span>Prix total</span><b id="dv-ttc">0</b></div>
+              <div class="tx grand"><span>Total TTC</span><b id="dv-ttc">0</b></div>
             </div>
           </div>
 
@@ -1123,7 +1143,7 @@ function syncSwitches() {
    ============================================================ */
 let uid = 1;
 let murs = [], poteaux = [], poutres = [], dalles = [], corps = [];
-let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, dalSurf: 0, dalVol: 0, dalFer: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
+let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, dalSurf: 0, dalVol: 0, dalFer: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
 
 function ajouterMur()    { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', porteL: '0', porteH: '0', porteN: '1', fenetreL: '0', fenetreH: '0', fenetreN: '1' }); rendre(); }
 function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '0.15', b: '0.15', H: '3', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '3', ferNb: '4' }); rendre(); }
@@ -1444,9 +1464,13 @@ function calculer() {
   $('cc-surf').innerText = fmt(tCS); $('cc-hour').innerText = fmt(tCH);
   $('cc-nerv').innerText = fmt(tCN); $('cc-lg').innerText = fmt(tCG);
 
+  const crepMur = sMur * 2;
+  const crepDalle = tDS;
+  const crepTotal = crepMur + crepDalle;
   T = { sMur, nbPP: nb, ppArr: Math.ceil(nb - 1e-9), potSec: tSec, potLat: tLat, potVol: tVol, potFer: tFerCommande,
         pouCof: tCof, pouSur: tSur, pouVol: tV, pouFer: tPouFerCommande, pouChap: tChapCommande,
-        dalSurf: tDS, dalVol: tDV, dalFer: tDalFerCommande, ccSurf: tCS, ccHour: tCH, ccNerv: tCN, ccLg: tCG };
+        dalSurf: tDS, dalVol: tDV, dalFer: tDalFerCommande, crepMur, crepDalle, crepTotal,
+        ccSurf: tCS, ccHour: tCH, ccNerv: tCN, ccLg: tCG };
 
   G.hourdis = $('sel-corps').checked ? tCH : 0;
   G.nervures = $('sel-corps').checked ? tCG : 0;
@@ -1616,9 +1640,10 @@ function updateDevis() {
   marquerModifie();
 }
 function majPrix() {
-  // Les prix unitaires, les montants et le prix total sont toujours visibles dans le devis et le PDF.
-  $('doc-devis').classList.remove('prix-off');
-  $('bloc-devis').classList.remove('prix-off');
+  const on = $('dv-prix').checked;
+  $('doc-devis').classList.toggle('prix-off', !on);
+  $('bloc-devis').classList.toggle('prix-off', !on);
+  sauver();
 }
 function telechargerDevis() {
   // Depuis la sidebar ou la barre supérieure, le devis peut être masqué :
@@ -1679,6 +1704,11 @@ function updateDashboard() {
   $('dash-nervures').innerText = fmt(G.nervures);
   $('dash-ht').innerText = fmtM(totHT);
   $('dash-tva').innerText = fmtM(totTTC - totHT);
+  $('dash-crep-mur-net').innerText = fmt(T.sMur);
+  $('dash-crep-mur-double').innerText = fmt(T.crepMur);
+  $('dash-crep-dalle').innerText = fmt(T.crepDalle);
+  $('dash-crep-resultat').innerText = fmt(T.crepTotal);
+  $('dash-crep-total').innerText = fmt(T.crepTotal);
 
   // valeurs dans la sidebar
   $('nav-v-mur').textContent = fmt(T.sMur) + ' m² · ' + fmt(G.parpaings) + ' parpaings';
@@ -1752,7 +1782,7 @@ function basculerTheme() {
    ============================================================ */
 const CLE = 'gros-oeuvre-projet-v2';
 const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
-  'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
+  'dv-prix', 'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
   'sel-mur', 'sel-poteau', 'sel-poutre', 'sel-dalle', 'sel-corps'];
 let saveTimer = null;
 
