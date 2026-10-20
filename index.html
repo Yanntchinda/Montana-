@@ -743,7 +743,9 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <table>
                 <thead><tr>
                   <th>Désignation</th><th class="w-lg">Forme</th><th class="w-md">a / Ø (m)</th><th class="w-md">b (m)</th>
-                  <th class="w-md">Haut. (m)</th><th class="w-sm">Nb</th>
+                  <th class="w-md">Haut. poteau (m)</th><th class="w-sm">Nb poteaux</th>
+                  <th class="w-sm">Nuance</th><th class="w-sm">Ø fer</th><th class="w-md">Haut. fer (m)</th><th class="w-sm">Fers / poteau</th>
+                  <th class="th-r">Fer total (ml)</th><th class="th-r">Barres 12 m</th>
                   <th class="th-r">Section (m²)</th><th class="th-r">Surf. latérale (m²)</th><th class="th-r">Volume (m³)</th><th class="w-sm no-print"></th>
                 </tr></thead>
                 <tbody id="tb-poteau"></tbody>
@@ -753,8 +755,12 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-vector-square"></i> Section totale</div><div class="t-val"><span id="pot-section">0</span><small>m²</small></div></div>
               <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-ruler-combined"></i> Surface latérale (coffrage)</div><div class="t-val"><span id="pot-lat">0</span><small>m²</small></div></div>
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-cube"></i> Volume total</div><div class="t-val"><span id="pot-vol">0</span><small>m³</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-grip-lines"></i> Longueur totale des fers</div><div class="t-val"><span id="pot-fer-ml">0</span><small>ml</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-divide"></i> Barres de 12 m (exact)</div><div class="t-val"><span id="pot-fer-exact">0</span><small>barres</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-truck-ramp-box"></i> Fers à commander</div><div class="t-val"><span id="pot-fer-commande">0</span><small>barres</small></div></div>
             </div>
-            <div class="note" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><div>Rectangulaire : <b>a × b</b>. Circulaire : seul le Ø (colonne a) est utilisé — section <b>π·Ø²/4</b>, périmètre <b>π·Ø</b>. La surface latérale correspond au coffrage : périmètre × hauteur × nombre.</div></div>
+            <div class="note" id="pot-fer-detail" style="margin-top:14px"><i class="fa-solid fa-bars-staggered"></i><div>Aucune armature calculée.</div></div>
+            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div>Fer d'un poteau : <b>hauteur du fer × nombre de fers × nombre de poteaux</b>. Quantité en barres : <b>longueur totale ÷ 12 m</b>. La commande est arrondie au supérieur séparément pour chaque nuance et diamètre.</div></div>
           </div>
         </div>
       </section>
@@ -1050,7 +1056,7 @@ let murs = [], poteaux = [], poutres = [], dalles = [], corps = [];
 let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, pouCof: 0, pouSur: 0, pouVol: 0, dalSurf: 0, dalVol: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
 
 function ajouterMur()    { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', ouv: '0' }); rendre(); }
-function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '0.15', b: '0.15', H: '3', n: '1' }); rendre(); }
+function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '0.15', b: '0.15', H: '3', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '3', ferNb: '4' }); rendre(); }
 function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1' }); rendre(); }
 function ajouterDalle()  { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1' }); rendre(); }
 function ajouterCorps()  { corps.push({ id: uid++, nom: 'Panneau ' + (corps.length + 1), L: '', l: '', pb: '0.15', n: '1' }); rendre(); }
@@ -1083,6 +1089,8 @@ const inp = (type, o, champ, cls = '') =>
 const delBtn = (type, id) =>
   `<td class="no-print" style="text-align:center"><button class="del-btn" onclick="supprimer('${type}',${id})" title="Supprimer la ligne"><i class="fa-solid fa-trash-can"></i></button></td>`;
 const ligneVide = (nbCol, texte) => `<tr class="empty-row"><td colspan="${nbCol}"><i class="fa-solid fa-inbox" style="margin-right:7px"></i>${texte}</td></tr>`;
+const optionsFer = valeur => Array.from({ length: 39 }, (_, i) => i + 2)
+  .map(v => `<option value="${v}" ${String(valeur) === String(v) ? 'selected' : ''}>${v}</option>`).join('');
 
 function rendre() {
   $('tb-mur').innerHTML = murs.length ? murs.map(o => `<tr>
@@ -1114,9 +1122,16 @@ function rendre() {
       <td>${inp('poteau', o, 'a')}</td>
       <td>${o.forme === 'rect' ? inp('poteau', o, 'b') : '<span style="color:var(--faint);font-size:11px">— Ø seul —</span>'}</td>
       <td>${inp('poteau', o, 'H')}</td><td>${inp('poteau', o, 'n')}</td>
+      <td><select class="inp" onchange="maj('poteau',${o.id},'ferNuance',this.value)">
+        <option value="HA" ${o.ferNuance === 'RL' ? '' : 'selected'}>HA</option>
+        <option value="RL" ${o.ferNuance === 'RL' ? 'selected' : ''}>RL</option></select></td>
+      <td><select class="inp" onchange="maj('poteau',${o.id},'ferDiam',this.value)">${optionsFer(o.ferDiam || '12')}</select></td>
+      <td><input class="inp" type="number" min="0" step="0.01" value="${esc(o.ferH ?? o.H ?? '3')}" oninput="maj('poteau',${o.id},'ferH',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="1" value="${esc(o.ferNb ?? '4')}" oninput="maj('poteau',${o.id},'ferNb',this.value)"></td>
+      <td class="res" id="p-ferml-${o.id}">0</td><td class="res" id="p-ferbar-${o.id}">0</td>
       <td class="res" id="p-sec-${o.id}">0</td><td class="res" id="p-lat-${o.id}">0</td><td class="res" id="p-vol-${o.id}">0</td>
       ${delBtn('poteau', o.id)}</tr>`).join('')
-    : ligneVide(10, 'Aucun poteau — cliquez sur « Ajouter un poteau »');
+    : ligneVide(16, 'Aucun poteau — cliquez sur « Ajouter un poteau »');
 
   $('tb-poutre').innerHTML = poutres.length ? poutres.map(o => `<tr>
       <td>${inp('poutre', o, 'nom', 'inp-txt')}</td><td>${inp('poutre', o, 'b')}</td><td>${inp('poutre', o, 'h')}</td>
@@ -1178,20 +1193,40 @@ function calculer() {
   G.cimentMur = cimentPP;
   G.sableMur = sablePP;
 
-  // --- Poteaux ---
-  let tSec = 0, tLat = 0, tVol = 0;
+  // --- Poteaux & fers verticaux ---
+  let tSec = 0, tLat = 0, tVol = 0, tFerML = 0;
+  const fersParProfil = {};
   poteaux.forEach(o => {
     const a = num(o.a), b = num(o.b), H = num(o.H), n = num(o.n);
     let sec, per;
     if (o.forme === 'circ') { sec = Math.PI * a * a / 4; per = Math.PI * a; }
     else { sec = a * b; per = 2 * (a + b); }
     const lat = per * H * n, vol = sec * H * n;
-    tSec += sec * n; tLat += lat; tVol += vol;
+    const ferH = Math.max(0, num(o.ferH ?? o.H));
+    const ferNb = Math.max(0, num(o.ferNb ?? 4));
+    const ferML = ferH * ferNb * n;
+    const ferBarres = ferML / 12;
+    const nuance = o.ferNuance === 'RL' ? 'RL' : 'HA';
+    const diam = String(o.ferDiam || '12');
+    const profil = `${nuance} Ø${diam}`;
+    fersParProfil[profil] = (fersParProfil[profil] || 0) + ferML;
+    tSec += sec * n; tLat += lat; tVol += vol; tFerML += ferML;
+    $('p-ferml-' + o.id).innerText = fmt(ferML);
+    $('p-ferbar-' + o.id).innerText = fmt(ferBarres);
     $('p-sec-' + o.id).innerText = fmt(sec * n);
     $('p-lat-' + o.id).innerText = fmt(lat);
     $('p-vol-' + o.id).innerText = fmt(vol);
   });
+  const tFerExact = tFerML / 12;
+  const tFerCommande = Object.values(fersParProfil).reduce((s, ml) => s + Math.ceil(ml / 12 - 1e-9), 0);
   $('pot-section').innerText = fmt(tSec); $('pot-lat').innerText = fmt(tLat); $('pot-vol').innerText = fmt(tVol);
+  $('pot-fer-ml').innerText = fmt(tFerML);
+  $('pot-fer-exact').innerText = fmt(tFerExact);
+  $('pot-fer-commande').innerText = fmt(tFerCommande);
+  const profilsFer = Object.entries(fersParProfil);
+  $('pot-fer-detail').innerHTML = profilsFer.length
+    ? `<i class="fa-solid fa-bars-staggered"></i><div><b>Détail par nuance :</b> ${profilsFer.map(([profil, ml]) => `${profil} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
+    : '<i class="fa-solid fa-bars-staggered"></i><div>Aucune armature calculée.</div>';
 
   // --- Poutres ---
   let tCof = 0, tSur = 0, tV = 0;
@@ -1503,7 +1538,12 @@ function charger() {
   try {
     const d = JSON.parse(raw);
     if (!d || d.v !== 2) return false;
-    murs = d.murs || []; poteaux = d.poteaux || []; poutres = d.poutres || [];
+    murs = d.murs || [];
+    poteaux = (d.poteaux || []).map(o => ({
+      ferNuance: 'HA', ferDiam: '12', ferH: o.H ?? '3', ferNb: '4', ...o,
+      ferH: o.ferH ?? o.H ?? '3'
+    }));
+    poutres = d.poutres || [];
     dalles = d.dalles || []; corps = d.corps || [];
     if (Array.isArray(d.devis) && d.devis.length) devis = d.devis;
     uid = Math.max(d.uid || 1, ...[murs, poteaux, poutres, dalles, corps].flat().map(o => o.id + 1), 1);
