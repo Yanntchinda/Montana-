@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur Mur, Parpaings, Poteaux & Poutres</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  body { font-family: 'Inter', sans-serif; background:#0f172a; color:#f8fafc; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  input[type=number] { -moz-appearance:textfield; }
+  .inp { width:100%; background:#1e293b; border:1px solid #475569; border-radius:.5rem; padding:.4rem .5rem; font-size:.85rem; color:#fbbf24; font-family:ui-monospace,monospace; }
+  .inp:focus { outline:none; border-color:#fbbf24; }
+  .inp-txt { color:#e2e8f0; font-family:'Inter',sans-serif; }
+  th { font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:#94a3b8; text-align:left; padding:.4rem .3rem; font-weight:600; }
+  td { padding:.3rem .3rem; vertical-align:middle; }
+  .res { font-family:ui-monospace,monospace; color:#fbbf24; font-weight:700; white-space:nowrap; }
+  .dv-sec td { background:#0f172a; color:#fbbf24; font-weight:700; letter-spacing:.04em; }
+  .prix-off .col-prix { display:none; }
+  @media print {
+    body.print-devis header, body.print-devis .card:not(#bloc-devis) { display:none !important; }
+    #bloc-devis { display:block !important; }
+    #bloc-devis table { border-collapse:collapse; width:100%; }
+    #bloc-devis th, #bloc-devis td { border:1px solid #000 !important; color:#000 !important; padding:4px 6px !important; }
+    #bloc-devis th { background:#e5e7eb !important; text-align:center; }
+    #bloc-devis .dv-sec td { background:#f1f5f9 !important; color:#000 !important; }
+    #bloc-devis .sign { border:1px solid #000 !important; }
+    .no-print { display:none !important; }
+    body { background:#fff !important; color:#000 !important; }
+    .card { background:#fff !important; border:1px solid #cbd5e1 !important; box-shadow:none !important; }
+    .inp { border:none !important; background:transparent !important; color:#000 !important; }
+    .res, h1, h2, .ptxt { color:#000 !important; }
+    th { color:#000 !important; }
+  }
+</style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+<div class="max-w-6xl mx-auto space-y-6">
+
+  <header class="card flex flex-col md:flex-row justify-between items-start md:items-center p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-amber-400 flex items-center gap-3"><i class="fa-solid fa-trowel-bricks"></i> Calculateur de Gros Œuvre</h1>
+      <p class="text-slate-400 text-sm mt-1 ptxt">Murs & parpaings · Poteaux · Poutres</p>
+    </div>
+    <button onclick="window.print()" class="no-print mt-4 md:mt-0 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-xl border border-slate-600 flex items-center gap-2 transition">
+      <i class="fa-solid fa-print"></i> Imprimer / PDF
+    </button>
+  </header>
+
+  <!-- Sélection des calculs -->
+  <div class="card no-print p-5 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl">
+    <h2 class="text-sm font-semibold text-amber-400 mb-3 uppercase tracking-wider">Choisir les calculs à effectuer</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <label class="flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-700 rounded-xl cursor-pointer">
+        <input type="checkbox" id="sel-mur" checked onchange="majVisibilite()" class="w-5 h-5 accent-amber-400">
+        <span class="font-medium"><i class="fa-solid fa-border-all text-amber-400 mr-1"></i> Surface mur + parpaings</span>
+      </label>
+      <label class="flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-700 rounded-xl cursor-pointer">
+        <input type="checkbox" id="sel-poteau" checked onchange="majVisibilite()" class="w-5 h-5 accent-amber-400">
+        <span class="font-medium"><i class="fa-solid fa-grip-lines-vertical text-amber-400 mr-1"></i> Poteaux (surface & volume)</span>
+      </label>
+      <label class="flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-700 rounded-xl cursor-pointer">
+        <input type="checkbox" id="sel-poutre" checked onchange="majVisibilite()" class="w-5 h-5 accent-amber-400">
+        <span class="font-medium"><i class="fa-solid fa-grip-lines text-amber-400 mr-1"></i> Poutres (surface & volume)</span>
+      </label>
+      <label class="flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-700 rounded-xl cursor-pointer">
+        <input type="checkbox" id="sel-dalle" checked onchange="majVisibilite()" class="w-5 h-5 accent-amber-400">
+        <span class="font-medium"><i class="fa-solid fa-square text-amber-400 mr-1"></i> Dalle pleine (surface & volume)</span>
+      </label>
+      <label class="flex items-center gap-3 p-3 bg-slate-900/60 border border-slate-700 rounded-xl cursor-pointer">
+        <input type="checkbox" id="sel-corps" checked onchange="majVisibilite()" class="w-5 h-5 accent-amber-400">
+        <span class="font-medium"><i class="fa-solid fa-table-cells text-amber-400 mr-1"></i> Dalle à corps creux (hourdis & nervures)</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- MUR -->
+  <section id="bloc-mur" class="card p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl space-y-4">
+    <div class="flex justify-between items-center">
+      <h2 class="text-lg font-semibold text-amber-400"><i class="fa-solid fa-border-all mr-2"></i>Murs & nombre de parpaings</h2>
+      <button onclick="ajouterMur()" class="no-print px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg text-xs"><i class="fa-solid fa-plus"></i> Ajouter un mur</button>
+    </div>
+
+    <div class="p-4 bg-slate-900/60 border border-slate-700/60 rounded-xl">
+      <div class="text-xs font-bold text-amber-400 tracking-wider mb-2">DIMENSIONS DU PARPAING (face posée)</div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div><label class="block text-xs text-slate-400 mb-1">Longueur (cm)</label><input class="inp" id="pp-l" value="50" oninput="calculer()"></div>
+        <div><label class="block text-xs text-slate-400 mb-1">Hauteur (cm)</label><input class="inp" id="pp-h" value="20" oninput="calculer()"></div>
+        <div><label class="block text-xs text-slate-400 mb-1">Joint (cm)</label><input class="inp" id="pp-j" value="0" oninput="calculer()"></div>
+        <div><label class="block text-xs text-slate-400 mb-1">Marge de casse (%)</label><input class="inp" id="pp-m" value="0" oninput="calculer()"></div>
+      </div>
+      <div class="text-xs text-slate-400 mt-2">Surface d'un parpaing (joint inclus) : <span id="pp-surface" class="res">0</span> m²</div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr>
+          <th>Désignation</th><th class="w-24">Long. (m)</th><th class="w-24">Haut. (m)</th><th class="w-20">Nb murs</th><th class="w-28">Ouvertures (m²)</th><th class="w-28 text-right">Surface (m²)</th><th class="w-8 no-print"></th>
+        </tr></thead>
+        <tbody id="tb-mur"></tbody>
+      </table>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Surface totale des murs</div><div class="res text-xl"><span id="mur-total">0</span> m²</div></div>
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Nombre de parpaings (exact)</div><div class="res text-xl" id="pp-exact">0</div></div>
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">À commander (arrondi sup.)</div><div class="res text-xl" id="pp-arrondi">0</div></div>
+    </div>
+  </section>
+
+  <!-- POTEAUX -->
+  <section id="bloc-poteau" class="card p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl space-y-4">
+    <div class="flex justify-between items-center">
+      <h2 class="text-lg font-semibold text-amber-400"><i class="fa-solid fa-grip-lines-vertical mr-2"></i>Poteaux</h2>
+      <button onclick="ajouterPoteau()" class="no-print px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg text-xs"><i class="fa-solid fa-plus"></i> Ajouter un poteau</button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr>
+          <th>Désignation</th><th class="w-28">Forme</th><th class="w-24">a / Ø (m)</th><th class="w-24">b (m)</th><th class="w-24">Haut. (m)</th><th class="w-16">Nb</th>
+          <th class="text-right">Section (m²)</th><th class="text-right">Surf. latérale (m²)</th><th class="text-right">Volume (m³)</th><th class="w-8 no-print"></th>
+        </tr></thead>
+        <tbody id="tb-poteau"></tbody>
+      </table>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Section totale</div><div class="res text-xl"><span id="pot-section">0</span> m²</div></div>
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Surface latérale totale (coffrage)</div><div class="res text-xl"><span id="pot-lat">0</span> m²</div></div>
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Volume total</div><div class="res text-xl"><span id="pot-vol">0</span> m³</div></div>
+    </div>
+    <p class="text-xs text-slate-500 ptxt">Rectangulaire : a × b. Circulaire : seul Ø (colonne a) est utilisé. Section = surface de la coupe horizontale ; surface latérale = périmètre × hauteur.</p>
+  </section>
+
+  <!-- POUTRES -->
+  <section id="bloc-poutre" class="card p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl space-y-4">
+    <div class="flex justify-between items-center">
+      <h2 class="text-lg font-semibold text-amber-400"><i class="fa-solid fa-grip-lines mr-2"></i>Poutres</h2>
+      <button onclick="ajouterPoutre()" class="no-print px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg text-xs"><i class="fa-solid fa-plus"></i> Ajouter une poutre</button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr>
+          <th>Désignation</th><th class="w-24">Larg. b (m)</th><th class="w-24">Haut. h (m)</th><th class="w-24">Long. (m)</th><th class="w-16">Nb</th>
+          <th class="text-right">Coffrage 3 faces (m²)</th><th class="text-right">Surf. totale 4 faces (m²)</th><th class="text-right">Volume (m³)</th><th class="w-8 no-print"></th>
+        </tr></thead>
+        <tbody id="tb-poutre"></tbody>
+      </table>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Coffrage total (3 faces)</div><div class="res text-xl"><span id="pou-coff">0</span> m²</div></div>
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Surface totale (4 faces)</div><div class="res text-xl"><span id="pou-surf">0</span> m²</div></div>
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Volume total</div><div class="res text-xl"><span id="pou-vol">0</span> m³</div></div>
+    </div>
+    <p class="text-xs text-slate-500 ptxt">Volume = b × h × longueur. Coffrage = (b + 2h) × longueur (fond + 2 côtés). Surface totale = 2 × (b + h) × longueur.</p>
+  </section>
+
+  <!-- DALLES -->
+  <section id="bloc-dalle" class="card p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl space-y-4">
+    <div class="flex justify-between items-center">
+      <h2 class="text-lg font-semibold text-amber-400"><i class="fa-solid fa-square mr-2"></i>Dalle pleine</h2>
+      <button onclick="ajouterDalle()" class="no-print px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg text-xs"><i class="fa-solid fa-plus"></i> Ajouter une dalle</button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr>
+          <th>Désignation</th><th class="w-24">Long. (m)</th><th class="w-24">Larg. (m)</th><th class="w-28">Épaisseur (m)</th><th class="w-16">Nb</th>
+          <th class="text-right">Surface (m²)</th><th class="text-right">Volume (m³)</th><th class="w-8 no-print"></th>
+        </tr></thead>
+        <tbody id="tb-dalle"></tbody>
+      </table>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Surface totale des dalles</div><div class="res text-xl"><span id="dal-surf">0</span> m²</div></div>
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Volume total des dalles</div><div class="res text-xl"><span id="dal-vol">0</span> m³</div></div>
+    </div>
+    <p class="text-xs text-slate-500 ptxt">Surface = longueur × largeur. Volume = longueur × largeur × épaisseur. Le volume est ajouté automatiquement au béton du devis.</p>
+  </section>
+
+  <!-- DALLE À CORPS CREUX -->
+  <section id="bloc-corps" class="card p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl space-y-4">
+    <div class="flex justify-between items-center">
+      <h2 class="text-lg font-semibold text-amber-400"><i class="fa-solid fa-table-cells mr-2"></i>Dalle à corps creux</h2>
+      <button onclick="ajouterCorps()" class="no-print px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-lg text-xs"><i class="fa-solid fa-plus"></i> Ajouter un panneau</button>
+    </div>
+    <div class="p-4 bg-slate-900/60 border border-slate-700/60 rounded-xl grid grid-cols-2 gap-3 max-w-md">
+      <div><label class="block text-xs text-slate-400 mb-1">Hourdis par m²</label><input class="inp" id="cc-h" value="9" oninput="calculer()"></div>
+      <div><label class="block text-xs text-slate-400 mb-1">Entraxe des nervures (m)</label><input class="inp" id="cc-e" value="0.55" oninput="calculer()"></div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr>
+          <th>Désignation</th><th class="w-24">Long. panneau (m)</th><th class="w-24">Larg. panneau (m)</th><th class="w-24">Larg. poutre (m)</th><th class="w-16">Nb</th>
+          <th class="text-right">Surface (m²)</th><th class="text-right">Hourdis</th><th class="text-right">Nervures / panneau</th><th class="text-right">Long. totale nervures (m)</th><th class="w-8 no-print"></th>
+        </tr></thead>
+        <tbody id="tb-corps"></tbody>
+      </table>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Surface totale</div><div class="res text-xl"><span id="cc-surf">0</span> m²</div></div>
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Hourdis (total)</div><div class="res text-xl" id="cc-hour">0</div></div>
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Nervures (total)</div><div class="res text-xl" id="cc-nerv">0</div></div>
+      <div><div class="text-xs text-slate-400 uppercase font-semibold">Longueur totale nervures</div><div class="res text-xl"><span id="cc-lg">0</span> m</div></div>
+    </div>
+    <p class="text-xs text-slate-500 ptxt">Hourdis = surface × nombre de hourdis par m² (arrondi au supérieur). Nervures par panneau = longueur du panneau ÷ entraxe (arrondi au supérieur). Longueur des nervures = nombre de nervures × (largeur du panneau + largeur de la poutre) × nombre de panneaux.</p>
+  </section>
+
+  <!-- DEVIS QUANTITATIF -->
+  <section id="bloc-devis" class="card prix-off p-6 bg-slate-800/80 border border-slate-700 rounded-2xl shadow-xl space-y-5">
+    <div class="no-print flex flex-wrap justify-between items-center gap-3">
+      <h2 class="text-lg font-semibold text-amber-400"><i class="fa-solid fa-file-invoice mr-2"></i>Devis quantitatif</h2>
+      <button onclick="imprimerDevis()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-xl flex items-center gap-2 transition">
+        <i class="fa-solid fa-file-pdf"></i> Imprimer le devis / PDF
+      </button>
+    </div>
+
+    <!-- Paramètres (non imprimés) -->
+    <div class="no-print p-4 bg-slate-900/60 border border-slate-700/60 rounded-xl space-y-3">
+      <div class="text-xs font-bold text-amber-400 tracking-wider">PARAMÈTRES DE CALCUL AUTOMATIQUE (modifiables)</div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div><label class="block text-xs text-slate-400 mb-1">Ciment (sacs / m³ béton)</label><input class="inp" id="dos-c" value="7" oninput="updateDevis()"></div>
+        <div><label class="block text-xs text-slate-400 mb-1">Sable (m³ / m³ béton)</label><input class="inp" id="dos-s" value="0.45" oninput="updateDevis()"></div>
+        <div><label class="block text-xs text-slate-400 mb-1">Gravier (m³ / m³ béton)</label><input class="inp" id="dos-g" value="0.8" oninput="updateDevis()"></div>
+        <div><label class="block text-xs text-slate-400 mb-1">Autre béton : fondations, dalles… (m³)</label><input class="inp" id="dos-autre" value="0" oninput="calculer()"></div>
+      </div>
+      <div class="flex flex-wrap items-center gap-4 pt-2 border-t border-slate-800">
+        <label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" id="dv-prix" onchange="majPrix()" class="w-4 h-4 accent-amber-400"> Afficher les prix (P.U et totaux)</label>
+        <div class="flex items-center gap-2 text-xs text-slate-400">Devise <input class="inp w-24" id="dv-devise" value="FCFA" oninput="updateDevis()"></div>
+        <div class="flex items-center gap-2 text-xs text-slate-400">TVA (%) <input class="inp w-20" id="dv-tva" value="19.25" oninput="updateDevis()"></div>
+      </div>
+      <p class="text-xs text-slate-500">Béton = volume des poteaux + poutres + dalles (cochés ci-dessus) + autre béton. Parpaings, ciment, sable et gravier se calculent seuls ; vous pouvez écraser n'importe quelle quantité (bouton ↺ pour revenir au calcul automatique). Les armatures et matériels sont à saisir.</p>
+    </div>
+
+    <!-- En-tête du document -->
+    <div class="text-center space-y-2 pb-3 border-b border-slate-700">
+      <input id="dv-titre" class="inp inp-txt text-center font-bold text-lg" style="color:#fbbf24" value="DEVIS QUANTITATIF D'UN R+2 : GROS ŒUVRE">
+      <input id="dv-projet" class="inp inp-txt text-center font-semibold" value="PROJET DE CONSTRUCTION D'UNE CITÉ UNIVERSITAIRE À LA CITÉ CHIRAC">
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
+      <div><label class="block text-xs text-slate-400 mb-1">Entreprise</label><input class="inp inp-txt" id="dv-ent" placeholder="Nom de l'entreprise"></div>
+      <div><label class="block text-xs text-slate-400 mb-1">Client / Maître d'ouvrage</label><input class="inp inp-txt" id="dv-client" placeholder="Nom du client"></div>
+      <div><label class="block text-xs text-slate-400 mb-1">Référence du devis</label><input class="inp inp-txt" id="dv-ref" placeholder="DEV-001"></div>
+      <div><label class="block text-xs text-slate-400 mb-1">Date</label><input class="inp inp-txt" id="dv-date"></div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr>
+          <th class="w-14 text-center">Code</th><th>Désignation</th><th class="w-24">Unité</th><th class="w-36">Quantité</th>
+          <th class="col-prix w-32">P.U</th><th class="col-prix w-36 text-right">Total</th><th class="w-8 no-print"></th>
+        </tr></thead>
+        <tbody id="tb-devis"></tbody>
+      </table>
+    </div>
+
+    <div class="col-prix ml-auto max-w-sm space-y-1 text-sm">
+      <div class="flex justify-between"><span class="text-slate-400 ptxt">Total HT</span><span class="res" id="dv-ht">0</span></div>
+      <div class="flex justify-between"><span class="text-slate-400 ptxt">TVA</span><span class="res" id="dv-tvamt">0</span></div>
+      <div class="flex justify-between pt-1 border-t border-slate-700 text-base"><span class="font-bold text-amber-400 ptxt">Total TTC</span><span class="res text-lg" id="dv-ttc">0</span></div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6 pt-4">
+      <div class="sign border border-slate-700 rounded-xl p-3 h-28 text-xs text-slate-400 ptxt"><b>Le Client</b><br>Bon pour accord – date et signature</div>
+      <div class="sign border border-slate-700 rounded-xl p-3 h-28 text-xs text-slate-400 text-right ptxt"><b>L'Entreprise</b><br>Cachet et signature</div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  const num = v => { const n = parseFloat(String(v ?? '').replace(',', '.').trim()); return isNaN(n) ? 0 : n; };
+  const fmt = n => (Math.round(n * 1e6) / 1e6).toLocaleString('fr-FR', { maximumFractionDigits: 4 });
+  const $ = id => document.getElementById(id);
+  let uid = 1;
+  let murs = [], poteaux = [], poutres = [];
+
+  function ajouterMur() { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', ouv: '0' }); rendre(); }
+  function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '0.15', b: '0.15', H: '3', n: '1' }); rendre(); }
+  function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1' }); rendre(); }
+
+  let corps = [];
+  function ajouterCorps() { corps.push({ id: uid++, nom: 'Panneau ' + (corps.length + 1), L: '', l: '', pb: '0.15', n: '1' }); rendre(); }
+  let dalles = [];
+  function ajouterDalle() { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1' }); rendre(); }
+
+  function supprimer(type, id) {
+    if (type === 'dalle') dalles = dalles.filter(x => x.id !== id);
+    if (type === 'corps') corps = corps.filter(x => x.id !== id);
+    if (type === 'mur') murs = murs.filter(x => x.id !== id);
+    if (type === 'poteau') poteaux = poteaux.filter(x => x.id !== id);
+    if (type === 'poutre') poutres = poutres.filter(x => x.id !== id);
+    rendre();
+  }
+  function maj(type, id, champ, val) {
+    const liste = type === 'mur' ? murs : type === 'poteau' ? poteaux : type === 'dalle' ? dalles : type === 'corps' ? corps : poutres;
+    const o = liste.find(x => x.id === id);
+    if (!o) return;
+    o[champ] = val;
+    if (champ === 'forme') rendre(); else calculer();
+  }
+
+  const inp = (type, o, champ, cls = '') =>
+    `<input class="inp ${cls}" value="${String(o[champ]).replace(/"/g, '&quot;')}" oninput="maj('${type}',${o.id},'${champ}',this.value)">`;
+  const delBtn = (type, id) =>
+    `<td class="no-print text-center"><button onclick="supprimer('${type}',${id})" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash-can"></i></button></td>`;
+
+  function rendre() {
+    $('tb-mur').innerHTML = murs.map(o => `<tr class="border-b border-slate-700/50">
+      <td>${inp('mur', o, 'nom', 'inp-txt')}</td><td>${inp('mur', o, 'L')}</td><td>${inp('mur', o, 'H')}</td>
+      <td>${inp('mur', o, 'n')}</td><td>${inp('mur', o, 'ouv')}</td>
+      <td class="text-right res" id="m-s-${o.id}">0</td>${delBtn('mur', o.id)}</tr>`).join('');
+
+    $('tb-poteau').innerHTML = poteaux.map(o => `<tr class="border-b border-slate-700/50">
+      <td>${inp('poteau', o, 'nom', 'inp-txt')}</td>
+      <td><select class="inp" onchange="maj('poteau',${o.id},'forme',this.value)">
+        <option value="rect" ${o.forme === 'rect' ? 'selected' : ''}>Rectangulaire</option>
+        <option value="circ" ${o.forme === 'circ' ? 'selected' : ''}>Circulaire</option></select></td>
+      <td>${inp('poteau', o, 'a')}</td>
+      <td>${o.forme === 'rect' ? inp('poteau', o, 'b') : '<span class="text-slate-600 text-xs">—</span>'}</td>
+      <td>${inp('poteau', o, 'H')}</td><td>${inp('poteau', o, 'n')}</td>
+      <td class="text-right res" id="p-sec-${o.id}">0</td><td class="text-right res" id="p-lat-${o.id}">0</td><td class="text-right res" id="p-vol-${o.id}">0</td>
+      ${delBtn('poteau', o.id)}</tr>`).join('');
+
+    $('tb-poutre').innerHTML = poutres.map(o => `<tr class="border-b border-slate-700/50">
+      <td>${inp('poutre', o, 'nom', 'inp-txt')}</td><td>${inp('poutre', o, 'b')}</td><td>${inp('poutre', o, 'h')}</td>
+      <td>${inp('poutre', o, 'L')}</td><td>${inp('poutre', o, 'n')}</td>
+      <td class="text-right res" id="u-cof-${o.id}">0</td><td class="text-right res" id="u-sur-${o.id}">0</td><td class="text-right res" id="u-vol-${o.id}">0</td>
+      ${delBtn('poutre', o.id)}</tr>`).join('');
+    $('tb-corps').innerHTML = corps.map(o => `<tr class="border-b border-slate-700/50">
+      <td>${inp('corps', o, 'nom', 'inp-txt')}</td><td>${inp('corps', o, 'L')}</td><td>${inp('corps', o, 'l')}</td>
+      <td>${inp('corps', o, 'pb')}</td><td>${inp('corps', o, 'n')}</td>
+      <td class="text-right res" id="c-s-${o.id}">0</td><td class="text-right res" id="c-h-${o.id}">0</td>
+      <td class="text-right res" id="c-n-${o.id}">0</td><td class="text-right res" id="c-g-${o.id}">0</td>
+      ${delBtn('corps', o.id)}</tr>`).join('');
+
+    $('tb-dalle').innerHTML = dalles.map(o => `<tr class="border-b border-slate-700/50">
+      <td>${inp('dalle', o, 'nom', 'inp-txt')}</td><td>${inp('dalle', o, 'L')}</td><td>${inp('dalle', o, 'l')}</td>
+      <td>${inp('dalle', o, 'e')}</td><td>${inp('dalle', o, 'n')}</td>
+      <td class="text-right res" id="d-s-${o.id}">0</td><td class="text-right res" id="d-v-${o.id}">0</td>
+      ${delBtn('dalle', o.id)}</tr>`).join('');
+    calculer();
+  }
+
+  function calculer() {
+    // --- Parpaing ---
+    const j = num($('pp-j').value) / 100;
+    const sPP = (num($('pp-l').value) / 100 + j) * (num($('pp-h').value) / 100 + j);
+    $('pp-surface').innerText = fmt(sPP);
+
+    // --- Murs : surface = (L×H − ouvertures) × nb ---
+    let sMur = 0;
+    murs.forEach(o => {
+      const s = Math.max(0, num(o.L) * num(o.H) - num(o.ouv)) * num(o.n);
+      sMur += s;
+      const c = $('m-s-' + o.id); if (c) c.innerText = fmt(s);
+    });
+    $('mur-total').innerText = fmt(sMur);
+    // nombre de parpaings = surface mur ÷ surface d'un parpaing
+    const nb = sPP > 0 ? (sMur / sPP) * (1 + num($('pp-m').value) / 100) : 0;
+    $('pp-exact').innerText = fmt(nb);
+    $('pp-arrondi').innerText = fmt(Math.ceil(nb - 1e-9));
+
+    // --- Poteaux ---
+    let tSec = 0, tLat = 0, tVol = 0;
+    poteaux.forEach(o => {
+      const a = num(o.a), b = num(o.b), H = num(o.H), n = num(o.n);
+      let sec, per;
+      if (o.forme === 'circ') { sec = Math.PI * a * a / 4; per = Math.PI * a; }
+      else { sec = a * b; per = 2 * (a + b); }
+      const lat = per * H * n, vol = sec * H * n;
+      tSec += sec * n; tLat += lat; tVol += vol;
+      $('p-sec-' + o.id).innerText = fmt(sec * n);
+      $('p-lat-' + o.id).innerText = fmt(lat);
+      $('p-vol-' + o.id).innerText = fmt(vol);
+    });
+    $('pot-section').innerText = fmt(tSec); $('pot-lat').innerText = fmt(tLat); $('pot-vol').innerText = fmt(tVol);
+
+    // --- Poutres ---
+    let tCof = 0, tSur = 0, tV = 0;
+    poutres.forEach(o => {
+      const b = num(o.b), h = num(o.h), L = num(o.L), n = num(o.n);
+      const cof = (b + 2 * h) * L * n, sur = 2 * (b + h) * L * n, vol = b * h * L * n;
+      tCof += cof; tSur += sur; tV += vol;
+      $('u-cof-' + o.id).innerText = fmt(cof);
+      $('u-sur-' + o.id).innerText = fmt(sur);
+      $('u-vol-' + o.id).innerText = fmt(vol);
+    });
+    $('pou-coff').innerText = fmt(tCof); $('pou-surf').innerText = fmt(tSur); $('pou-vol').innerText = fmt(tV);
+
+    // --- Dalles ---
+    let tDS = 0, tDV = 0;
+    dalles.forEach(o => {
+      const s = num(o.L) * num(o.l) * num(o.n), v = s * num(o.e);
+      tDS += s; tDV += v;
+      $('d-s-' + o.id).innerText = fmt(s);
+      $('d-v-' + o.id).innerText = fmt(v);
+    });
+    $('dal-surf').innerText = fmt(tDS); $('dal-vol').innerText = fmt(tDV);
+
+    // --- Dalle à corps creux ---
+    let tCS = 0, tCH = 0, tCN = 0, tCG = 0;
+    const entraxe = num($('cc-e').value), hParM2 = num($('cc-h').value);
+    corps.forEach(o => {
+      const L = num(o.L), l = num(o.l), pb = num(o.pb), n = num(o.n);
+      const surf = L * l * n;
+      const hourdis = Math.ceil(surf * hParM2 - 1e-9);
+      const nervPan = entraxe > 0 ? Math.ceil(L / entraxe - 1e-9) : 0;
+      const lg = nervPan * (l + pb) * n;
+      tCS += surf; tCH += hourdis; tCN += nervPan * n; tCG += lg;
+      $('c-s-' + o.id).innerText = fmt(surf);
+      $('c-h-' + o.id).innerText = fmt(hourdis);
+      $('c-n-' + o.id).innerText = fmt(nervPan);
+      $('c-g-' + o.id).innerText = fmt(lg);
+    });
+    $('cc-surf').innerText = fmt(tCS); $('cc-hour').innerText = fmt(tCH);
+    $('cc-nerv').innerText = fmt(tCN); $('cc-lg').innerText = fmt(tCG);
+    G.hourdis = $('sel-corps').checked ? tCH : 0;
+    G.nervures = $('sel-corps').checked ? tCG : 0;
+
+    // --- Alimentation du devis ---
+    G.beton = ($('sel-poteau').checked ? tVol : 0) + ($('sel-poutre').checked ? tV : 0) + ($('sel-dalle').checked ? tDV : 0) + num($('dos-autre').value);
+    G.parpaings = $('sel-mur').checked ? Math.ceil(nb - 1e-9) : 0;
+    updateDevis();
+  }
+
+  // ================= DEVIS QUANTITATIF =================
+  let G = { beton: 0, parpaings: 0, hourdis: 0, nervures: 0 };
+  let dvId = 1000;
+  function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', auto }; }
+  let devis = [
+    { n: 'I', titre: 'BÉTON', lignes: [ligne('Béton', 'm³', 'beton')] },
+    { n: 'II', titre: 'MATÉRIAUX', lignes: [
+      ligne('Parpaing agglo 20', 'u', 'parpaing'), ligne('Hourdis', 'u', 'hourdis'), ligne('Nervures (longueur totale)', 'ml', 'nervure'), ligne('Ciment', 'sacs', 'ciment'), ligne('Sable', 'm³', 'sable'), ligne('Gravier', 'm³', 'gravier'),
+      ligne('HA 14', 'barre'), ligne('HA 12', 'barre'), ligne('HA 10', 'barre'), ligne('HA 8', 'barre'), ligne('RL6', 'barre'), ligne("Fil d'attache", 'botte')] },
+    { n: 'III', titre: 'MATÉRIELS', lignes: [
+      ligne('Planche de 28', '/'), ligne('Latte', '/'), ligne('Fonds de 20', '/'), ligne('Fonds de 15', '/'), ligne('Pointe de 80', 'paquet'), ligne('Pointe tock 60', 'paquet')] }
+  ];
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  const fmtM = n => n.toLocaleString('fr-FR', { maximumFractionDigits: 2 });
+
+  function autoVal(l) {
+    const b = G.beton;
+    switch (l.auto) {
+      case 'beton': return b;
+      case 'parpaing': return G.parpaings;
+      case 'hourdis': return G.hourdis;
+      case 'nervure': return G.nervures;
+      case 'ciment': return Math.ceil(b * num($('dos-c').value) - 1e-9);
+      case 'sable': return b * num($('dos-s').value);
+      case 'gravier': return b * num($('dos-g').value);
+    }
+    return 0;
+  }
+  const valL = l => (l.qte === null ? autoVal(l) : num(l.qte));
+  const trouverL = id => { for (const s of devis) { const l = s.lignes.find(x => x.id === id); if (l) return l; } return null; };
+
+  function rendreDevis() {
+    let code = 0, h = '';
+    devis.forEach(s => {
+      h += `<tr class="dv-sec"><td class="text-center">${s.n}</td><td colspan="3">${s.titre}</td><td class="col-prix" colspan="2"></td>
+        <td class="no-print text-center"><button onclick="ajouterLigne('${s.n}')" title="Ajouter une ligne" class="text-amber-400 hover:text-amber-300"><i class="fa-solid fa-plus"></i></button></td></tr>`;
+      s.lignes.forEach(l => {
+        const c = s.n === 'I' ? '' : ++code;
+        h += `<tr class="border-b border-slate-700/50">
+          <td class="text-center text-slate-400">${c}</td>
+          <td><input class="inp inp-txt" value="${esc(l.des)}" oninput="majL(${l.id},'des',this.value)"></td>
+          <td><input class="inp" value="${esc(l.unite)}" oninput="majL(${l.id},'unite',this.value)"></td>
+          <td><div class="flex items-center gap-1"><input class="inp" id="dq-${l.id}" value="${l.qte === null ? '' : esc(l.qte)}" oninput="majL(${l.id},'qte',this.value)">
+            ${l.auto ? `<button class="no-print text-slate-500 hover:text-amber-400" title="Revenir au calcul automatique" onclick="resetAuto(${l.id})"><i class="fa-solid fa-rotate-left"></i></button>` : ''}</div></td>
+          <td class="col-prix"><input class="inp" value="${esc(l.pu)}" oninput="majL(${l.id},'pu',this.value)"></td>
+          <td class="col-prix text-right res" id="dt-${l.id}">0</td>
+          <td class="no-print text-center"><button onclick="supprimerLigne(${l.id})" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
+      });
+    });
+    $('tb-devis').innerHTML = h;
+    updateDevis();
+  }
+  function majL(id, champ, val) { const l = trouverL(id); if (l) { l[champ] = val; updateDevis(); } }
+  function resetAuto(id) { const l = trouverL(id); if (l) { l.qte = null; rendreDevis(); } }
+  function ajouterLigne(n) { devis.find(s => s.n === n).lignes.push({ id: dvId++, des: 'Nouvel article', unite: 'u', qte: '', pu: '0', auto: null }); rendreDevis(); }
+  function supprimerLigne(id) { devis.forEach(s => s.lignes = s.lignes.filter(x => x.id !== id)); rendreDevis(); }
+
+  function updateDevis() {
+    if (!$('tb-devis')) return;
+    const dev = ($('dv-devise').value || '').trim();
+    let ht = 0;
+    devis.forEach(s => s.lignes.forEach(l => {
+      const v = valL(l), t = v * num(l.pu);
+      ht += t;
+      const q = $('dq-' + l.id);
+      if (q && l.qte === null) q.value = String(Math.round(v * 1000) / 1000).replace('.', ',');
+      const c = $('dt-' + l.id); if (c) c.innerText = fmtM(t);
+    }));
+    const tva = ht * num($('dv-tva').value) / 100;
+    $('dv-ht').innerText = fmtM(ht) + ' ' + dev;
+    $('dv-tvamt').innerText = fmtM(tva) + ' ' + dev;
+    $('dv-ttc').innerText = fmtM(ht + tva) + ' ' + dev;
+  }
+  function majPrix() { $('bloc-devis').classList.toggle('prix-off', !$('dv-prix').checked); }
+  function imprimerDevis() { document.body.classList.add('print-devis'); window.print(); }
+  window.addEventListener('afterprint', () => document.body.classList.remove('print-devis'));
+
+  function majVisibilite() {
+    $('bloc-mur').style.display = $('sel-mur').checked ? '' : 'none';
+    $('bloc-poteau').style.display = $('sel-poteau').checked ? '' : 'none';
+    $('bloc-poutre').style.display = $('sel-poutre').checked ? '' : 'none';
+    $('bloc-dalle').style.display = $('sel-dalle').checked ? '' : 'none';
+    $('bloc-corps').style.display = $('sel-corps').checked ? '' : 'none';
+    calculer();
+  }
+
+  $('dv-date').value = new Date().toLocaleDateString('fr-FR');
+  ajouterMur(); ajouterPoteau(); ajouterPoutre(); ajouterDalle(); ajouterCorps(); rendreDevis(); majVisibilite();
+</script>
+</body>
+</html>
