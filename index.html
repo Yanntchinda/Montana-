@@ -881,7 +881,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           <div class="card-head">
             <div class="ch-txt">
               <h3><i class="fa-solid fa-grip-lines"></i> Longrines</h3>
-              <div class="ch-sub">Volume de béton et fers avec hauteur, longueur et crochets</div>
+              <div class="ch-sub">Volume de béton et fers avec longueur et crochets</div>
             </div>
             <div class="ch-act">
               <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-longrine" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
@@ -1440,7 +1440,7 @@ function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.l
 function ajouterDalle()  { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1', ferNuanceLong: 'HA', ferDiamLong: '10', ferEspLong: '20', ferNuanceLarg: 'HA', ferDiamLarg: '10', ferEspLarg: '20' }); rendre(); }
 function ajouterCorps()  { corps.push({ id: uid++, nom: 'Panneau ' + (corps.length + 1), L: '', l: '', pb: '0.15', n: '1' }); rendre(); }
 function nouvelleLongrine(id, numero = 1) {
-  return { id, nom: 'Longrine ' + numero, L: '', l: '', h: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '', ferL: '', ferCrochet: '', ferNb: '', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' };
+  return { id, nom: 'Longrine ' + numero, L: '', l: '', h: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferCrochet: '', ferNb: '', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' };
 }
 function ajouterLongrine() { longrines.push(nouvelleLongrine(uid++, longrines.length + 1)); rendre(); }
 function nouvelleSemelle(id, numero = 1) {
@@ -1567,7 +1567,6 @@ function rendre() {
           <div class="longrine-grid">
             <div class="field"><label>Nuance</label><select class="inp" onchange="maj('longrine',${o.id},'ferNuance',this.value)"><option value="HA" ${o.ferNuance === 'RL' ? '' : 'selected'}>HA</option><option value="RL" ${o.ferNuance === 'RL' ? 'selected' : ''}>RL</option></select></div>
             <div class="field"><label>Diamètre (mm)</label><select class="inp" onchange="maj('longrine',${o.id},'ferDiam',this.value)">${optionsFer(o.ferDiam || '12')}</select></div>
-            <div class="field"><label>Hauteur du fer (m)</label><input class="inp" type="number" min="0" step="0.01" value="${esc(o.ferH ?? '')}" oninput="maj('longrine',${o.id},'ferH',this.value)"></div>
             <div class="field"><label>Longueur du fer (m)</label><input class="inp" type="number" min="0" step="0.01" value="${esc(o.ferL ?? '')}" oninput="maj('longrine',${o.id},'ferL',this.value)"></div>
             <div class="field"><label>Longueur totale des crochets (m)</label><input class="inp" type="number" min="0" step="0.01" value="${esc(o.ferCrochet ?? '')}" oninput="maj('longrine',${o.id},'ferCrochet',this.value)"></div>
             <div class="field"><label>Nombre total de fers</label><input class="inp" type="number" min="0" step="1" value="${esc(o.ferNb ?? '')}" oninput="maj('longrine',${o.id},'ferNb',this.value)"></div>
@@ -2092,14 +2091,13 @@ function calculer() {
     const L = Math.max(0, num(o.L)), l = Math.max(0, num(o.l)), h = Math.max(0, num(o.h));
     const n = Math.max(0, num(o.n ?? 1));
     const volume = L * l * h * n;
-    const ferH = Math.max(0, num(o.ferH));
     const ferL = Math.max(0, num(o.ferL));
     const ferCrochet = Math.max(0, num(o.ferCrochet));
     const ferNb = Math.max(0, num(o.ferNb));
     const ferML = (ferL + ferCrochet) * ferNb;
     const nuance = o.ferNuance === 'RL' ? 'RL' : 'HA';
     const diametre = String(o.ferDiam || '12');
-    const reference = `${nuance}:${diametre}:${ferH}:${ferL}:${ferCrochet}`;
+    const reference = `${nuance}:${diametre}:${ferL}:${ferCrochet}`;
     fersLongrinesParReference[reference] = (fersLongrinesParReference[reference] || 0) + ferML;
 
     // Cadre = [(largeur − enrobage) + (hauteur − enrobage)] × 2 + 10 cm.
@@ -2400,9 +2398,23 @@ const libelleFer = cle => {
   const [nuance, diametre] = cle.split(':');
   return `${nuance} Ø${diametre}`;
 };
+const normaliserReferenceFerLongrine = cle => {
+  const morceaux = String(cle || '').split(':');
+  // Ancien format : nuance:diamètre:hauteur:longueur:crochets.
+  if (morceaux.length >= 5) return [morceaux[0], morceaux[1], morceaux[3], morceaux[4]].join(':');
+  return morceaux.slice(0, 4).join(':');
+};
+const normaliserFersLongrines = fers => {
+  const resultat = {};
+  Object.entries(fers || {}).forEach(([reference, qte]) => {
+    const referenceNormalisee = normaliserReferenceFerLongrine(reference);
+    resultat[referenceNormalisee] = (resultat[referenceNormalisee] || 0) + num(qte);
+  });
+  return resultat;
+};
 const libelleFerLongrine = cle => {
-  const [nuance, diametre, hauteur, longueur, crochets] = cle.split(':');
-  return `Fer longrine — ${nuance} Ø${diametre} — H ${fmt(num(hauteur))} m · L ${fmt(num(longueur))} m · crochets ${fmt(num(crochets))} m`;
+  const [nuance, diametre, longueur, crochets] = normaliserReferenceFerLongrine(cle).split(':');
+  return `Fer longrine — ${nuance} Ø${diametre} — L ${fmt(num(longueur))} m · crochets ${fmt(num(crochets))} m`;
 };
 function fersDevisActifs() {
   const total = {};
@@ -2464,6 +2476,14 @@ function migrerFersDevis() {
   const materiaux = devis.find(s => s.n === 'II');
   if (!materiaux) return;
   materiaux.lignes.forEach(l => {
+    if (estLigneFerLongrine(l)) {
+      const reference = normaliserReferenceFerLongrine(l.auto.slice('longrinefer:'.length));
+      l.auto = `longrinefer:${reference}`;
+      l.des = libelleFerLongrine(reference);
+      l.unite = 'barre';
+      l.qte = null;
+      return;
+    }
     if (estLigneFer(l)) return;
     const m = String(l.des || '').trim().match(/^(HA|RL)\s*(?:Ø\s*)?(\d{1,2})$/i);
     if (!m) return;
@@ -2473,6 +2493,14 @@ function migrerFersDevis() {
     l.des = `${nuance} Ø${diametre}`;
     l.unite = 'barre';
     l.qte = null;
+  });
+  // Plusieurs anciennes hauteurs peuvent désormais correspondre à une seule référence longitudinale.
+  const referencesLongrines = new Set();
+  materiaux.lignes = materiaux.lignes.filter(l => {
+    if (!estLigneFerLongrine(l)) return true;
+    if (referencesLongrines.has(l.auto)) return false;
+    referencesLongrines.add(l.auto);
+    return true;
   });
 }
 
@@ -2792,11 +2820,15 @@ function charger() {
       n1Nuance: 'HA', n1Diam: '10', n1Enrobage: '5', n1Espacement: '15', n1Crochet: '15',
       n2Nuance: 'HA', n2Diam: '10', n2Enrobage: '5', n2Espacement: '15', n2Crochet: '15', ...o
     }));
-    longrines = (d.longrines || []).map(o => ({
-      n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '', ferL: '', ferCrochet: '', ferNb: '',
-      cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '',
-      epingleNuance: 'HA', epingleNb: '', epingleL: '', ...o
-    }));
+    longrines = (d.longrines || []).map(o => {
+      // ferH est volontairement ignoré : les anciens projets restent lisibles sans réintroduire ce champ obsolète.
+      const { ferH: ancienneHauteurFer, ...ancienneLongrine } = o || {};
+      return {
+        n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferCrochet: '', ferNb: '',
+        cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '',
+        epingleNuance: 'HA', epingleNb: '', epingleL: '', ...ancienneLongrine
+      };
+    });
     // Les anciens projets reçoivent automatiquement un premier espace pour les nouveaux modules.
     if (!d.moduleSemellesInitialise && !semelles.length) semelles.push(nouvelleSemelle(d.uid || 1, 1));
     if (!d.moduleLongrinesInitialise && !longrines.length) longrines.push(nouvelleLongrine((d.uid || 1) + (semelles.some(o => o.id === (d.uid || 1)) ? 1 : 0), 1));
@@ -2809,6 +2841,8 @@ function charger() {
     crepValidation = d.crepValidation || null;
     const validationsSauvees = d.validationsModules || {};
     Object.keys(MODULES_VALIDABLES).forEach(cle => { validationsModules[cle] = validationsSauvees[cle] || null; });
+    const longrineSauvee = validationsModules.longrine?.donnees;
+    if (longrineSauvee?.fers) longrineSauvee.fers = normaliserFersLongrines(longrineSauvee.fers);
     const semelleSauvee = validationsModules.semelle?.donnees;
     if (semelleSauvee && semelleSauvee.barres == null) semelleSauvee.barres = Object.values(semelleSauvee.fers || {}).reduce((total, qte) => total + num(qte), 0);
     if (Array.isArray(d.devis) && d.devis.length) devis = d.devis.map(section => ({
