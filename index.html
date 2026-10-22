@@ -1851,7 +1851,7 @@ const CREPISSAGE_DEVIS = [
 ];
 const SEMELLES_DEVIS = [
   { auto: 'semelle-volume', des: 'Volume total béton', unite: 'm³' },
-  { auto: 'semelle-barres', des: 'Barres à commander', unite: 'barres de 12 m' }
+  { auto: 'semelle-barres', des: 'Barres à commander', unite: 'barre' }
 ];
 function ordonnerEtNumeroterDevis() {
   const fixes = devis.filter(s => !s.auto);
@@ -1979,13 +1979,13 @@ function fersDevisActifs() {
 function aciersDevisActifs() {
   const lignes = {};
   Object.entries(fersDevisActifs()).forEach(([cle, qte]) => {
-    lignes[`fer:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre 12 m' };
+    lignes[`fer:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferChapeaux || {}).forEach(([cle, qte]) => {
-    lignes[`chap:${cle}`] = { qte, des: `Chapeau ${libelleFer(cle)}`, unite: 'barre 12 m' };
+    lignes[`chap:${cle}`] = { qte, des: `Chapeau ${libelleFer(cle)}`, unite: 'barre' };
   });
   Object.entries(G.ferDalles || {}).forEach(([cle, qte]) => {
-    lignes[`dallefer:${cle}`] = { qte, des: `Fer dalle pleine à commander — ${libelleFer(cle)}`, unite: 'barre 12 m' };
+    lignes[`dallefer:${cle}`] = { qte, des: `Fer dalle pleine à commander — ${libelleFer(cle)}`, unite: 'barre' };
   });
   return lignes;
 }
@@ -1995,12 +1995,12 @@ function syncFersDevis() {
   Object.entries(aciersDevisActifs()).forEach(([auto, info]) => {
     let l = materiaux.lignes.find(x => x.auto === auto);
     if (!l) {
-      l = { id: dvId++, des: info.des, unite: info.unite || 'barre 12 m', qte: null, pu: '0', total: null, auto };
+      l = { id: dvId++, des: info.des, unite: info.unite || 'barre', qte: null, pu: '0', total: null, auto };
       const fil = materiaux.lignes.findIndex(x => /fil\s+d['’]?attache/i.test(x.des || ''));
       if (fil >= 0) materiaux.lignes.splice(fil, 0, l); else materiaux.lignes.push(l);
     }
     l.des = info.des;
-    l.unite = info.unite || 'barre 12 m';
+    l.unite = info.unite || 'barre';
     l.qte = null;
   });
 }
