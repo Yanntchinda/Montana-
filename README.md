@@ -5,7 +5,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 ## Fonctionnalités
 
 - Murs et parpaings, avec plusieurs portes et fenêtres de dimensions différentes sur un même mur.
-- Poteaux avec fers verticaux et cadres, poutres, chapeaux et armatures HA/RL.
+- Poteaux avec fers verticaux, cadres et épingles (nombre × longueur ÷ 12 m), poutres, chapeaux et armatures HA/RL.
 - Dalle pleine et dalle à corps creux.
 - Semelles avec deux nappes d'armatures.
 - Crépissage.
