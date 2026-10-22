@@ -5,7 +5,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 ## Fonctionnalités
 
 - Murs et parpaings, avec plusieurs portes et fenêtres de dimensions différentes sur un même mur.
-- Longrines avec volume de béton et fers référencés par nuance, diamètre, hauteur, longueur et crochets.
+- Longrines avec volume de béton, fers longitudinaux, cadres et épingles en barres de 12 m.
 - Poteaux et poutres avec fers longitudinaux, cadres et épingles; chapeaux de poutres et armatures HA/RL calculés en barres de 12 m.
 - Dalle pleine et dalle à corps creux.
 - Semelles avec deux nappes d'armatures.
