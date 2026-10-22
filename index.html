@@ -226,6 +226,11 @@ td .inp{padding:9px 10px;font-size:13px}
   background:color-mix(in srgb,var(--brand-soft) 58%,var(--surface-3));border-bottom:2px solid var(--border-strong)
 }
 #bloc-poteau .poteau-group-row th:first-child{color:var(--muted);background:var(--surface-3)}
+#bloc-poutre .poutre-group-row th{
+  text-align:center;color:var(--brand);font-size:10.5px;letter-spacing:.09em;
+  background:color-mix(in srgb,var(--brand-soft) 58%,var(--surface-3));border-bottom:2px solid var(--border-strong)
+}
+#bloc-poutre .poutre-group-row th:first-child{color:var(--muted);background:var(--surface-3)}
 #bloc-dalle .dalle-group-row th{
   text-align:center;color:var(--brand);font-size:10.5px;letter-spacing:.09em;
   background:color-mix(in srgb,var(--brand-soft) 58%,var(--surface-3));border-bottom:2px solid var(--border-strong)
@@ -969,14 +974,23 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           <div class="card-body">
             <div class="tbl-wrap">
               <table>
-                <thead><tr>
-                  <th>Désignation</th><th class="w-md">Larg. b (m)</th><th class="w-md">Haut. h (m)</th><th class="w-md">Long. poutre (m)</th><th class="w-sm">Nb poutres</th>
-                  <th class="w-sm group-gap">Nuance fer</th><th class="w-sm">Ø fer</th><th class="w-md">Long. fer (m)</th><th class="w-sm">Fers / poutre</th>
-                  <th class="th-r">Fer total (ml)</th><th class="th-r">Barres fer 12 m</th>
-                  <th class="w-sm group-gap">Nuance chapeau</th><th class="w-sm">Ø chapeau</th><th class="w-md">Long. chapeau (m)</th><th class="w-sm">Nb chapeaux total</th>
-                  <th class="th-r">Chapeaux total (ml)</th><th class="th-r">Barres chapeau 12 m</th>
-                  <th class="th-r group-gap">Coffrage 3 faces (m²)</th><th class="th-r">Surf. 4 faces (m²)</th><th class="th-r">Volume (m³)</th><th class="w-sm no-print"></th>
-                </tr></thead>
+                <thead>
+                  <tr class="poutre-group-row">
+                    <th colspan="5">Dimensions de la poutre</th><th colspan="6" class="group-gap">Fers longitudinaux</th><th colspan="6" class="group-gap">Chapeaux</th><th colspan="7" class="group-gap">Cadres</th><th colspan="5" class="group-gap">Épingles</th><th colspan="3" class="group-gap">Résultats béton</th><th class="no-print"></th>
+                  </tr>
+                  <tr>
+                    <th>Désignation</th><th class="w-md">Larg. b (m)</th><th class="w-md">Haut. h (m)</th><th class="w-md">Long. poutre (m)</th><th class="w-sm">Nb poutres</th>
+                    <th class="w-sm group-gap">Nuance fer</th><th class="w-sm">Ø fer</th><th class="w-md">Long. fer (m)</th><th class="w-sm">Fers / poutre</th>
+                    <th class="th-r">Fer total (ml)</th><th class="th-r">Barres fer 12 m</th>
+                    <th class="w-sm group-gap">Nuance chapeau</th><th class="w-sm">Ø chapeau</th><th class="w-md">Long. chapeau (m)</th><th class="w-sm">Nb chapeaux total</th>
+                    <th class="th-r">Chapeaux total (ml)</th><th class="th-r">Barres chapeau 12 m</th>
+                    <th class="w-sm group-gap">Nuance cadre</th><th class="w-sm">Ø cadre</th><th class="w-md">Enrobage (cm)</th><th class="w-sm">Cadres / poutre</th>
+                    <th class="th-r">Long. 1 cadre (m)</th><th class="th-r">Cadres total (ml)</th><th class="th-r">Barres 12 m</th>
+                    <th class="w-sm group-gap">Nuance épingle</th><th class="w-sm">Nb épingles total</th><th class="w-md">Long. 1 épingle (m)</th>
+                    <th class="th-r">Épingles total (ml)</th><th class="th-r">Barres 12 m</th>
+                    <th class="th-r group-gap">Coffrage 3 faces (m²)</th><th class="th-r">Surf. 4 faces (m²)</th><th class="th-r">Volume (m³)</th><th class="w-sm no-print"></th>
+                  </tr>
+                </thead>
                 <tbody id="tb-poutre"></tbody>
               </table>
             </div>
@@ -990,10 +1004,18 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-arrows-left-right-to-line"></i> Longueur totale chapeaux</div><div class="t-val"><span id="pou-chap-ml">0</span><small>ml</small></div></div>
               <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-divide"></i> Chapeaux 12 m (exact)</div><div class="t-val"><span id="pou-chap-exact">0</span><small>barres</small></div></div>
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-truck-ramp-box"></i> Chapeaux à commander</div><div class="t-val"><span id="pou-chap-commande">0</span><small>barres</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-square"></i> Longueur totale des cadres</div><div class="t-val"><span id="pou-cadre-ml">0</span><small>ml</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-divide"></i> Cadres — barres exactes</div><div class="t-val"><span id="pou-cadre-exact">0</span><small>barres</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-cart-flatbed"></i> Cadres à commander</div><div class="t-val"><span id="pou-cadre-commande">0</span><small>barres</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-link"></i> Longueur totale des épingles</div><div class="t-val"><span id="pou-epingle-ml">0</span><small>ml</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-divide"></i> Épingles — barres exactes</div><div class="t-val"><span id="pou-epingle-exact">0</span><small>barres</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-cart-flatbed"></i> Épingles à commander</div><div class="t-val"><span id="pou-epingle-commande">0</span><small>barres</small></div></div>
             </div>
             <div class="note" id="pou-fer-detail" style="margin-top:14px"><i class="fa-solid fa-bars-staggered"></i><div>Aucune armature calculée.</div></div>
             <div class="note" id="pou-chap-detail" style="margin-top:10px"><i class="fa-solid fa-arrows-left-right-to-line"></i><div>Aucun chapeau calculé.</div></div>
-            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div>Fer des poutres : <b>longueur du fer × nombre de fers × nombre de poutres ÷ 12</b>. Chapeaux : <b>longueur du chapeau × nombre total de chapeaux ÷ 12</b>. Les commandes sont arrondies au supérieur séparément pour chaque nuance et diamètre.</div></div>
+            <div class="note" id="pou-cadre-detail" style="margin-top:10px"><i class="fa-solid fa-square"></i><div>Aucun cadre calculé.</div></div>
+            <div class="note" id="pou-epingle-detail" style="margin-top:10px"><i class="fa-solid fa-link"></i><div>Aucune épingle calculée.</div></div>
+            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Fers des poutres :</b> longueur du fer × nombre de fers × nombre de poutres ÷ 12. <b>Chapeaux :</b> longueur du chapeau × nombre total de chapeaux ÷ 12. <b>Longueur d’un cadre :</b> [(largeur b − enrobage) + (hauteur h − enrobage)] × 2 + 0,10 m. <b>Longueur totale des cadres :</b> longueur d’un cadre × nombre de cadres saisi × nombre de poutres. <b>Quantité d’épingles :</b> nombre total saisi × longueur saisie ÷ 12 m. Toutes les références validées sont envoyées au devis avec une commande arrondie au supérieur par nuance (et par diamètre lorsqu’il est saisi).</div></div>
             <div id="validation-module-poutre"></div>
           </div>
         </div>
@@ -1314,7 +1336,7 @@ const MODULES_VALIDABLES = {
 };
 let calculsModules = { mur: {}, poteau: {}, poutre: {}, dalle: {}, corps: {}, semelle: {} };
 let validationsModules = { mur: null, poteau: null, poutre: null, dalle: null, corps: null, semelle: null };
-let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, potCadreML: 0, potCadre: 0, potEpingleML: 0, potEpingle: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, dalSurf: 0, dalVol: 0, dalFer: 0, semVol: 0, semFer1: 0, semFer2: 0, semFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
+let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, potCadreML: 0, potCadre: 0, potEpingleML: 0, potEpingle: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, pouCadreML: 0, pouCadre: 0, pouEpingleML: 0, pouEpingle: 0, dalSurf: 0, dalVol: 0, dalFer: 0, semVol: 0, semFer1: 0, semFer2: 0, semFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
 
 const copierCalcul = valeur => JSON.parse(JSON.stringify(valeur || {}));
 const calculModuleValideAJour = cle => {
@@ -1371,7 +1393,7 @@ function normaliserOuverturesMur(o, cle, prefixe) {
 }
 function ajouterMur()    { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', portes: [nouvelleOuvertureMur()], fenetres: [nouvelleOuvertureMur()] }); rendre(); }
 function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '', b: '', H: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '', ferNb: '4', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' }); rendre(); }
-function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferNb: '4', chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2' }); rendre(); }
+function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferNb: '4', chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' }); rendre(); }
 function ajouterDalle()  { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1', ferNuanceLong: 'HA', ferDiamLong: '10', ferEspLong: '20', ferNuanceLarg: 'HA', ferDiamLarg: '10', ferEspLarg: '20' }); rendre(); }
 function ajouterCorps()  { corps.push({ id: uid++, nom: 'Panneau ' + (corps.length + 1), L: '', l: '', pb: '0.15', n: '1' }); rendre(); }
 function nouvelleSemelle(id, numero = 1) {
@@ -1534,9 +1556,22 @@ function rendre() {
       <td><input class="inp" type="number" min="0" step="0.01" value="${esc(o.chapL ?? '')}" oninput="maj('poutre',${o.id},'chapL',this.value)"></td>
       <td><input class="inp" type="number" min="0" step="1" value="${esc(o.chapNb ?? '2')}" oninput="maj('poutre',${o.id},'chapNb',this.value)"></td>
       <td class="res" id="u-chapml-${o.id}">0</td><td class="res" id="u-chapbar-${o.id}">0</td>
+      <td class="group-gap"><select class="inp" onchange="maj('poutre',${o.id},'cadreNuance',this.value)">
+        <option value="HA" ${o.cadreNuance === 'HA' ? 'selected' : ''}>HA</option>
+        <option value="RL" ${o.cadreNuance === 'HA' ? '' : 'selected'}>RL</option></select></td>
+      <td><select class="inp" onchange="maj('poutre',${o.id},'cadreDiam',this.value)">${optionsFer(o.cadreDiam || '6')}</select></td>
+      <td><input class="inp" type="number" min="0" step="0.1" value="${esc(o.cadreEnrobage ?? '')}" oninput="maj('poutre',${o.id},'cadreEnrobage',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="1" value="${esc(o.cadreNb ?? '')}" oninput="maj('poutre',${o.id},'cadreNb',this.value)"></td>
+      <td class="res" id="u-cadrel-${o.id}">0</td><td class="res" id="u-cadreml-${o.id}">0</td><td class="res" id="u-cadrebar-${o.id}">0</td>
+      <td class="group-gap"><select class="inp" onchange="maj('poutre',${o.id},'epingleNuance',this.value)">
+        <option value="HA" ${o.epingleNuance === 'RL' ? '' : 'selected'}>HA</option>
+        <option value="RL" ${o.epingleNuance === 'RL' ? 'selected' : ''}>RL</option></select></td>
+      <td><input class="inp" type="number" min="0" step="1" value="${esc(o.epingleNb ?? '')}" oninput="maj('poutre',${o.id},'epingleNb',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="0.01" value="${esc(o.epingleL ?? '')}" oninput="maj('poutre',${o.id},'epingleL',this.value)"></td>
+      <td class="res" id="u-epingleml-${o.id}">0</td><td class="res" id="u-epinglebar-${o.id}">0</td>
       <td class="res group-gap" id="u-cof-${o.id}">0</td><td class="res" id="u-sur-${o.id}">0</td><td class="res" id="u-vol-${o.id}">0</td>
       ${delBtn('poutre', o.id)}</tr>`).join('')
-    : ligneVide(21, 'Aucune poutre — cliquez sur « Ajouter une poutre »');
+    : ligneVide(33, 'Aucune poutre — cliquez sur « Ajouter une poutre »');
 
   $('tb-corps').innerHTML = corps.length ? corps.map(o => `<tr>
       <td>${inp('corps', o, 'nom', 'inp-txt')}</td><td>${inp('corps', o, 'L')}</td><td>${inp('corps', o, 'l')}</td>
@@ -1717,9 +1752,9 @@ function calculer() {
     ? `<i class="fa-solid fa-link"></i><div><b>Épingles par nuance :</b> ${nuancesEpingles.map(([nuance, ml]) => `${nuance} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
     : '<i class="fa-solid fa-link"></i><div>Aucune épingle calculée.</div>';
 
-  // --- Poutres & fers longitudinaux ---
-  let tCof = 0, tSur = 0, tV = 0, tPouFerML = 0, tChapML = 0;
-  const fersPoutresParProfil = {}, chapeauxParProfil = {};
+  // --- Poutres, fers longitudinaux, chapeaux, cadres et épingles ---
+  let tCof = 0, tSur = 0, tV = 0, tPouFerML = 0, tChapML = 0, tPouCadreML = 0, tPouEpingleML = 0;
+  const fersPoutresParProfil = {}, chapeauxParProfil = {}, cadresPoutresParProfil = {}, epinglesPoutresParNuance = {};
   poutres.forEach(o => {
     const b = num(o.b), h = num(o.h), L = num(o.L), n = Math.max(0, num(o.n));
     const cof = (b + 2 * h) * L * n, sur = 2 * (b + h) * L * n, vol = b * h * L * n;
@@ -1742,21 +1777,51 @@ function calculer() {
     const chapProfil = `${chapNuance}:${chapDiam}`;
     chapeauxParProfil[chapProfil] = (chapeauxParProfil[chapProfil] || 0) + chapML;
 
-    tCof += cof; tSur += sur; tV += vol; tPouFerML += ferML; tChapML += chapML;
+    // Cadre = [(largeur b − enrobage) + (hauteur h − enrobage)] × 2 + 10 cm.
+    const cadreEnrobage = Math.max(0, num(o.cadreEnrobage)) / 100;
+    const cadreL = b > 0 && h > 0
+      ? (Math.max(0, b - cadreEnrobage) + Math.max(0, h - cadreEnrobage)) * 2 + 0.10
+      : 0;
+    const cadreNb = Math.max(0, num(o.cadreNb));
+    const cadreML = cadreL * cadreNb * n;
+    const cadreNuance = o.cadreNuance === 'HA' ? 'HA' : 'RL';
+    const cadreDiam = String(o.cadreDiam || '6');
+    const cadreProfil = `${cadreNuance}:${cadreDiam}`;
+    cadresPoutresParProfil[cadreProfil] = (cadresPoutresParProfil[cadreProfil] || 0) + cadreML;
+
+    // Épingles : nombre total saisi × longueur saisie, puis division par 12 m.
+    const epingleNb = Math.max(0, num(o.epingleNb));
+    const epingleL = Math.max(0, num(o.epingleL));
+    const epingleML = epingleNb * epingleL;
+    const epingleNuance = o.epingleNuance === 'RL' ? 'RL' : 'HA';
+    epinglesPoutresParNuance[epingleNuance] = (epinglesPoutresParNuance[epingleNuance] || 0) + epingleML;
+
+    tCof += cof; tSur += sur; tV += vol; tPouFerML += ferML; tChapML += chapML; tPouCadreML += cadreML; tPouEpingleML += epingleML;
     $('u-ferml-' + o.id).innerText = fmt(ferML);
     $('u-ferbar-' + o.id).innerText = fmt(ferBarres);
     $('u-chapml-' + o.id).innerText = fmt(chapML);
     $('u-chapbar-' + o.id).innerText = fmt(chapBarres);
+    $('u-cadrel-' + o.id).innerText = fmt(cadreL);
+    $('u-cadreml-' + o.id).innerText = fmt(cadreML);
+    $('u-cadrebar-' + o.id).innerText = fmt(cadreML / 12);
+    $('u-epingleml-' + o.id).innerText = fmt(epingleML);
+    $('u-epinglebar-' + o.id).innerText = fmt(epingleML / 12);
     $('u-cof-' + o.id).innerText = fmt(cof);
     $('u-sur-' + o.id).innerText = fmt(sur);
     $('u-vol-' + o.id).innerText = fmt(vol);
   });
   const profilsFerPoutres = Object.entries(fersPoutresParProfil).filter(([, ml]) => ml > 0);
   const profilsChapeaux = Object.entries(chapeauxParProfil).filter(([, ml]) => ml > 0);
+  const profilsCadresPoutres = Object.entries(cadresPoutresParProfil).filter(([, ml]) => ml > 0);
+  const nuancesEpinglesPoutres = Object.entries(epinglesPoutresParNuance).filter(([, ml]) => ml > 0);
   const tPouFerExact = tPouFerML / 12;
   const tPouFerCommande = profilsFerPoutres.reduce((s, [, ml]) => s + Math.ceil(ml / 12 - 1e-9), 0);
   const tChapExact = tChapML / 12;
   const tChapCommande = profilsChapeaux.reduce((s, [, ml]) => s + Math.ceil(ml / 12 - 1e-9), 0);
+  const tPouCadreExact = tPouCadreML / 12;
+  const tPouCadreCommande = profilsCadresPoutres.reduce((s, [, ml]) => s + Math.ceil(ml / 12 - 1e-9), 0);
+  const tPouEpingleExact = tPouEpingleML / 12;
+  const tPouEpingleCommande = nuancesEpinglesPoutres.reduce((s, [, ml]) => s + Math.ceil(ml / 12 - 1e-9), 0);
   $('pou-coff').innerText = fmt(tCof); $('pou-surf').innerText = fmt(tSur); $('pou-vol').innerText = fmt(tV);
   $('pou-fer-ml').innerText = fmt(tPouFerML);
   $('pou-fer-exact').innerText = fmt(tPouFerExact);
@@ -1764,12 +1829,24 @@ function calculer() {
   $('pou-chap-ml').innerText = fmt(tChapML);
   $('pou-chap-exact').innerText = fmt(tChapExact);
   $('pou-chap-commande').innerText = fmt(tChapCommande);
+  $('pou-cadre-ml').innerText = fmt(tPouCadreML);
+  $('pou-cadre-exact').innerText = fmt(tPouCadreExact);
+  $('pou-cadre-commande').innerText = fmt(tPouCadreCommande);
+  $('pou-epingle-ml').innerText = fmt(tPouEpingleML);
+  $('pou-epingle-exact').innerText = fmt(tPouEpingleExact);
+  $('pou-epingle-commande').innerText = fmt(tPouEpingleCommande);
   $('pou-fer-detail').innerHTML = profilsFerPoutres.length
     ? `<i class="fa-solid fa-bars-staggered"></i><div><b>Fers longitudinaux :</b> ${profilsFerPoutres.map(([profil, ml]) => `${libelleFer(profil)} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
     : '<i class="fa-solid fa-bars-staggered"></i><div>Aucune armature longitudinale calculée.</div>';
   $('pou-chap-detail').innerHTML = profilsChapeaux.length
     ? `<i class="fa-solid fa-arrows-left-right-to-line"></i><div><b>Chapeaux :</b> ${profilsChapeaux.map(([profil, ml]) => `${libelleFer(profil)} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
     : '<i class="fa-solid fa-arrows-left-right-to-line"></i><div>Aucun chapeau calculé.</div>';
+  $('pou-cadre-detail').innerHTML = profilsCadresPoutres.length
+    ? `<i class="fa-solid fa-square"></i><div><b>Cadres de poutres :</b> ${profilsCadresPoutres.map(([profil, ml]) => `${libelleFer(profil)} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
+    : '<i class="fa-solid fa-square"></i><div>Aucun cadre calculé.</div>';
+  $('pou-epingle-detail').innerHTML = nuancesEpinglesPoutres.length
+    ? `<i class="fa-solid fa-link"></i><div><b>Épingles de poutres :</b> ${nuancesEpinglesPoutres.map(([nuance, ml]) => `${nuance} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
+    : '<i class="fa-solid fa-link"></i><div>Aucune épingle calculée.</div>';
 
   // --- Dalles pleines & fers dans les deux sens ---
   let tDS = 0, tDV = 0, tDalFerL = 0, tDalFerl = 0, tDalFerML = 0;
@@ -1901,7 +1978,7 @@ function calculer() {
   const crepDosageSable = Math.max(0, num($('crep-dosage-sable').value));
   const crepSable = crepVolume * crepDosageSable;
   T = { sMur, nbPP: nb, ppArr: ppArrondi, potSec: tSec, potLat: tLat, potVol: tVol, potFer: tFerCommande, potCadreML: tCadreML, potCadre: tCadreCommande, potEpingleML: tEpingleML, potEpingle: tEpingleCommande,
-        pouCof: tCof, pouSur: tSur, pouVol: tV, pouFer: tPouFerCommande, pouChap: tChapCommande,
+        pouCof: tCof, pouSur: tSur, pouVol: tV, pouFer: tPouFerCommande, pouChap: tChapCommande, pouCadreML: tPouCadreML, pouCadre: tPouCadreCommande, pouEpingleML: tPouEpingleML, pouEpingle: tPouEpingleCommande,
         dalSurf: tDS, dalVol: tDV, dalFer: tDalFerCommande, semVol: tSemVol, semFer1: tSemFer1, semFer2: tSemFer2, semFer: tSemFerCommande,
         crepMurNet, crepMur, crepDalle, crepTotal, crepEpaisseur, crepVolume, crepDosage, crepCiment, crepDosageSable, crepSable,
         ccSurf: tCS, ccHour: tCH, ccNerv: tCN, ccLg: tCG };
@@ -1917,6 +1994,10 @@ function calculer() {
     .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
   const chapeauxCommande = Object.fromEntries(Object.entries(chapeauxParProfil)
     .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
+  const cadresPoutresCommande = Object.fromEntries(Object.entries(cadresPoutresParProfil)
+    .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
+  const epinglesPoutresCommande = Object.fromEntries(Object.entries(epinglesPoutresParNuance)
+    .map(([nuance, ml]) => [nuance, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
   const fersDallesCommande = Object.fromEntries(Object.entries(fersDallesParProfil)
     .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
   const fersSemellesCommande = Object.fromEntries(Object.entries(fersSemellesParProfil)
@@ -1924,7 +2005,7 @@ function calculer() {
   calculsModules = {
     mur: { surface: sMur, parpaings: ppArrondi, ciment: cimentPP, sable: sablePP },
     poteau: { volume: tVol, ferMetres: tFerML, cadreMetres: tCadreML, epingleMetres: tEpingleML, fers: fersPoteauxCommande, cadres: cadresPoteauxCommande, epingles: epinglesPoteauxCommande },
-    poutre: { volume: tV, fers: fersPoutresCommande, chapeaux: chapeauxCommande },
+    poutre: { volume: tV, cadreMetres: tPouCadreML, epingleMetres: tPouEpingleML, fers: fersPoutresCommande, chapeaux: chapeauxCommande, cadres: cadresPoutresCommande, epingles: epinglesPoutresCommande },
     dalle: { surface: tDS, volume: tDV, fers: fersDallesCommande },
     corps: { surface: tCS, hourdis: tCH, nervures: tCG },
     semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande }
@@ -1946,6 +2027,8 @@ function calculer() {
   G.ferEpinglesPoteaux = copierCalcul(poteauValide?.epingles);
   G.ferPoutres = copierCalcul(poutreValide?.fers);
   G.ferChapeaux = copierCalcul(poutreValide?.chapeaux);
+  G.ferCadresPoutres = copierCalcul(poutreValide?.cadres);
+  G.ferEpinglesPoutres = copierCalcul(poutreValide?.epingles);
   G.ferDalles = copierCalcul(dalleValidee?.fers);
   G.ferSemelles = copierCalcul(semelleValidee?.fers);
   syncFersDevis();
@@ -1955,7 +2038,7 @@ function calculer() {
 /* ============================================================
    DEVIS QUANTITATIF
    ============================================================ */
-let G = { beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferPoutres: {}, ferChapeaux: {}, ferDalles: {}, ferSemelles: {} };
+let G = { beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferDalles: {}, ferSemelles: {} };
 let dvId = 1000;
 function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', total: null, auto }; }
 let devis = [
@@ -2087,10 +2170,12 @@ const fmtM = n => n.toLocaleString('fr-FR', { maximumFractionDigits: 2 });
 const estLigneFer = l => typeof l.auto === 'string' && l.auto.startsWith('fer:');
 const estLigneCadrePoteau = l => typeof l.auto === 'string' && l.auto.startsWith('cadrepot:');
 const estLigneEpinglePoteau = l => typeof l.auto === 'string' && l.auto.startsWith('epinglepot:');
+const estLigneCadrePoutre = l => typeof l.auto === 'string' && l.auto.startsWith('cadrepout:');
+const estLigneEpinglePoutre = l => typeof l.auto === 'string' && l.auto.startsWith('epinglepout:');
 const estLigneChapeau = l => typeof l.auto === 'string' && l.auto.startsWith('chap:');
 const estLigneFerDalle = l => typeof l.auto === 'string' && l.auto.startsWith('dallefer:');
 const estLigneFerSemelle = l => typeof l.auto === 'string' && l.auto.startsWith('semellefer:');
-const estLigneAcier = l => estLigneFer(l) || estLigneCadrePoteau(l) || estLigneEpinglePoteau(l) || estLigneChapeau(l) || estLigneFerDalle(l) || estLigneFerSemelle(l);
+const estLigneAcier = l => estLigneFer(l) || estLigneCadrePoteau(l) || estLigneEpinglePoteau(l) || estLigneCadrePoutre(l) || estLigneEpinglePoutre(l) || estLigneChapeau(l) || estLigneFerDalle(l) || estLigneFerSemelle(l);
 const libelleFer = cle => {
   const [nuance, diametre] = cle.split(':');
   return `${nuance} Ø${diametre}`;
@@ -2112,6 +2197,12 @@ function aciersDevisActifs() {
   });
   Object.entries(G.ferEpinglesPoteaux || {}).forEach(([nuance, qte]) => {
     lignes[`epinglepot:${nuance}`] = { qte, des: `Épingles poteaux — ${nuance}`, unite: 'barre' };
+  });
+  Object.entries(G.ferCadresPoutres || {}).forEach(([cle, qte]) => {
+    lignes[`cadrepout:${cle}`] = { qte, des: `Cadres poutres — ${libelleFer(cle)}`, unite: 'barre' };
+  });
+  Object.entries(G.ferEpinglesPoutres || {}).forEach(([nuance, qte]) => {
+    lignes[`epinglepout:${nuance}`] = { qte, des: `Épingles poutres — ${nuance}`, unite: 'barre' };
   });
   Object.entries(G.ferChapeaux || {}).forEach(([cle, qte]) => {
     lignes[`chap:${cle}`] = { qte, des: `Chapeau ${libelleFer(cle)}`, unite: 'barre' };
@@ -2307,7 +2398,7 @@ function updateDashboard() {
   // valeurs dans la sidebar
   $('nav-v-mur').textContent = fmt(T.sMur) + ' m² · ' + fmt(T.ppArr) + ' parpaings';
   $('nav-v-poteau').textContent = fmt(T.potVol) + ' m³ · ' + fmt(T.potFer) + ' fers · ' + fmt(T.potCadre) + ' cadres · ' + fmt(T.potEpingle) + ' épingles';
-  $('nav-v-poutre').textContent = fmt(T.pouVol) + ' m³ · ' + fmt(T.pouFer) + ' fers · ' + fmt(T.pouChap) + ' chapeaux';
+  $('nav-v-poutre').textContent = fmt(T.pouVol) + ' m³ · ' + fmt(T.pouFer) + ' fers · ' + fmt(T.pouChap) + ' chapeaux · ' + fmt(T.pouCadre) + ' cadres · ' + fmt(T.pouEpingle) + ' épingles';
   $('nav-v-dalle').textContent = fmt(T.dalVol) + ' m³ · ' + fmt(T.dalFer) + ' barres';
   $('nav-v-corps').textContent = fmt(T.ccHour) + ' hourdis · ' + fmt(T.ccSurf) + ' m²';
   $('nav-v-semelle').textContent = fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres';
@@ -2446,7 +2537,9 @@ function charger() {
     }));
     poutres = (d.poutres || []).map(o => ({
       ferNuance: 'HA', ferDiam: '12', ferL: o.L ?? '', ferNb: '4',
-      chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2', ...o,
+      chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2',
+      cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '',
+      epingleNuance: 'HA', epingleNb: '', epingleL: '', ...o,
       ferL: o.ferL ?? o.L ?? '', chapL: o.chapL ?? ''
     }));
     dalles = (d.dalles || []).map(o => ({
