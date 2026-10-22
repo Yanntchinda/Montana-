@@ -220,7 +220,16 @@ td .inp{padding:9px 10px;font-size:13px}
 .poutre-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
 .poutre-groupe .subcard-title{margin-bottom:12px}
 .poutre-resultat{min-height:41px;display:flex;align-items:center;gap:5px}
-@media (max-width:1000px){.poutre-sections{grid-template-columns:1fr}.poutre-groupe-large{grid-column:auto}}
+.longrine-ligne{margin-bottom:18px;border-top:3px solid #0f766e;background:var(--surface-2)}
+.longrine-ligne:last-child{margin-bottom:0}
+.longrine-entete{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.longrine-entete .field{min-width:260px;flex:1}
+.longrine-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.longrine-groupe{background:var(--bg);border:1px solid var(--border);border-top:3px solid var(--faint);border-radius:11px;padding:13px}
+.longrine-groupe-fer{border-top-color:var(--brand)}
+.longrine-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
+.longrine-resultat{min-height:41px;display:flex;align-items:center;gap:5px}
+@media (max-width:1000px){.poutre-sections,.longrine-sections{grid-template-columns:1fr}.poutre-groupe-large{grid-column:auto}}
 #tb-poteau td > select.inp,#tb-dalle td > select.inp{min-width:122px}
 #tb-mur td > div .inp{width:64px !important;min-width:64px;padding:8px 7px !important;font-size:12.8px !important}
 .ouvertures-mur{min-width:310px;display:flex;flex-direction:column;gap:7px}
@@ -611,6 +620,11 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
         <i class="fa-solid fa-gauge-high ni"></i>
         <span class="ni-txt"><b>Tableau de bord</b><span class="ni-val" id="nav-v-dash">Synthèse du projet</span></span>
       </button>
+      <button class="nav-item" data-tab="longrine" onclick="aller('longrine')">
+        <i class="fa-solid fa-grip-lines ni"></i>
+        <span class="ni-txt"><b>Longrines</b><span class="ni-val" id="nav-v-longrine">0 m³ · 0 barres</span></span>
+        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-longrine" checked onchange="majVisibilite()"><span class="track"></span></label>
+      </button>
 
       <div class="nav-label">Modules de calcul</div>
       <button class="nav-item" data-tab="mur" onclick="aller('mur')">
@@ -701,7 +715,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           <button class="kpi k-beton" onclick="aller('poteau')">
             <div class="k-top"><span class="k-ico"><i class="fa-solid fa-cube"></i></span><span class="k-tag">Béton</span></div>
             <div class="k-val"><span id="dash-beton">0</span><small>m³</small></div>
-            <div class="k-lab">Poteaux + poutres + dalles + semelles + divers</div>
+            <div class="k-lab">Longrines + poteaux + poutres + dalles + semelles + divers</div>
           </button>
           <button class="kpi k-mur" onclick="aller('mur')">
             <div class="k-top"><span class="k-ico"><i class="fa-solid fa-border-all"></i></span><span class="k-tag">Maçonnerie</span></div>
@@ -855,6 +869,35 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
             </div>
 
             <div class="note" style="margin-top:14px"><i class="fa-solid fa-calculator"></i><div><b>Ouvertures :</b> (longueur porte × hauteur porte × nombre de portes) + (longueur fenêtre × hauteur fenêtre × nombre de fenêtres). <b>Surface :</b> [(longueur mur × hauteur mur) − ouvertures] × nombre de murs × 2 + surface des dalles. <b>Volume :</b> surface totale × (épaisseur en cm ÷ 100). <b>Ciment :</b> volume × dosage ciment. <b>Sable :</b> volume × dosage sable saisi.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ONGLET : LONGRINES ============ -->
+      <section class="panel" id="bloc-longrine">
+        <div class="card">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-grip-lines"></i> Longrines</h3>
+              <div class="ch-sub">Volume de béton et fers avec hauteur, longueur et crochets</div>
+            </div>
+            <div class="ch-act">
+              <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-longrine" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
+              <button class="btn btn-sm btn-danger" onclick="viderModule('longrine')"><i class="fa-solid fa-eraser"></i> Vider</button>
+              <button class="btn btn-sm btn-primary" onclick="ajouterLongrine()"><i class="fa-solid fa-plus"></i> Ajouter une longrine</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="liste-longrines"></div>
+            <div class="tiles" style="margin-top:16px">
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-cube"></i> Volume total béton</div><div class="t-val"><span id="long-vol">0</span><small>m³</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-grip-lines"></i> Longueur totale des fers</div><div class="t-val"><span id="long-fer-ml">0</span><small>ml</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-divide"></i> Barres exactes de 12 m</div><div class="t-val"><span id="long-fer-exact">0</span><small>barres</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-cart-flatbed"></i> Fers à commander</div><div class="t-val"><span id="long-fer-commande">0</span><small>barres</small></div></div>
+            </div>
+            <div class="note" id="long-fer-detail" style="margin-top:14px"><i class="fa-solid fa-bars-staggered"></i><div>Aucun fer de longrine calculé.</div></div>
+            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Volume :</b> longueur × largeur × hauteur saisies. <b>Fer :</b> (longueur du fer + longueur totale des crochets) × nombre saisi. La hauteur du fer est enregistrée dans sa référence. La longueur totale est divisée par <b>12 m</b>; la commande est arrondie au supérieur séparément pour chaque référence.</div></div>
+            <div id="validation-module-longrine"></div>
           </div>
         </div>
       </section>
@@ -1273,6 +1316,7 @@ function toast(msg, type = 'info', ico) {
    ============================================================ */
 const ONGLETS = {
   dashboard: { titre: 'Tableau de bord', sub: "Vue d'ensemble des quantités et du devis" },
+  longrine:  { titre: 'Longrines', sub: 'Volume de béton et fers avec crochets' },
   mur:       { titre: 'Murs & parpaings', sub: 'Surface des murs et nombre de parpaings à commander' },
   poteau:    { titre: 'Poteaux', sub: 'Sections, coffrage et volumes de béton' },
   poutre:    { titre: 'Poutres', sub: 'Coffrage, surfaces et volumes de béton' },
@@ -1318,14 +1362,14 @@ function syncSwitches() {
    DONNÉES
    ============================================================ */
 let uid = 1;
-let murs = [], poteaux = [], poutres = [], dalles = [], corps = [], semelles = [], crepMurs = [], crepDalles = [];
+let murs = [], poteaux = [], poutres = [], dalles = [], corps = [], semelles = [], longrines = [], crepMurs = [], crepDalles = [];
 let crepValidation = null;
 const MODULES_VALIDABLES = {
-  mur: 'Murs & parpaings', poteau: 'Poteaux', poutre: 'Poutres', dalle: 'Dalle pleine', corps: 'Dalle corps creux', semelle: 'Semelles'
+  longrine: 'Longrines', mur: 'Murs & parpaings', poteau: 'Poteaux', poutre: 'Poutres', dalle: 'Dalle pleine', corps: 'Dalle corps creux', semelle: 'Semelles'
 };
-let calculsModules = { mur: {}, poteau: {}, poutre: {}, dalle: {}, corps: {}, semelle: {} };
-let validationsModules = { mur: null, poteau: null, poutre: null, dalle: null, corps: null, semelle: null };
-let T = { sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, potCadreML: 0, potCadre: 0, potEpingleML: 0, potEpingle: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, pouCadreML: 0, pouCadre: 0, pouEpingleML: 0, pouEpingle: 0, dalSurf: 0, dalVol: 0, dalFer: 0, semVol: 0, semFer1: 0, semFer2: 0, semFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
+let calculsModules = { longrine: {}, mur: {}, poteau: {}, poutre: {}, dalle: {}, corps: {}, semelle: {} };
+let validationsModules = { longrine: null, mur: null, poteau: null, poutre: null, dalle: null, corps: null, semelle: null };
+let T = { longVol: 0, longFerML: 0, longFer: 0, sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, potCadreML: 0, potCadre: 0, potEpingleML: 0, potEpingle: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, pouCadreML: 0, pouCadre: 0, pouEpingleML: 0, pouEpingle: 0, dalSurf: 0, dalVol: 0, dalFer: 0, semVol: 0, semFer1: 0, semFer2: 0, semFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
 
 const copierCalcul = valeur => JSON.parse(JSON.stringify(valeur || {}));
 const calculModuleValideAJour = cle => {
@@ -1385,6 +1429,10 @@ function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.l
 function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferNb: '4', chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' }); rendre(); }
 function ajouterDalle()  { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1', ferNuanceLong: 'HA', ferDiamLong: '10', ferEspLong: '20', ferNuanceLarg: 'HA', ferDiamLarg: '10', ferEspLarg: '20' }); rendre(); }
 function ajouterCorps()  { corps.push({ id: uid++, nom: 'Panneau ' + (corps.length + 1), L: '', l: '', pb: '0.15', n: '1' }); rendre(); }
+function nouvelleLongrine(id, numero = 1) {
+  return { id, nom: 'Longrine ' + numero, L: '', l: '', h: '', ferNuance: 'HA', ferDiam: '12', ferH: '', ferL: '', ferCrochet: '', ferNb: '' };
+}
+function ajouterLongrine() { longrines.push(nouvelleLongrine(uid++, longrines.length + 1)); rendre(); }
 function nouvelleSemelle(id, numero = 1) {
   return { id, nom: 'Semelle ' + numero, L: '', l: '', h: '0.25', n: '1', n1Nuance: 'HA', n1Diam: '10', n1Enrobage: '5', n1Espacement: '15', n1Crochet: '15', n2Nuance: 'HA', n2Diam: '10', n2Enrobage: '5', n2Espacement: '15', n2Crochet: '15' };
 }
@@ -1396,6 +1444,7 @@ function supprimer(type, id) {
   if (type === 'dalle') dalles = dalles.filter(x => x.id !== id);
   if (type === 'corps') corps = corps.filter(x => x.id !== id);
   if (type === 'semelle') semelles = semelles.filter(x => x.id !== id);
+  if (type === 'longrine') longrines = longrines.filter(x => x.id !== id);
   if (type === 'mur') murs = murs.filter(x => x.id !== id);
   if (type === 'poteau') poteaux = poteaux.filter(x => x.id !== id);
   if (type === 'poutre') poutres = poutres.filter(x => x.id !== id);
@@ -1404,10 +1453,10 @@ function supprimer(type, id) {
   rendre();
 }
 function viderModule(type) {
-  const map = { mur: 'murs', poteau: 'poteaux', poutre: 'poutres', dalle: 'dalles', corps: 'corps', semelle: 'semelles' };
-  const nom = { mur: 'les murs', poteau: 'les poteaux', poutre: 'les poutres', dalle: 'les dalles', corps: 'les panneaux', semelle: 'les semelles' }[type];
+  const map = { longrine: 'longrines', mur: 'murs', poteau: 'poteaux', poutre: 'poutres', dalle: 'dalles', corps: 'corps', semelle: 'semelles' };
+  const nom = { longrine: 'les longrines', mur: 'les murs', poteau: 'les poteaux', poutre: 'les poutres', dalle: 'les dalles', corps: 'les panneaux', semelle: 'les semelles' }[type];
   if (!window.confirm('Supprimer toutes les lignes : ' + nom + ' ?')) return;
-  ({ mur: () => murs = [], poteau: () => poteaux = [], poutre: () => poutres = [], dalle: () => dalles = [], corps: () => corps = [], semelle: () => semelles = [] })[type]();
+  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], poutre: () => poutres = [], dalle: () => dalles = [], corps: () => corps = [], semelle: () => semelles = [] })[type]();
   rendre(); toast('Lignes supprimées (' + map[type] + ')', 'ok');
 }
 function viderCrepissage(type) {
@@ -1418,7 +1467,7 @@ function viderCrepissage(type) {
   toast(`Lignes de ${estMur ? 'murs' : 'dalles'} supprimées`, 'ok');
 }
 function maj(type, id, champ, val) {
-  const liste = { mur: murs, poteau: poteaux, poutre: poutres, dalle: dalles, corps, semelle: semelles, crepMur: crepMurs, crepDalle: crepDalles }[type] || [];
+  const liste = { longrine: longrines, mur: murs, poteau: poteaux, poutre: poutres, dalle: dalles, corps, semelle: semelles, crepMur: crepMurs, crepDalle: crepDalles }[type] || [];
   const o = liste.find(x => x.id === id);
   if (!o) return;
   o[champ] = val;
@@ -1487,6 +1536,38 @@ const blocNappeSemelle = (o, numero) => {
 };
 
 function rendre() {
+  $('liste-longrines').innerHTML = longrines.length ? longrines.map(o => `<div class="subcard longrine-ligne">
+      <div class="longrine-entete">
+        <div class="field"><label>Désignation de la longrine</label>${inp('longrine', o, 'nom', 'inp-txt')}</div>
+        <button class="btn btn-sm btn-danger no-print" onclick="supprimer('longrine',${o.id})"><i class="fa-solid fa-trash-can"></i> Supprimer</button>
+      </div>
+      <div class="longrine-sections">
+        <div class="longrine-groupe">
+          <div class="subcard-title"><i class="fa-solid fa-ruler-combined"></i> Dimensions et béton</div>
+          <div class="longrine-grid">
+            <div class="field"><label>Longueur (m)</label>${inp('longrine', o, 'L')}</div>
+            <div class="field"><label>Largeur (m)</label>${inp('longrine', o, 'l')}</div>
+            <div class="field"><label>Hauteur (m)</label>${inp('longrine', o, 'h')}</div>
+            <div class="field"><label>Volume béton</label><div class="inp longrine-resultat"><b class="res" id="long-vol-${o.id}">0</b> m³</div></div>
+          </div>
+        </div>
+        <div class="longrine-groupe longrine-groupe-fer">
+          <div class="subcard-title"><i class="fa-solid fa-grip-lines"></i> Fer de la longrine</div>
+          <div class="longrine-grid">
+            <div class="field"><label>Nuance</label><select class="inp" onchange="maj('longrine',${o.id},'ferNuance',this.value)"><option value="HA" ${o.ferNuance === 'RL' ? '' : 'selected'}>HA</option><option value="RL" ${o.ferNuance === 'RL' ? 'selected' : ''}>RL</option></select></div>
+            <div class="field"><label>Diamètre (mm)</label><select class="inp" onchange="maj('longrine',${o.id},'ferDiam',this.value)">${optionsFer(o.ferDiam || '12')}</select></div>
+            <div class="field"><label>Hauteur du fer (m)</label><input class="inp" type="number" min="0" step="0.01" value="${esc(o.ferH ?? '')}" oninput="maj('longrine',${o.id},'ferH',this.value)"></div>
+            <div class="field"><label>Longueur du fer (m)</label><input class="inp" type="number" min="0" step="0.01" value="${esc(o.ferL ?? '')}" oninput="maj('longrine',${o.id},'ferL',this.value)"></div>
+            <div class="field"><label>Longueur totale des crochets (m)</label><input class="inp" type="number" min="0" step="0.01" value="${esc(o.ferCrochet ?? '')}" oninput="maj('longrine',${o.id},'ferCrochet',this.value)"></div>
+            <div class="field"><label>Nombre de fers</label><input class="inp" type="number" min="0" step="1" value="${esc(o.ferNb ?? '')}" oninput="maj('longrine',${o.id},'ferNb',this.value)"></div>
+            <div class="field"><label>Longueur totale calculée</label><div class="inp longrine-resultat"><b class="res" id="long-ferml-${o.id}">0</b> ml</div></div>
+            <div class="field"><label>Barres exactes de 12 m</label><div class="inp longrine-resultat"><b class="res" id="long-ferbar-${o.id}">0</b></div></div>
+          </div>
+        </div>
+      </div>
+    </div>`).join('')
+    : '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucune longrine — cliquez sur « Ajouter une longrine ».</div></div>';
+
   $('tb-mur').innerHTML = murs.length ? murs.map(o => `<tr>
       <td>${inp('mur', o, 'nom', 'inp-txt')}</td><td>${inp('mur', o, 'L')}</td><td>${inp('mur', o, 'H')}</td>
       <td>${inp('mur', o, 'n')}</td>
@@ -1971,6 +2052,36 @@ function calculer() {
     ? `<i class="fa-solid fa-layer-group"></i><div><b>Armatures des semelles :</b> ${profilsFerSemelles.map(([profil, ml]) => `${libelleFer(profil)} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
     : '<i class="fa-solid fa-layer-group"></i><div>Aucune armature de semelle calculée.</div>';
 
+  // --- Longrines : volume et fers avec hauteur, longueur et crochets ---
+  let tLongVol = 0, tLongFerML = 0;
+  const fersLongrinesParReference = {};
+  longrines.forEach(o => {
+    const L = Math.max(0, num(o.L)), l = Math.max(0, num(o.l)), h = Math.max(0, num(o.h));
+    const volume = L * l * h;
+    const ferH = Math.max(0, num(o.ferH));
+    const ferL = Math.max(0, num(o.ferL));
+    const ferCrochet = Math.max(0, num(o.ferCrochet));
+    const ferNb = Math.max(0, num(o.ferNb));
+    const ferML = (ferL + ferCrochet) * ferNb;
+    const nuance = o.ferNuance === 'RL' ? 'RL' : 'HA';
+    const diametre = String(o.ferDiam || '12');
+    const reference = `${nuance}:${diametre}:${ferH}:${ferL}:${ferCrochet}`;
+    fersLongrinesParReference[reference] = (fersLongrinesParReference[reference] || 0) + ferML;
+    tLongVol += volume; tLongFerML += ferML;
+    $('long-vol-' + o.id).innerText = fmt(volume);
+    $('long-ferml-' + o.id).innerText = fmt(ferML);
+    $('long-ferbar-' + o.id).innerText = fmt(ferML / 12);
+  });
+  const profilsFerLongrines = Object.entries(fersLongrinesParReference).filter(([, ml]) => ml > 0);
+  const tLongFerCommande = Object.values(fersLongrinesParReference).reduce((total, ml) => total + (ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0), 0);
+  $('long-vol').innerText = fmt(tLongVol);
+  $('long-fer-ml').innerText = fmt(tLongFerML);
+  $('long-fer-exact').innerText = fmt(tLongFerML / 12);
+  $('long-fer-commande').innerText = fmt(tLongFerCommande);
+  $('long-fer-detail').innerHTML = profilsFerLongrines.length
+    ? `<i class="fa-solid fa-bars-staggered"></i><div><b>Fers des longrines :</b> ${profilsFerLongrines.map(([reference, ml]) => `${libelleFerLongrine(reference)} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
+    : '<i class="fa-solid fa-bars-staggered"></i><div>Aucun fer de longrine calculé.</div>';
+
   // --- Crépissage : données saisies dans le module dédié ---
   let crepMurNet = 0, crepDalle = 0;
   crepMurs.forEach(o => {
@@ -1998,7 +2109,7 @@ function calculer() {
   const crepCiment = crepVolume * crepDosage;
   const crepDosageSable = Math.max(0, num($('crep-dosage-sable').value));
   const crepSable = crepVolume * crepDosageSable;
-  T = { sMur, nbPP: nb, ppArr: ppArrondi, potSec: tSec, potLat: tLat, potVol: tVol, potFer: tFerCommande, potCadreML: tCadreML, potCadre: tCadreCommande, potEpingleML: tEpingleML, potEpingle: tEpingleCommande,
+  T = { longVol: tLongVol, longFerML: tLongFerML, longFer: tLongFerCommande, sMur, nbPP: nb, ppArr: ppArrondi, potSec: tSec, potLat: tLat, potVol: tVol, potFer: tFerCommande, potCadreML: tCadreML, potCadre: tCadreCommande, potEpingleML: tEpingleML, potEpingle: tEpingleCommande,
         pouCof: tCof, pouSur: tSur, pouVol: tV, pouFer: tPouFerCommande, pouChap: tChapCommande, pouCadreML: tPouCadreML, pouCadre: tPouCadreCommande, pouEpingleML: tPouEpingleML, pouEpingle: tPouEpingleCommande,
         dalSurf: tDS, dalVol: tDV, dalFer: tDalFerCommande, semVol: tSemVol, semFer1: tSemFer1, semFer2: tSemFer2, semFer: tSemFerCommande,
         crepMurNet, crepMur, crepDalle, crepTotal, crepEpaisseur, crepVolume, crepDosage, crepCiment, crepDosageSable, crepSable,
@@ -2023,7 +2134,10 @@ function calculer() {
     .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
   const fersSemellesCommande = Object.fromEntries(Object.entries(fersSemellesParProfil)
     .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
+  const fersLongrinesCommande = Object.fromEntries(Object.entries(fersLongrinesParReference)
+    .map(([reference, ml]) => [reference, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
   calculsModules = {
+    longrine: { volume: tLongVol, ferMetres: tLongFerML, fers: fersLongrinesCommande },
     mur: { surface: sMur, parpaings: ppArrondi, ciment: cimentPP, sable: sablePP },
     poteau: { volume: tVol, ferMetres: tFerML, cadreMetres: tCadreML, epingleMetres: tEpingleML, fers: fersPoteauxCommande, cadres: cadresPoteauxCommande, epingles: epinglesPoteauxCommande },
     poutre: { volume: tV, cadreMetres: tPouCadreML, epingleMetres: tPouEpingleML, fers: fersPoutresCommande, chapeaux: chapeauxCommande, cadres: cadresPoutresCommande, epingles: epinglesPoutresCommande },
@@ -2032,17 +2146,18 @@ function calculer() {
     semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande }
   };
   const valideActif = cle => $('sel-' + cle).checked ? validationsModules[cle]?.donnees : null;
-  const murValide = valideActif('mur'), poteauValide = valideActif('poteau');
+  const longrineValidee = valideActif('longrine'), murValide = valideActif('mur'), poteauValide = valideActif('poteau');
   const poutreValide = valideActif('poutre'), dalleValidee = valideActif('dalle'), corpsValide = valideActif('corps'), semelleValidee = valideActif('semelle');
 
   // --- Alimentation du devis à partir des derniers instantanés validés ---
-  G.betonHorsSemelles = (poteauValide?.volume || 0) + (poutreValide?.volume || 0) + (dalleValidee?.volume || 0) + num($('dos-autre').value);
+  G.betonHorsSemelles = (longrineValidee?.volume || 0) + (poteauValide?.volume || 0) + (poutreValide?.volume || 0) + (dalleValidee?.volume || 0) + num($('dos-autre').value);
   G.beton = G.betonHorsSemelles + (semelleValidee?.volume || 0);
   G.parpaings = murValide?.parpaings || 0;
   G.cimentMur = murValide?.ciment || 0;
   G.sableMur = murValide?.sable || 0;
   G.hourdis = corpsValide?.hourdis || 0;
   G.nervures = corpsValide?.nervures || 0;
+  G.ferLongrines = copierCalcul(longrineValidee?.fers);
   G.ferPoteaux = copierCalcul(poteauValide?.fers);
   G.ferCadresPoteaux = copierCalcul(poteauValide?.cadres);
   G.ferEpinglesPoteaux = copierCalcul(poteauValide?.epingles);
@@ -2059,7 +2174,7 @@ function calculer() {
 /* ============================================================
    DEVIS QUANTITATIF
    ============================================================ */
-let G = { beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferDalles: {}, ferSemelles: {} };
+let G = { beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferLongrines: {}, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferDalles: {}, ferSemelles: {} };
 let dvId = 1000;
 function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', total: null, auto }; }
 let devis = [
@@ -2189,6 +2304,7 @@ function retirerCrepissageDevis() {
 }
 const fmtM = n => n.toLocaleString('fr-FR', { maximumFractionDigits: 2 });
 const estLigneFer = l => typeof l.auto === 'string' && l.auto.startsWith('fer:');
+const estLigneFerLongrine = l => typeof l.auto === 'string' && l.auto.startsWith('longrinefer:');
 const estLigneCadrePoteau = l => typeof l.auto === 'string' && l.auto.startsWith('cadrepot:');
 const estLigneEpinglePoteau = l => typeof l.auto === 'string' && l.auto.startsWith('epinglepot:');
 const estLigneCadrePoutre = l => typeof l.auto === 'string' && l.auto.startsWith('cadrepout:');
@@ -2196,10 +2312,14 @@ const estLigneEpinglePoutre = l => typeof l.auto === 'string' && l.auto.startsWi
 const estLigneChapeau = l => typeof l.auto === 'string' && l.auto.startsWith('chap:');
 const estLigneFerDalle = l => typeof l.auto === 'string' && l.auto.startsWith('dallefer:');
 const estLigneFerSemelle = l => typeof l.auto === 'string' && l.auto.startsWith('semellefer:');
-const estLigneAcier = l => estLigneFer(l) || estLigneCadrePoteau(l) || estLigneEpinglePoteau(l) || estLigneCadrePoutre(l) || estLigneEpinglePoutre(l) || estLigneChapeau(l) || estLigneFerDalle(l) || estLigneFerSemelle(l);
+const estLigneAcier = l => estLigneFer(l) || estLigneFerLongrine(l) || estLigneCadrePoteau(l) || estLigneEpinglePoteau(l) || estLigneCadrePoutre(l) || estLigneEpinglePoutre(l) || estLigneChapeau(l) || estLigneFerDalle(l) || estLigneFerSemelle(l);
 const libelleFer = cle => {
   const [nuance, diametre] = cle.split(':');
   return `${nuance} Ø${diametre}`;
+};
+const libelleFerLongrine = cle => {
+  const [nuance, diametre, hauteur, longueur, crochets] = cle.split(':');
+  return `Fer longrine — ${nuance} Ø${diametre} — H ${fmt(num(hauteur))} m · L ${fmt(num(longueur))} m · crochets ${fmt(num(crochets))} m`;
 };
 function fersDevisActifs() {
   const total = {};
@@ -2212,6 +2332,9 @@ function aciersDevisActifs() {
   const lignes = {};
   Object.entries(fersDevisActifs()).forEach(([cle, qte]) => {
     lignes[`fer:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
+  });
+  Object.entries(G.ferLongrines || {}).forEach(([reference, qte]) => {
+    lignes[`longrinefer:${reference}`] = { qte, des: libelleFerLongrine(reference), unite: 'barre' };
   });
   Object.entries(G.ferCadresPoteaux || {}).forEach(([cle, qte]) => {
     lignes[`cadrepot:${cle}`] = { qte, des: `Cadres poteaux — ${libelleFer(cle)}`, unite: 'barre' };
@@ -2376,7 +2499,7 @@ function syncProjet() { sauver(); }
    ============================================================ */
 function majVisibilite() {
   syncSwitches();
-  ['mur', 'poteau', 'poutre', 'dalle', 'corps', 'semelle'].forEach(k => {
+  ['longrine', 'mur', 'poteau', 'poutre', 'dalle', 'corps', 'semelle'].forEach(k => {
     const on = $('sel-' + k).checked;
     const nav = document.querySelector(`.nav-item[data-tab="${k}"]`);
     if (nav) nav.classList.toggle('off', !on);
@@ -2417,6 +2540,7 @@ function updateDashboard() {
   rendreValidationsModules();
 
   // valeurs dans la sidebar
+  $('nav-v-longrine').textContent = fmt(T.longVol) + ' m³ · ' + fmt(T.longFer) + ' barres';
   $('nav-v-mur').textContent = fmt(T.sMur) + ' m² · ' + fmt(T.ppArr) + ' parpaings';
   $('nav-v-poteau').textContent = fmt(T.potVol) + ' m³ · ' + fmt(T.potFer) + ' fers · ' + fmt(T.potCadre) + ' cadres · ' + fmt(T.potEpingle) + ' épingles';
   $('nav-v-poutre').textContent = fmt(T.pouVol) + ' m³ · ' + fmt(T.pouFer) + ' fers · ' + fmt(T.pouChap) + ' chapeaux · ' + fmt(T.pouCadre) + ' cadres · ' + fmt(T.pouEpingle) + ' épingles';
@@ -2432,6 +2556,7 @@ function updateDashboard() {
 
   // répartition du béton
   const parts = [
+    { k: 'longrine', label: 'Longrines', ico: 'fa-grip-lines', v: $('sel-longrine').checked ? T.longVol : 0 },
     { k: 'poteau', label: 'Poteaux', ico: 'fa-grip-lines-vertical', v: $('sel-poteau').checked ? T.potVol : 0 },
     { k: 'poutre', label: 'Poutres', ico: 'fa-grip-lines', v: $('sel-poutre').checked ? T.pouVol : 0 },
     { k: 'dalle', label: 'Dalles pleines', ico: 'fa-square', v: $('sel-dalle').checked ? T.dalVol : 0 },
@@ -2446,10 +2571,11 @@ function updateDashboard() {
         <span class="bar"><i style="width:${Math.max(2, (p.v / tot) * 100).toFixed(1)}%"></i></span></span>
       <span class="lr-val">${fmt(p.v)} m³ · ${((p.v / tot) * 100).toFixed(1)} %</span>
     </div>`).join('')
-    : `<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun volume de béton pour l'instant. Saisissez des dimensions dans les modules Poteaux, Poutres, Dalles ou Semelles.</div></div>`;
+    : `<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun volume de béton pour l'instant. Saisissez des dimensions dans les modules Longrines, Poteaux, Poutres, Dalles ou Semelles.</div></div>`;
 
   // état des modules
   const mods = [
+    { k: 'longrine', ico: 'fa-grip-lines', label: 'Longrines', detail: longrines.length + ' longrine(s) saisie(s)', val: fmt(T.longVol) + ' m³ · ' + fmt(T.longFer) + ' barres' },
     { k: 'mur', ico: 'fa-border-all', label: 'Murs & parpaings', detail: murs.length + ' mur(s) saisi(s)', val: fmt(T.sMur) + ' m²' },
     { k: 'poteau', ico: 'fa-grip-lines-vertical', label: 'Poteaux', detail: poteaux.length + ' poteau(x) saisi(s)', val: fmt(T.potVol) + ' m³' },
     { k: 'poutre', ico: 'fa-grip-lines', label: 'Poutres', detail: poutres.length + ' poutre(s) saisie(s)', val: fmt(T.pouVol) + ' m³' },
@@ -2493,7 +2619,7 @@ function basculerTheme() {
 const CLE = 'gros-oeuvre-projet-v2';
 const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
   'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
-  'sel-mur', 'sel-poteau', 'sel-poutre', 'sel-dalle', 'sel-corps', 'sel-semelle'];
+  'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-poutre', 'sel-dalle', 'sel-corps', 'sel-semelle'];
 let saveTimer = null;
 let reinitialisationEnCours = false;
 
@@ -2511,7 +2637,7 @@ function sauver(silencieux = true) {
   try {
     const champs = {};
     CHAMPS.forEach(id => { const el = $(id); if (el) champs[id] = el.type === 'checkbox' ? el.checked : el.value; });
-    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, poutres, dalles, corps, semelles, moduleSemellesInitialise: true, crepMurs, crepDalles, crepValidation, validationsModules, champs, devis };
+    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, poutres, dalles, corps, semelles, longrines, moduleSemellesInitialise: true, moduleLongrinesInitialise: true, crepMurs, crepDalles, crepValidation, validationsModules, champs, devis };
     localStorage.setItem(CLE, JSON.stringify(data));
     const s = $('save-state');
     s.classList.remove('dirty');
@@ -2577,8 +2703,12 @@ function charger() {
       n1Nuance: 'HA', n1Diam: '10', n1Enrobage: '5', n1Espacement: '15', n1Crochet: '15',
       n2Nuance: 'HA', n2Diam: '10', n2Enrobage: '5', n2Espacement: '15', n2Crochet: '15', ...o
     }));
-    // Les projets enregistrés avant l’ajout du module reçoivent automatiquement un premier espace de saisie.
+    longrines = (d.longrines || []).map(o => ({
+      ferNuance: 'HA', ferDiam: '12', ferH: '', ferL: '', ferCrochet: '', ferNb: '', ...o
+    }));
+    // Les anciens projets reçoivent automatiquement un premier espace pour les nouveaux modules.
     if (!d.moduleSemellesInitialise && !semelles.length) semelles.push(nouvelleSemelle(d.uid || 1, 1));
+    if (!d.moduleLongrinesInitialise && !longrines.length) longrines.push(nouvelleLongrine((d.uid || 1) + (semelles.some(o => o.id === (d.uid || 1)) ? 1 : 0), 1));
     crepMurs = (d.crepMurs || []).map(o => ({
       ...o,
       porteL: o.porteL ?? '0', porteH: o.porteH ?? '0', porteN: o.porteN ?? '1',
@@ -2594,7 +2724,7 @@ function charger() {
       ...section, lignes: (section.lignes || []).map(l => ({ ...l, total: l.total ?? null }))
     }));
     migrerFersDevis();
-    uid = Math.max(d.uid || 1, ...[murs, poteaux, poutres, dalles, corps, semelles, crepMurs, crepDalles].flat().map(o => o.id + 1), 1);
+    uid = Math.max(d.uid || 1, ...[murs, poteaux, poutres, dalles, corps, semelles, longrines, crepMurs, crepDalles].flat().map(o => o.id + 1), 1);
     dvId = Math.max(1000, ...devis.flatMap(s => s.lignes.map(l => l.id + 1)));
     syncCrepissageDevis();
     syncSemellesDevis();
@@ -2645,7 +2775,7 @@ function appliquerTout() {
 
   const restaure = charger();
   if (!restaure) {
-    ajouterMur(); ajouterPoteau(); ajouterPoutre(); ajouterDalle(); ajouterCorps(); ajouterSemelle();
+    ajouterLongrine(); ajouterMur(); ajouterPoteau(); ajouterPoutre(); ajouterDalle(); ajouterCorps(); ajouterSemelle();
     $('dv-date').value = new Date().toLocaleDateString('fr-FR');
   }
   // préparation silencieuse : on ne rend pas encore l'interface, l'utilisateur doit cliquer sur "Connexion"
