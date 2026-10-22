@@ -4,7 +4,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 
 ## Fonctionnalités
 
-- Murs et parpaings, avec portes et fenêtres.
+- Murs et parpaings, avec plusieurs portes et fenêtres de dimensions différentes sur un même mur.
 - Poteaux, poutres, chapeaux et armatures HA/RL.
 - Dalle pleine et dalle à corps creux.
 - Semelles avec deux nappes d'armatures.

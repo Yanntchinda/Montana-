@@ -208,6 +208,13 @@ td .inp{padding:9px 10px;font-size:13px}
 .semelle-ligne{margin-bottom:16px}.semelle-ligne:last-child{margin-bottom:0}.semelle-entete{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}.semelle-entete .field{min-width:260px;flex:1}.semelle-nappes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.semelle-nappe{border-top:3px solid var(--accent);background:var(--bg)}.semelle-nappe:nth-child(2){border-top-color:#2563eb}.semelle-formule{font-size:11px;color:var(--muted);line-height:1.55;margin-top:10px}
 #tb-poteau td > select.inp,#tb-poutre td > select.inp,#tb-dalle td > select.inp{min-width:122px}
 #tb-mur td > div .inp{width:64px !important;min-width:64px;padding:8px 7px !important;font-size:12.8px !important}
+.ouvertures-mur{min-width:310px;display:flex;flex-direction:column;gap:7px}
+.ouverture-ligne{display:grid;grid-template-columns:70px 12px 70px 12px 56px 28px;align-items:center;gap:5px}
+.ouverture-ligne .inp{width:70px !important;min-width:70px !important;padding:7px 6px !important;font-size:12px !important}
+.ouverture-ligne .inp.ouv-nb{width:56px !important;min-width:56px !important}
+.ouverture-ligne .ouv-fois{text-align:center;color:var(--faint);font-size:11px}
+.ouverture-vide{font-size:11px;color:var(--faint);padding:4px 2px}
+.ouverture-ajouter{align-self:flex-start;margin-top:2px}
 /* Séparateurs de groupes dans le grand tableau des poutres. */
 #bloc-poutre th.group-gap,#tb-poutre td.group-gap,#bloc-dalle th.group-gap,#tb-dalle td.group-gap,#bloc-crepissage th.group-gap,#tb-crep-murs td.group-gap{
   border-left:12px solid var(--surface) !important;
@@ -862,11 +869,12 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <table>
                 <thead><tr>
                   <th>Désignation</th><th class="w-md">Long. (m)</th><th class="w-md">Haut. (m)</th><th class="w-sm">Nb murs</th>
-                  <th class="w-lg">Porte L × H × nb</th><th class="w-lg">Fenêtre L × H × nb</th><th class="th-r w-lg">Surf. ouvertures (m²)</th><th class="th-r w-lg">Surface mur (m²)</th><th class="w-sm no-print"></th>
+                  <th>Portes multiples — L × H × nb</th><th>Fenêtres multiples — L × H × nb</th><th class="th-r w-lg">Surf. ouvertures (m²)</th><th class="th-r w-lg">Surface mur (m²)</th><th class="w-sm no-print"></th>
                 </tr></thead>
                 <tbody id="tb-mur"></tbody>
               </table>
             </div>
+            <div class="note" style="margin-top:12px"><i class="fa-solid fa-circle-info"></i><div>Chaque mur peut recevoir plusieurs portes et plusieurs fenêtres de dimensions différentes. Utilisez <b>Ajouter une porte</b> ou <b>Ajouter une fenêtre</b> dans la ligne du mur.</div></div>
 
             <div class="tiles" style="margin-top:16px">
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-vector-square"></i> Surface totale des murs</div><div class="t-val"><span id="mur-total">0</span><small>m²</small></div></div>
@@ -1334,7 +1342,12 @@ function retirerModuleDevis(cle) {
   toast(`${MODULES_VALIDABLES[cle]} retiré du devis`, 'ok');
 }
 
-function ajouterMur()    { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', porteL: '0', porteH: '0', porteN: '1', fenetreL: '0', fenetreH: '0', fenetreN: '1' }); rendre(); }
+function nouvelleOuvertureMur() { return { L: '', H: '', n: '1' }; }
+function normaliserOuverturesMur(o, cle, prefixe) {
+  if (Array.isArray(o[cle])) return o[cle].map(ouv => ({ L: ouv.L ?? '', H: ouv.H ?? '', n: ouv.n ?? '1' }));
+  return [{ L: o[prefixe + 'L'] ?? '', H: o[prefixe + 'H'] ?? '', n: o[prefixe + 'N'] ?? '1' }];
+}
+function ajouterMur()    { murs.push({ id: uid++, nom: 'Mur ' + (murs.length + 1), L: '', H: '3', n: '1', portes: [nouvelleOuvertureMur()], fenetres: [nouvelleOuvertureMur()] }); rendre(); }
 function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.length + 1), forme: 'rect', a: '', b: '', H: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '', ferNb: '4' }); rendre(); }
 function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferNb: '4', chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2' }); rendre(); }
 function ajouterDalle()  { dalles.push({ id: uid++, nom: 'Dalle ' + (dalles.length + 1), L: '', l: '', e: '0.15', n: '1', ferNuanceLong: 'HA', ferDiamLong: '10', ferEspLong: '20', ferNuanceLarg: 'HA', ferDiamLarg: '10', ferEspLarg: '20' }); rendre(); }
@@ -1378,6 +1391,27 @@ function maj(type, id, champ, val) {
   o[champ] = val;
   if (champ === 'forme') rendre(); else calculer();
 }
+function cleOuverturesMur(type) { return type === 'fenetre' ? 'fenetres' : 'portes'; }
+function ajouterOuvertureMur(murId, type) {
+  const mur = murs.find(o => o.id === murId); if (!mur) return;
+  const cle = cleOuverturesMur(type);
+  if (!Array.isArray(mur[cle])) mur[cle] = [];
+  mur[cle].push(nouvelleOuvertureMur());
+  rendre();
+}
+function supprimerOuvertureMur(murId, type, index) {
+  const mur = murs.find(o => o.id === murId); if (!mur) return;
+  const liste = mur[cleOuverturesMur(type)];
+  if (!Array.isArray(liste) || index < 0 || index >= liste.length) return;
+  liste.splice(index, 1);
+  rendre();
+}
+function majOuvertureMur(murId, type, index, champ, valeur) {
+  const mur = murs.find(o => o.id === murId); if (!mur || !['L', 'H', 'n'].includes(champ)) return;
+  const ouverture = mur[cleOuverturesMur(type)]?.[index]; if (!ouverture) return;
+  ouverture[champ] = valeur;
+  calculer();
+}
 
 const inp = (type, o, champ, cls = '') =>
   `<input class="inp ${cls}" value="${esc(o[champ])}" oninput="maj('${type}',${o.id},'${champ}',this.value)">`;
@@ -1386,6 +1420,21 @@ const delBtn = (type, id) =>
 const ligneVide = (nbCol, texte) => `<tr class="empty-row"><td colspan="${nbCol}"><i class="fa-solid fa-inbox" style="margin-right:7px"></i>${texte}</td></tr>`;
 const optionsFer = valeur => Array.from({ length: 39 }, (_, i) => i + 2)
   .map(v => `<option value="${v}" ${String(valeur) === String(v) ? 'selected' : ''}>${v}</option>`).join('');
+const rendreOuverturesMur = (mur, type) => {
+  const cle = cleOuverturesMur(type), liste = Array.isArray(mur[cle]) ? mur[cle] : [];
+  const nom = type === 'fenetre' ? 'fenêtre' : 'porte';
+  return `<div class="ouvertures-mur">
+    ${liste.length ? liste.map((ouv, index) => `<div class="ouverture-ligne">
+      <input class="inp" type="number" min="0" step="0.01" placeholder="L (m)" aria-label="Longueur ${nom} ${index + 1}" value="${esc(ouv.L)}" oninput="majOuvertureMur(${mur.id},'${type}',${index},'L',this.value)">
+      <span class="ouv-fois">×</span>
+      <input class="inp" type="number" min="0" step="0.01" placeholder="H (m)" aria-label="Hauteur ${nom} ${index + 1}" value="${esc(ouv.H)}" oninput="majOuvertureMur(${mur.id},'${type}',${index},'H',this.value)">
+      <span class="ouv-fois">×</span>
+      <input class="inp ouv-nb" type="number" min="0" step="1" placeholder="Nb" aria-label="Nombre ${nom} ${index + 1}" value="${esc(ouv.n)}" oninput="majOuvertureMur(${mur.id},'${type}',${index},'n',this.value)">
+      <button class="del-btn no-print" onclick="supprimerOuvertureMur(${mur.id},'${type}',${index})" title="Supprimer cette ${nom}"><i class="fa-solid fa-trash-can"></i></button>
+    </div>`).join('') : `<div class="ouverture-vide">Aucune ${nom}</div>`}
+    <button class="btn btn-sm ouverture-ajouter no-print" onclick="ajouterOuvertureMur(${mur.id},'${type}')"><i class="fa-solid fa-plus"></i> Ajouter une ${nom}</button>
+  </div>`;
+};
 const blocNappeSemelle = (o, numero) => {
   const p = `n${numero}`;
   const nuance = o[p + 'Nuance'] === 'RL' ? 'RL' : 'HA';
@@ -1408,20 +1457,8 @@ function rendre() {
   $('tb-mur').innerHTML = murs.length ? murs.map(o => `<tr>
       <td>${inp('mur', o, 'nom', 'inp-txt')}</td><td>${inp('mur', o, 'L')}</td><td>${inp('mur', o, 'H')}</td>
       <td>${inp('mur', o, 'n')}</td>
-      <td class="w-lg"><div class="flex items-center gap-1">
-        <input class="inp" style="width:40px;padding:4px 6px;font-size:11.5px" value="${esc(o.porteL)}" oninput="maj('mur',${o.id},'porteL',this.value)">
-        <span class="text-[10px] text-slate-500">×</span>
-        <input class="inp" style="width:40px;padding:4px 6px;font-size:11.5px" value="${esc(o.porteH)}" oninput="maj('mur',${o.id},'porteH',this.value)">
-        <span class="text-[10px] text-slate-500">×</span>
-        <input class="inp" style="width:32px;padding:4px 6px;font-size:11.5px" value="${esc(o.porteN)}" oninput="maj('mur',${o.id},'porteN',this.value)">
-      </div></td>
-      <td class="w-lg"><div class="flex items-center gap-1">
-        <input class="inp" style="width:40px;padding:4px 6px;font-size:11.5px" value="${esc(o.fenetreL)}" oninput="maj('mur',${o.id},'fenetreL',this.value)">
-        <span class="text-[10px] text-slate-500">×</span>
-        <input class="inp" style="width:40px;padding:4px 6px;font-size:11.5px" value="${esc(o.fenetreH)}" oninput="maj('mur',${o.id},'fenetreH',this.value)">
-        <span class="text-[10px] text-slate-500">×</span>
-        <input class="inp" style="width:32px;padding:4px 6px;font-size:11.5px" value="${esc(o.fenetreN)}" oninput="maj('mur',${o.id},'fenetreN',this.value)">
-      </div></td>
+      <td>${rendreOuverturesMur(o, 'porte')}</td>
+      <td>${rendreOuverturesMur(o, 'fenetre')}</td>
       <td class="text-right res" id="m-o-${o.id}">0</td>
       <td class="text-right res" id="m-s-${o.id}">0</td>${delBtn('mur', o.id)}</tr>`).join('')
     : ligneVide(9, 'Aucun mur — cliquez sur « Ajouter un mur »');
@@ -1540,8 +1577,10 @@ function calculer() {
   // --- Murs : surface = (L×H − ouvertures porte/fenêtre) × nb ---
   let sMur = 0;
   murs.forEach(o => {
-    const surfPorte = num(o.porteL) * num(o.porteH) * num(o.porteN);
-    const surfFenetre = num(o.fenetreL) * num(o.fenetreH) * num(o.fenetreN);
+    const surfPorte = normaliserOuverturesMur(o, 'portes', 'porte')
+      .reduce((total, ouv) => total + num(ouv.L) * num(ouv.H) * num(ouv.n), 0);
+    const surfFenetre = normaliserOuverturesMur(o, 'fenetres', 'fenetre')
+      .reduce((total, ouv) => total + num(ouv.L) * num(ouv.H) * num(ouv.n), 0);
     const surfOuvertures = surfPorte + surfFenetre;
     const co = $('m-o-' + o.id); if (co) co.innerText = fmt(surfOuvertures);
     const s = Math.max(0, num(o.L) * num(o.H) - surfOuvertures) * num(o.n);
@@ -2301,7 +2340,11 @@ function charger() {
   try {
     const d = JSON.parse(raw);
     if (!d || d.v !== 2) return false;
-    murs = d.murs || [];
+    murs = (d.murs || []).map(o => ({
+      ...o,
+      portes: normaliserOuverturesMur(o, 'portes', 'porte'),
+      fenetres: normaliserOuverturesMur(o, 'fenetres', 'fenetre')
+    }));
     poteaux = (d.poteaux || []).map(o => ({
       ferNuance: 'HA', ferDiam: '12', ferH: o.H ?? '3', ferNb: '4', ...o,
       ferH: o.ferH ?? o.H ?? '3'
