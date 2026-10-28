@@ -7,6 +7,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 - Murs et parpaings, avec plusieurs portes et fenêtres de dimensions différentes sur un même mur.
 - Longrines avec volume de béton, fers longitudinaux, cadres et épingles en barres de 12 m.
 - Poteaux et poutres avec fers longitudinaux, cadres et épingles; chapeaux de poutres et armatures HA/RL calculés en barres de 12 m.
+- Amorce : module complet calqué sur les poteaux (formes rectangulaire et circulaire, section, coffrage latéral, béton, fers verticaux, cadres et épingles), raccordé au tableau de bord et au devis.
 - Chenage : module complet calqué sur les poutres (coffrage, béton, fers, chapeaux, cadres et épingles), raccordé au tableau de bord et au devis.
 - Dalle pleine et dalle à corps creux.
 - Semelles avec deux nappes d'armatures.
