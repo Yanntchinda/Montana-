@@ -9,6 +9,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 - Poteaux et poutres avec fers longitudinaux, cadres et épingles; chapeaux de poutres et armatures HA/RL calculés en barres de 12 m.
 - Amorce : module complet calqué sur les poteaux (formes rectangulaire et circulaire, section, coffrage latéral, béton, fers verticaux, cadres et épingles), raccordé au tableau de bord et au devis.
 - Chenage : module complet calqué sur les poutres (coffrage, béton, fers, chapeaux, cadres et épingles), raccordé au tableau de bord et au devis.
+- Mains d’œuvre : tableau désignation · unité · quantité · prix unitaire · montant, avec les éléments de tous les modules pré-remplis (parpaing, poteaux, poutres, longrines, chenage, semelle, crépissage, amorce, dalles, solivage) et une section MAIN-D’ŒUVRE dans le devis.
 - Dalle pleine et dalle à corps creux.
 - Semelles avec deux nappes d'armatures.
 - Crépissage.

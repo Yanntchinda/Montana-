@@ -203,8 +203,8 @@ tbody tr:last-child td{border-bottom:none}
 tbody tr:hover td{background:color-mix(in srgb,var(--brand-soft) 55%,transparent)}
 td .inp{padding:9px 10px;font-size:13px}
 /* Les champs des modules restent confortables : le tableau défile horizontalement si nécessaire. */
-#tb-mur td > .inp,#tb-poteau td > .inp,#tb-amorce td > .inp,#tb-dalle td > .inp,#tb-corps td > .inp,#tb-crep-murs td > .inp,#tb-crep-dalles td > .inp{min-width:112px}
-#tb-mur td > .inp-txt,#tb-poteau td > .inp-txt,#tb-amorce td > .inp-txt,#tb-dalle td > .inp-txt,#tb-corps td > .inp-txt,#tb-crep-murs td > .inp-txt,#tb-crep-dalles td > .inp-txt{min-width:180px}
+#tb-mur td > .inp,#tb-poteau td > .inp,#tb-amorce td > .inp,#tb-maindoeuvre td > .inp,#tb-dalle td > .inp,#tb-corps td > .inp,#tb-crep-murs td > .inp,#tb-crep-dalles td > .inp{min-width:112px}
+#tb-mur td > .inp-txt,#tb-poteau td > .inp-txt,#tb-amorce td > .inp-txt,#tb-maindoeuvre td > .inp-txt,#tb-dalle td > .inp-txt,#tb-corps td > .inp-txt,#tb-crep-murs td > .inp-txt,#tb-crep-dalles td > .inp-txt{min-width:180px}
 .semelle-ligne{margin-bottom:16px}.semelle-ligne:last-child{margin-bottom:0}.semelle-entete{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}.semelle-entete .field{min-width:260px;flex:1}.semelle-nappes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.semelle-nappe{border-top:3px solid var(--accent);background:var(--bg)}.semelle-nappe:nth-child(2){border-top-color:#2563eb}.semelle-formule{font-size:11px;color:var(--muted);line-height:1.55;margin-top:10px}
 .poutre-ligne{margin-bottom:18px;border-top:3px solid var(--brand);background:var(--surface-2)}
 .poutre-ligne:last-child{margin-bottom:0}
@@ -673,6 +673,11 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
         <i class="fa-solid fa-paint-roller ni"></i>
         <span class="ni-txt"><b>Crépissage</b><span class="ni-val" id="nav-v-crepissage">0 m²</span></span>
       </button>
+      <button class="nav-item" data-tab="maindoeuvre" onclick="aller('maindoeuvre')">
+        <i class="fa-solid fa-hard-hat ni"></i>
+        <span class="ni-txt"><b>Mains d’œuvre</b><span class="ni-val" id="nav-v-maindoeuvre">0</span></span>
+        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-maindoeuvre" checked onchange="majVisibilite()"><span class="track"></span></label>
+      </button>
 
       <div class="nav-label">Livraison</div>
       <button class="nav-item" data-tab="devis" onclick="aller('devis')">
@@ -881,6 +886,41 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
             </div>
 
             <div class="note" style="margin-top:14px"><i class="fa-solid fa-calculator"></i><div><b>Ouvertures :</b> (longueur porte × hauteur porte × nombre de portes) + (longueur fenêtre × hauteur fenêtre × nombre de fenêtres). <b>Surface :</b> [(longueur mur × hauteur mur) − ouvertures] × nombre de murs × 2 + surface des dalles. <b>Volume :</b> surface totale × (épaisseur en cm ÷ 100). <b>Ciment :</b> volume × dosage ciment. <b>Sable :</b> volume × dosage sable saisi.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ONGLET : MAIN-D’ŒUVRE ============ -->
+      <section class="panel" id="bloc-maindoeuvre">
+        <div class="card">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-hard-hat"></i> Mains d’œuvre</h3>
+              <div class="ch-sub">Désignation, quantités, prix unitaires et montants</div>
+            </div>
+            <div class="ch-act">
+              <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-maindoeuvre" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
+              <button class="btn btn-sm btn-danger" onclick="viderModule('maindoeuvre')"><i class="fa-solid fa-eraser"></i> Vider</button>
+              <button class="btn btn-sm btn-primary" onclick="ajouterLigneMainDoeuvre()"><i class="fa-solid fa-plus"></i> Ajouter une ligne</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Désignation</th><th class="w-sm">Unité</th><th class="w-sm">Quantité</th><th class="w-sm">Prix unitaire</th><th class="th-r">Montant</th><th class="no-print"></th>
+                  </tr>
+                </thead>
+                <tbody id="tb-maindoeuvre"></tbody>
+              </table>
+            </div>
+            <div class="tiles" style="margin-top:16px">
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-coins"></i> Total main-d’œuvre</div><div class="t-val"><span id="mo-total">0</span></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-list-ol"></i> Lignes saisies</div><div class="t-val"><span id="mo-nb">0</span></div></div>
+            </div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><div><b>Montant = quantité × prix unitaire.</b> Les éléments des modules du projet sont pré-remplis dans la désignation. Après validation, les lignes sont envoyées dans la section MAIN-D’ŒUVRE du devis et s’ajoutent au total HT.</div></div>
+            <div id="validation-module-maindoeuvre"></div>
           </div>
         </div>
       </section>
@@ -1406,7 +1446,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
 <div class="modal-bg" id="modal-reset">
   <div class="modal">
     <header><i class="fa-solid fa-triangle-exclamation"></i><b>Réinitialiser le projet ?</b></header>
-    <div class="m-body">Toutes les saisies (murs, poteaux, amorces, poutres, chenage, dalles, corps creux, semelles, crépissage, devis et paramètres) seront effacées et remplacées par un projet vierge. Cette action est irréversible.</div>
+    <div class="m-body">Toutes les saisies (murs, poteaux, amorces, poutres, chenage, dalles, corps creux, semelles, crépissage, main-d’œuvre, devis et paramètres) seront effacées et remplacées par un projet vierge. Cette action est irréversible.</div>
     <footer>
       <button class="btn" onclick="fermerModal()">Annuler</button>
       <button class="btn btn-solid-danger" onclick="reinitialiser()"><i class="fa-solid fa-trash-can"></i> Tout effacer et repartir à zéro</button>
@@ -1448,6 +1488,7 @@ const ONGLETS = {
   corps:     { titre: 'Dalle à corps creux', sub: 'Hourdis, nervures et longueurs' },
   semelle:   { titre: 'Semelles', sub: 'Volume de béton et armatures des nappes 1 et 2' },
   crepissage:{ titre: 'Crépissage', sub: 'Surface des murs sur deux faces et surface des dalles' },
+  maindoeuvre:{ titre: 'Mains d’œuvre', sub: 'Désignation, quantités, prix unitaires et montants' },
   devis:     { titre: 'Devis quantitatif', sub: 'Document livrable, imprimable en A4' }
 };
 let ongletActif = 'dashboard';
@@ -1486,13 +1527,13 @@ function syncSwitches() {
    DONNÉES
    ============================================================ */
 let uid = 1;
-let murs = [], poteaux = [], amorces = [], poutres = [], chenages = [], dalles = [], corps = [], semelles = [], longrines = [], crepMurs = [], crepDalles = [];
+let murs = [], poteaux = [], amorces = [], poutres = [], chenages = [], mainsOeuvre = [], dalles = [], corps = [], semelles = [], longrines = [], crepMurs = [], crepDalles = [];
 let crepValidation = null;
 const MODULES_VALIDABLES = {
-  longrine: 'Longrines', mur: 'Murs & parpaings', poteau: 'Poteaux', amorce: 'Amorce', poutre: 'Poutres', chenage: 'Chenage', dalle: 'Dalle pleine', corps: 'Dalle corps creux', semelle: 'Semelles'
+  longrine: 'Longrines', mur: 'Murs & parpaings', poteau: 'Poteaux', amorce: 'Amorce', poutre: 'Poutres', chenage: 'Chenage', maindoeuvre: 'Mains d’œuvre', dalle: 'Dalle pleine', corps: 'Dalle corps creux', semelle: 'Semelles'
 };
-let calculsModules = { longrine: {}, mur: {}, poteau: {}, amorce: {}, poutre: {}, chenage: {}, dalle: {}, corps: {}, semelle: {} };
-let validationsModules = { longrine: null, mur: null, poteau: null, amorce: null, poutre: null, chenage: null, dalle: null, corps: null, semelle: null };
+let calculsModules = { longrine: {}, mur: {}, poteau: {}, amorce: {}, poutre: {}, chenage: {}, maindoeuvre: {}, dalle: {}, corps: {}, semelle: {} };
+let validationsModules = { longrine: null, mur: null, poteau: null, amorce: null, poutre: null, chenage: null, maindoeuvre: null, dalle: null, corps: null, semelle: null };
 let T = { longVol: 0, longFerML: 0, longFer: 0, longCadreML: 0, longCadre: 0, longEpingleML: 0, longEpingle: 0, sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, potCadreML: 0, potCadre: 0, potEpingleML: 0, potEpingle: 0, amSec: 0, amLat: 0, amVol: 0, amFer: 0, amCadreML: 0, amCadre: 0, amEpingleML: 0, amEpingle: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, pouCadreML: 0, pouCadre: 0, pouEpingleML: 0, pouEpingle: 0, cheCof: 0, cheSur: 0, cheVol: 0, cheFer: 0, cheChap: 0, cheCadreML: 0, cheCadre: 0, cheEpingleML: 0, cheEpingle: 0, dalSurf: 0, dalVol: 0, dalFer: 0, semVol: 0, semFer1: 0, semFer2: 0, semFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
 
 const copierCalcul = valeur => JSON.parse(JSON.stringify(valeur || {}));
@@ -1530,6 +1571,7 @@ function validerModuleDevis(cle) {
   validationsModules[cle] = { donnees: copierCalcul(calculsModules[cle]), date: new Date().toISOString() };
   calculer();
   if (cle === 'semelle') { syncSemellesDevis(); rendreDevis(); }
+  if (cle === 'maindoeuvre') { syncMainDoeuvreDevis({ rafraichir: true }); rendreDevis(); }
   sauver(false);
   toast(`${MODULES_VALIDABLES[cle]} validé et enregistré dans le devis`, 'ok', 'fa-file-circle-check');
 }
@@ -1539,6 +1581,7 @@ function retirerModuleDevis(cle) {
   validationsModules[cle] = null;
   calculer();
   if (cle === 'semelle') { syncSemellesDevis(); rendreDevis(); }
+  if (cle === 'maindoeuvre') { syncMainDoeuvreDevis(); rendreDevis(); }
   sauver(false);
   toast(`${MODULES_VALIDABLES[cle]} retiré du devis`, 'ok');
 }
@@ -1563,6 +1606,14 @@ function nouvelleSemelle(id, numero = 1) {
   return { id, nom: 'Semelle ' + numero, L: '', l: '', h: '0.25', n: '1', n1Nuance: 'HA', n1Diam: '10', n1Enrobage: '5', n1Espacement: '15', n1Crochet: '15', n2Nuance: 'HA', n2Diam: '10', n2Enrobage: '5', n2Espacement: '15', n2Crochet: '15' };
 }
 function ajouterSemelle() { semelles.push(nouvelleSemelle(uid++, semelles.length + 1)); rendre(); }
+const ITEMS_MAIN_DOEUVRE = [
+  ['Parpaing', 'u'], ['Poteaux', 'ml'], ['Poutres', 'ml'], ['Longrines', 'ml'], ['Chenage', 'ml'],
+  ['Semelle', 'u'], ['Crépissage', 'm²'], ['Amorce', 'ml'], ['Dalle pleine', 'm²'],
+  ['Dalle à corps creux', 'm²'], ['Solivage', 'm²']
+];
+function nouvelleLigneMainDoeuvre(designation = '', unite = '') { return { id: uid++, designation, unite, qte: '', pu: '0' }; }
+function ajouterLigneMainDoeuvre(designation = '', unite = '') { mainsOeuvre.push(nouvelleLigneMainDoeuvre(designation, unite)); rendre(); }
+function initialiserLignesMainDoeuvre() { mainsOeuvre = ITEMS_MAIN_DOEUVRE.map(([d, u]) => nouvelleLigneMainDoeuvre(d, u)); rendre(); }
 function ajouterCrepMur() { crepMurs.push({ id: uid++, nom: 'Mur crépissage ' + (crepMurs.length + 1), L: '', H: '3', n: '1', porteL: '0', porteH: '0', porteN: '1', fenetreL: '0', fenetreH: '0', fenetreN: '1' }); rendre(); }
 function ajouterCrepDalle() { crepDalles.push({ id: uid++, nom: 'Dalle crépissage ' + (crepDalles.length + 1), L: '', l: '', n: '1' }); rendre(); }
 
@@ -1574,6 +1625,7 @@ function supprimer(type, id) {
   if (type === 'mur') murs = murs.filter(x => x.id !== id);
   if (type === 'poteau') poteaux = poteaux.filter(x => x.id !== id);
   if (type === 'amorce') amorces = amorces.filter(x => x.id !== id);
+  if (type === 'maindoeuvre') mainsOeuvre = mainsOeuvre.filter(x => x.id !== id);
   if (type === 'poutre') poutres = poutres.filter(x => x.id !== id);
   if (type === 'chenage') chenages = chenages.filter(x => x.id !== id);
   if (type === 'crepMur') crepMurs = crepMurs.filter(x => x.id !== id);
@@ -1581,10 +1633,10 @@ function supprimer(type, id) {
   rendre();
 }
 function viderModule(type) {
-  const map = { longrine: 'longrines', mur: 'murs', poteau: 'poteaux', amorce: 'amorces', poutre: 'poutres', chenage: 'chenages', dalle: 'dalles', corps: 'corps', semelle: 'semelles' };
-  const nom = { longrine: 'les longrines', mur: 'les murs', poteau: 'les poteaux', amorce: 'les amorces', poutre: 'les poutres', chenage: 'les chenages', dalle: 'les dalles', corps: 'les panneaux', semelle: 'les semelles' }[type];
+  const map = { longrine: 'longrines', mur: 'murs', poteau: 'poteaux', amorce: 'amorces', poutre: 'poutres', chenage: 'chenages', maindoeuvre: 'main-d’œuvre', dalle: 'dalles', corps: 'corps', semelle: 'semelles' };
+  const nom = { longrine: 'les longrines', mur: 'les murs', poteau: 'les poteaux', amorce: 'les amorces', poutre: 'les poutres', chenage: 'les chenages', maindoeuvre: 'les lignes de main-d’œuvre', dalle: 'les dalles', corps: 'les panneaux', semelle: 'les semelles' }[type];
   if (!window.confirm('Supprimer toutes les lignes : ' + nom + ' ?')) return;
-  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], amorce: () => amorces = [], poutre: () => poutres = [], chenage: () => chenages = [], dalle: () => dalles = [], corps: () => corps = [], semelle: () => semelles = [] })[type]();
+  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], amorce: () => amorces = [], poutre: () => poutres = [], chenage: () => chenages = [], maindoeuvre: () => mainsOeuvre = [], dalle: () => dalles = [], corps: () => corps = [], semelle: () => semelles = [] })[type]();
   rendre(); toast('Lignes supprimées (' + map[type] + ')', 'ok');
 }
 function viderCrepissage(type) {
@@ -1595,7 +1647,7 @@ function viderCrepissage(type) {
   toast(`Lignes de ${estMur ? 'murs' : 'dalles'} supprimées`, 'ok');
 }
 function maj(type, id, champ, val) {
-  const liste = { longrine: longrines, mur: murs, poteau: poteaux, amorce: amorces, poutre: poutres, chenage: chenages, dalle: dalles, corps, semelle: semelles, crepMur: crepMurs, crepDalle: crepDalles }[type] || [];
+  const liste = { longrine: longrines, mur: murs, poteau: poteaux, amorce: amorces, poutre: poutres, chenage: chenages, maindoeuvre: mainsOeuvre, dalle: dalles, corps, semelle: semelles, crepMur: crepMurs, crepDalle: crepDalles }[type] || [];
   const o = liste.find(x => x.id === id);
   if (!o) return;
   o[champ] = val;
@@ -1981,6 +2033,15 @@ function rendre() {
       <td>${inp('crepDalle', o, 'n')}</td><td class="res" id="cd-s-${o.id}">0</td>
       ${delBtn('crepDalle', o.id)}</tr>`).join('')
     : ligneVide(6, 'Aucune dalle — cliquez sur « Ajouter une dalle »');
+
+  $('tb-maindoeuvre').innerHTML = mainsOeuvre.length ? mainsOeuvre.map(o => `<tr>
+      <td>${inp('maindoeuvre', o, 'designation', 'inp-txt')}</td>
+      <td>${inp('maindoeuvre', o, 'unite')}</td>
+      <td><input class="inp" type="number" min="0" step="0.01" value="${esc(o.qte)}" oninput="maj('maindoeuvre',${o.id},'qte',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="0.01" value="${esc(o.pu)}" oninput="maj('maindoeuvre',${o.id},'pu',this.value)"></td>
+      <td class="res" id="mo-montant-${o.id}">0</td>
+      ${delBtn('maindoeuvre', o.id)}</tr>`).join('')
+    : ligneVide(6, 'Aucune ligne — cliquez sur « Ajouter une ligne »');
 
   calculer();
 }
@@ -2571,6 +2632,19 @@ function calculer() {
   const crepCiment = crepVolume * crepDosage;
   const crepDosageSable = Math.max(0, num($('crep-dosage-sable').value));
   const crepSable = crepVolume * crepDosageSable;
+  // --- Main-d’œuvre : montants des lignes saisies ---
+  let totalMo = 0;
+  mainsOeuvre.forEach(o => {
+    const montant = num(o.qte) * num(o.pu);
+    totalMo += montant;
+    const cell = $('mo-montant-' + o.id);
+    if (cell) cell.innerText = fmtM(montant);
+  });
+  const moTotalCell = $('mo-total');
+  if (moTotalCell) moTotalCell.innerText = fmtM(totalMo);
+  const moNbCell = $('mo-nb');
+  if (moNbCell) moNbCell.innerText = String(mainsOeuvre.length);
+
   T = { longVol: tLongVol, longFerML: tLongFerML, longFer: tLongFerCommande, longCadreML: tLongCadreML, longCadre: tLongCadreCommande, longEpingleML: tLongEpingleML, longEpingle: tLongEpingleCommande, sMur, nbPP: nb, ppArr: ppArrondi, potSec: tSec, potLat: tLat, potVol: tVol, potFer: tFerCommande, potCadreML: tCadreML, potCadre: tCadreCommande, potEpingleML: tEpingleML, potEpingle: tEpingleCommande,
         amSec: tAmSec, amLat: tAmLat, amVol: tAmVol, amFer: tAmFerCommande, amCadreML: tAmCadreML, amCadre: tAmCadreCommande, amEpingleML: tAmEpingleML, amEpingle: tAmEpingleCommande,
         pouCof: tCof, pouSur: tSur, pouVol: tV, pouFer: tPouFerCommande, pouChap: tChapCommande, pouCadreML: tPouCadreML, pouCadre: tPouCadreCommande, pouEpingleML: tPouEpingleML, pouEpingle: tPouEpingleCommande,
@@ -2627,7 +2701,8 @@ function calculer() {
     chenage: { volume: tChV, cadreMetres: tChCadreML, epingleMetres: tChEpingleML, fers: fersChenagesCommande, chapeaux: chapeauxChenagesCommande, cadres: cadresChenagesCommande, epingles: epinglesChenagesCommande },
     dalle: { surface: tDS, volume: tDV, fers: fersDallesCommande },
     corps: { surface: tCS, hourdis: tCH, nervures: tCG },
-    semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande }
+    semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande },
+    maindoeuvre: { lignes: mainsOeuvre.map(o => ({ designation: o.designation, unite: o.unite, qte: o.qte, pu: o.pu })), total: totalMo }
   };
   const valideActif = cle => $('sel-' + cle).checked ? validationsModules[cle]?.donnees : null;
   const longrineValidee = valideActif('longrine'), murValide = valideActif('mur'), poteauValide = valideActif('poteau');
@@ -2693,7 +2768,7 @@ const SEMELLES_DEVIS = [
 ];
 function ordonnerEtNumeroterDevis() {
   const fixes = devis.filter(s => !s.auto);
-  const dynamiques = ['crepissage', 'semelles'].map(auto => devis.find(s => s.auto === auto)).filter(Boolean);
+  const dynamiques = ['crepissage', 'semelles', 'maindoeuvre'].map(auto => devis.find(s => s.auto === auto)).filter(Boolean);
   devis = [...fixes, ...dynamiques];
   const romains = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
   devis.forEach((section, index) => { section.n = romains[index] || String(index + 1); });
@@ -2744,6 +2819,25 @@ function syncCrepissageDevis() {
     l.unite = def.unite;
     l.qte = null;
   });
+  ordonnerEtNumeroterDevis();
+}
+function syncMainDoeuvreDevis(opts = {}) {
+  const actif = !!validationsModules.maindoeuvre && !!$('sel-maindoeuvre')?.checked;
+  let section = devis.find(s => s.auto === 'maindoeuvre');
+  if (!actif) {
+    if (section) { devis = devis.filter(s => s !== section); ordonnerEtNumeroterDevis(); }
+    return;
+  }
+  if (!section) {
+    section = { n: '', titre: 'MAIN-D’ŒUVRE', auto: 'maindoeuvre', lignes: [] };
+    devis.push(section);
+  }
+  if (opts.rafraichir || !section.lignes.length) {
+    const lignes = validationsModules.maindoeuvre.donnees?.lignes || [];
+    section.lignes = lignes
+      .filter(l => String(l.designation || '').trim())
+      .map(l => ({ id: dvId++, des: String(l.designation), unite: String(l.unite || ''), qte: l.qte ?? '', pu: String(l.pu ?? '0'), total: null, auto: null }));
+  }
   ordonnerEtNumeroterDevis();
 }
 function crepissageValideAJour() {
@@ -3052,13 +3146,14 @@ function syncProjet() { sauver(); }
    ============================================================ */
 function majVisibilite() {
   syncSwitches();
-  ['longrine', 'mur', 'poteau', 'amorce', 'poutre', 'chenage', 'dalle', 'corps', 'semelle'].forEach(k => {
+  ['longrine', 'mur', 'poteau', 'amorce', 'poutre', 'chenage', 'maindoeuvre', 'dalle', 'corps', 'semelle'].forEach(k => {
     const on = $('sel-' + k).checked;
     const nav = document.querySelector(`.nav-item[data-tab="${k}"]`);
     if (nav) nav.classList.toggle('off', !on);
     const panel = $('bloc-' + k);
     if (panel) panel.classList.toggle('module-off', !on);
   });
+  syncMainDoeuvreDevis();
   calculer();
 }
 
@@ -3092,6 +3187,8 @@ function updateDashboard() {
   majStatutCrepissage();
   rendreValidationsModules();
 
+  const totalMo = mainsOeuvre.reduce((s, o) => s + num(o.qte) * num(o.pu), 0);
+
   // valeurs dans la sidebar
   $('nav-v-longrine').textContent = fmt(T.longVol) + ' m³ · ' + fmt(T.longFer) + ' fers · ' + fmt(T.longCadre) + ' cadres · ' + fmt(T.longEpingle) + ' épingles';
   $('nav-v-mur').textContent = fmt(T.sMur) + ' m² · ' + fmt(T.ppArr) + ' parpaings';
@@ -3103,6 +3200,7 @@ function updateDashboard() {
   $('nav-v-corps').textContent = fmt(T.ccHour) + ' hourdis · ' + fmt(T.ccSurf) + ' m²';
   $('nav-v-semelle').textContent = fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres';
   $('nav-v-crepissage').textContent = fmt(T.crepTotal) + ' m² · ' + fmt(T.crepVolume) + ' m³ · ' + fmt(T.crepCiment) + ' sacs · ' + fmt(T.crepSable) + ' m³ sable';
+  $('nav-v-maindoeuvre').textContent = mainsOeuvre.length + ' ligne(s) · ' + fmtM(totalMo) + ' ' + dev;
   const aciersActifs = aciersDevisActifs();
   const nbArt = devis.reduce((a, s) => a + s.lignes.filter(l => !estLigneAcier(l) || l.auto in aciersActifs).length, 0);
   $('nav-v-devis').textContent = nbArt + ' article' + (nbArt > 1 ? 's' : '') + ' · ' + fmtM(totTTC) + ' ' + dev;
@@ -3140,7 +3238,8 @@ function updateDashboard() {
     { k: 'chenage', ico: 'fa-link', label: 'Chenage', detail: chenages.length + ' chenage(s) saisi(s)', val: fmt(T.cheVol) + ' m³' },
     { k: 'dalle', ico: 'fa-square', label: 'Dalles pleines', detail: dalles.length + ' dalle(s) saisie(s)', val: fmt(T.dalSurf) + ' m²' },
     { k: 'corps', ico: 'fa-table-cells', label: 'Dalle à corps creux', detail: corps.length + ' panneau(x) saisi(s)', val: fmt(T.ccHour) + ' hourdis' },
-    { k: 'semelle', ico: 'fa-layer-group', label: 'Semelles', detail: semelles.length + ' semelle(s) saisie(s)', val: fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres' }
+    { k: 'semelle', ico: 'fa-layer-group', label: 'Semelles', detail: semelles.length + ' semelle(s) saisie(s)', val: fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres' },
+    { k: 'maindoeuvre', ico: 'fa-hard-hat', label: 'Mains d’œuvre', detail: mainsOeuvre.length + ' ligne(s)', val: fmtM(totalMo) + ' ' + dev }
   ];
   $('dash-modules').innerHTML = mods.map(m => {
     const on = $('sel-' + m.k).checked;
@@ -3178,7 +3277,7 @@ function basculerTheme() {
 const CLE = 'gros-oeuvre-projet-v2';
 const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
   'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
-  'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-dalle', 'sel-corps', 'sel-semelle'];
+  'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-dalle', 'sel-corps', 'sel-semelle'];
 let saveTimer = null;
 let reinitialisationEnCours = false;
 
@@ -3196,7 +3295,7 @@ function sauver(silencieux = true) {
   try {
     const champs = {};
     CHAMPS.forEach(id => { const el = $(id); if (el) champs[id] = el.type === 'checkbox' ? el.checked : el.value; });
-    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, amorces, poutres, chenages, dalles, corps, semelles, longrines, moduleSemellesInitialise: true, moduleLongrinesInitialise: true, moduleChenagesInitialise: true, moduleAmorcesInitialise: true, crepMurs, crepDalles, crepValidation, validationsModules, champs, devis };
+    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, semelles, longrines, moduleSemellesInitialise: true, moduleLongrinesInitialise: true, moduleChenagesInitialise: true, moduleAmorcesInitialise: true, moduleMainDoeuvreInitialise: true, crepMurs, crepDalles, crepValidation, validationsModules, champs, devis };
     localStorage.setItem(CLE, JSON.stringify(data));
     const s = $('save-state');
     s.classList.remove('dirty');
@@ -3247,6 +3346,7 @@ function charger() {
       epingleNuance: 'HA', epingleNb: '', epingleL: '', ...o,
       ferH: o.ferH ?? o.H ?? '3'
     }));
+    mainsOeuvre = (d.mainsOeuvre || []).map(o => ({ designation: '', unite: '', qte: '', pu: '0', ...o }));
     poutres = (d.poutres || []).map(o => ({
       ferNuance: 'HA', ferDiam: '12', ferL: o.L ?? '', ferNb: '4',
       chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2',
@@ -3304,9 +3404,11 @@ function charger() {
       ...section, lignes: (section.lignes || []).map(l => ({ ...l, total: l.total ?? null }))
     }));
     migrerFersDevis();
-    uid = Math.max(d.uid || 1, ...[murs, poteaux, amorces, poutres, chenages, dalles, corps, semelles, longrines, crepMurs, crepDalles].flat().map(o => o.id + 1), 1);
+    uid = Math.max(d.uid || 1, ...[murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, semelles, longrines, crepMurs, crepDalles].flat().map(o => o.id + 1), 1);
     // Les projets antérieurs à l'ajout du module reçoivent leur première ligne de chenage.
     if (!d.moduleAmorcesInitialise && !amorces.length) amorces.push({ id: uid++, nom: 'Amorce 1', forme: 'rect', a: '', b: '', H: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '', ferNb: '4', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' });
+    // Les projets antérieurs à l'ajout du module reçoivent les lignes de main-d'œuvre pré-remplies.
+    if (!d.moduleMainDoeuvreInitialise && !mainsOeuvre.length) ITEMS_MAIN_DOEUVRE.forEach(([designation, unite]) => mainsOeuvre.push({ id: uid++, designation, unite, qte: '', pu: '0' }));
     if (!d.moduleChenagesInitialise && !chenages.length) chenages.push({ id: uid++, nom: 'Chenage 1', b: '0.15', h: '0.20', L: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferNb: '4', chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' });
     dvId = Math.max(1000, ...devis.flatMap(s => s.lignes.map(l => l.id + 1)));
     syncCrepissageDevis();
@@ -3316,6 +3418,7 @@ function charger() {
       const el = $(id); if (!el || !(id in (d.champs || {}))) return;
       if (el.type === 'checkbox') el.checked = !!d.champs[id]; else el.value = d.champs[id];
     });
+    syncMainDoeuvreDevis();
     return true;
   } catch (e) { return false; }
 }
@@ -3358,7 +3461,7 @@ function appliquerTout() {
 
   const restaure = charger();
   if (!restaure) {
-    ajouterLongrine(); ajouterMur(); ajouterPoteau(); ajouterAmorce(); ajouterPoutre(); ajouterChenage(); ajouterDalle(); ajouterCorps(); ajouterSemelle();
+    ajouterLongrine(); ajouterMur(); ajouterPoteau(); ajouterAmorce(); ajouterPoutre(); ajouterChenage(); ajouterDalle(); ajouterCorps(); ajouterSemelle(); initialiserLignesMainDoeuvre();
     $('dv-date').value = new Date().toLocaleDateString('fr-FR');
   }
   // préparation silencieuse : on ne rend pas encore l'interface, l'utilisateur doit cliquer sur "Connexion"
