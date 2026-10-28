@@ -10,6 +10,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 - Amorce : module complet calqué sur les poteaux (formes rectangulaire et circulaire, section, coffrage latéral, béton, fers verticaux, cadres et épingles), raccordé au tableau de bord et au devis.
 - Chenage : module complet calqué sur les poutres (coffrage, béton, fers, chapeaux, cadres et épingles), raccordé au tableau de bord et au devis.
 - Mains d’œuvre : tableau désignation · unité · quantité · prix unitaire · montant, avec les éléments de tous les modules pré-remplis (parpaing, poteaux, poutres, longrines, chenage, semelle, crépissage, amorce, dalles, solivage) et une section MAIN-D’ŒUVRE dans le devis.
+- Solivage : nombre de lattes = [ ((longueur ÷ espacement) + 1) × largeur + ((largeur ÷ espacement) + 1) × longueur ] ÷ 4,8 arrondi au supérieur, avec section SOLIVAGE (quantité × prix unitaire) dans le devis.
 - Dalle pleine et dalle à corps creux.
 - Semelles avec deux nappes d'armatures.
 - Crépissage.

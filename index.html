@@ -673,6 +673,12 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
         <i class="fa-solid fa-paint-roller ni"></i>
         <span class="ni-txt"><b>Crépissage</b><span class="ni-val" id="nav-v-crepissage">0 m²</span></span>
       </button>
+      <button class="nav-item" data-tab="solivage" onclick="aller('solivage')">
+        <i class="fa-solid fa-grip-lines ni"></i>
+        <span class="ni-txt"><b>Solivage</b><span class="ni-val" id="nav-v-solivage">0</span></span>
+        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-solivage" checked onchange="majVisibilite()"><span class="track"></span></label>
+      </button>
+
       <button class="nav-item" data-tab="maindoeuvre" onclick="aller('maindoeuvre')">
         <i class="fa-solid fa-hard-hat ni"></i>
         <span class="ni-txt"><b>Mains d’œuvre</b><span class="ni-val" id="nav-v-maindoeuvre">0</span></span>
@@ -891,6 +897,37 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
       </section>
 
       <!-- ============ ONGLET : MAIN-D’ŒUVRE ============ -->
+      <section class="panel" id="bloc-solivage">
+        <div class="card">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-grip-lines"></i> Solivage</h3>
+              <div class="ch-sub">Nombre de lattes selon la longueur, la largeur et l’espacement du panneau</div>
+            </div>
+            <div class="ch-act">
+              <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-solivage" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="subcard">
+              <div class="subcard-title"><i class="fa-solid fa-ruler"></i> Panneau à soliver</div>
+              <div class="grid g4">
+                <div class="field"><label for="sol-lg">Longueur du panneau (m)</label><input class="inp" id="sol-lg" type="number" min="0" step="0.01" placeholder="0,00" oninput="calculer()"></div>
+                <div class="field"><label for="sol-la">Largeur du panneau (m)</label><input class="inp" id="sol-la" type="number" min="0" step="0.01" placeholder="0,00" oninput="calculer()"></div>
+                <div class="field"><label for="sol-esp">Espacement des lattes (m)</label><input class="inp" id="sol-esp" type="number" min="0" step="0.01" placeholder="0,30" oninput="calculer()"></div>
+                <div class="field"><label for="sol-pu">Prix unitaire de la latte</label><input class="inp" id="sol-pu" type="number" min="0" step="0.01" placeholder="0" oninput="calculer()"></div>
+              </div>
+            </div>
+            <div class="tiles" style="margin-top:16px">
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-grip-lines"></i> Nombre de lattes</div><div class="t-val"><span id="sv-lattes">0</span></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-ruler"></i> Linéaire total des lattes</div><div class="t-val"><span id="sv-lin">0</span><small>m</small></div></div>
+            </div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><div><b>Nombre de lattes = [ ((longueur ÷ espacement) + 1) × largeur + ((largeur ÷ espacement) + 1) × longueur ] ÷ 4,8</b>, arrondi au supérieur (lattes de 4,80 m). Après validation, la ligne « Lattes de solivage » (quantité × prix unitaire) rejoint la section SOLIVAGE du devis et s’ajoute au total HT.</div></div>
+            <div id="validation-module-solivage"></div>
+          </div>
+        </div>
+      </section>
+
       <section class="panel" id="bloc-maindoeuvre">
         <div class="card">
           <div class="card-head">
@@ -1446,7 +1483,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
 <div class="modal-bg" id="modal-reset">
   <div class="modal">
     <header><i class="fa-solid fa-triangle-exclamation"></i><b>Réinitialiser le projet ?</b></header>
-    <div class="m-body">Toutes les saisies (murs, poteaux, amorces, poutres, chenage, dalles, corps creux, semelles, crépissage, main-d’œuvre, devis et paramètres) seront effacées et remplacées par un projet vierge. Cette action est irréversible.</div>
+    <div class="m-body">Toutes les saisies (murs, poteaux, amorces, poutres, chenage, dalles, corps creux, semelles, crépissage, solivage, main-d’œuvre, devis et paramètres) seront effacées et remplacées par un projet vierge. Cette action est irréversible.</div>
     <footer>
       <button class="btn" onclick="fermerModal()">Annuler</button>
       <button class="btn btn-solid-danger" onclick="reinitialiser()"><i class="fa-solid fa-trash-can"></i> Tout effacer et repartir à zéro</button>
@@ -1488,6 +1525,7 @@ const ONGLETS = {
   corps:     { titre: 'Dalle à corps creux', sub: 'Hourdis, nervures et longueurs' },
   semelle:   { titre: 'Semelles', sub: 'Volume de béton et armatures des nappes 1 et 2' },
   crepissage:{ titre: 'Crépissage', sub: 'Surface des murs sur deux faces et surface des dalles' },
+  solivage:  { titre: 'Solivage', sub: 'Nombre de lattes selon l’espacement du panneau' },
   maindoeuvre:{ titre: 'Mains d’œuvre', sub: 'Désignation, quantités, prix unitaires et montants' },
   devis:     { titre: 'Devis quantitatif', sub: 'Document livrable, imprimable en A4' }
 };
@@ -1530,10 +1568,10 @@ let uid = 1;
 let murs = [], poteaux = [], amorces = [], poutres = [], chenages = [], mainsOeuvre = [], dalles = [], corps = [], semelles = [], longrines = [], crepMurs = [], crepDalles = [];
 let crepValidation = null;
 const MODULES_VALIDABLES = {
-  longrine: 'Longrines', mur: 'Murs & parpaings', poteau: 'Poteaux', amorce: 'Amorce', poutre: 'Poutres', chenage: 'Chenage', maindoeuvre: 'Mains d’œuvre', dalle: 'Dalle pleine', corps: 'Dalle corps creux', semelle: 'Semelles'
+  longrine: 'Longrines', mur: 'Murs & parpaings', poteau: 'Poteaux', amorce: 'Amorce', poutre: 'Poutres', chenage: 'Chenage', solivage: 'Solivage', maindoeuvre: 'Mains d’œuvre', dalle: 'Dalle pleine', corps: 'Dalle corps creux', semelle: 'Semelles'
 };
-let calculsModules = { longrine: {}, mur: {}, poteau: {}, amorce: {}, poutre: {}, chenage: {}, maindoeuvre: {}, dalle: {}, corps: {}, semelle: {} };
-let validationsModules = { longrine: null, mur: null, poteau: null, amorce: null, poutre: null, chenage: null, maindoeuvre: null, dalle: null, corps: null, semelle: null };
+let calculsModules = { longrine: {}, mur: {}, poteau: {}, amorce: {}, poutre: {}, chenage: {}, maindoeuvre: {}, solivage: {}, dalle: {}, corps: {}, semelle: {} };
+let validationsModules = { longrine: null, mur: null, poteau: null, amorce: null, poutre: null, chenage: null, maindoeuvre: null, solivage: null, dalle: null, corps: null, semelle: null };
 let T = { longVol: 0, longFerML: 0, longFer: 0, longCadreML: 0, longCadre: 0, longEpingleML: 0, longEpingle: 0, sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, potCadreML: 0, potCadre: 0, potEpingleML: 0, potEpingle: 0, amSec: 0, amLat: 0, amVol: 0, amFer: 0, amCadreML: 0, amCadre: 0, amEpingleML: 0, amEpingle: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, pouCadreML: 0, pouCadre: 0, pouEpingleML: 0, pouEpingle: 0, cheCof: 0, cheSur: 0, cheVol: 0, cheFer: 0, cheChap: 0, cheCadreML: 0, cheCadre: 0, cheEpingleML: 0, cheEpingle: 0, dalSurf: 0, dalVol: 0, dalFer: 0, semVol: 0, semFer1: 0, semFer2: 0, semFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0 };
 
 const copierCalcul = valeur => JSON.parse(JSON.stringify(valeur || {}));
@@ -1568,10 +1606,15 @@ function rendreValidationsModules() {
 }
 function validerModuleDevis(cle) {
   if (!(cle in MODULES_VALIDABLES)) return;
+  if (cle === 'solivage' && !(calculsModules.solivage && calculsModules.solivage.lattes > 0)) {
+    toast('Renseignez la longueur, la largeur et l’espacement des lattes pour calculer le nombre de lattes', 'err', 'fa-triangle-exclamation');
+    return;
+  }
   validationsModules[cle] = { donnees: copierCalcul(calculsModules[cle]), date: new Date().toISOString() };
   calculer();
   if (cle === 'semelle') { syncSemellesDevis(); rendreDevis(); }
   if (cle === 'maindoeuvre') { syncMainDoeuvreDevis({ rafraichir: true }); rendreDevis(); }
+  if (cle === 'solivage') { syncSolivageDevis({ rafraichir: true }); rendreDevis(); }
   sauver(false);
   toast(`${MODULES_VALIDABLES[cle]} validé et enregistré dans le devis`, 'ok', 'fa-file-circle-check');
 }
@@ -1582,6 +1625,7 @@ function retirerModuleDevis(cle) {
   calculer();
   if (cle === 'semelle') { syncSemellesDevis(); rendreDevis(); }
   if (cle === 'maindoeuvre') { syncMainDoeuvreDevis(); rendreDevis(); }
+  if (cle === 'solivage') { syncSolivageDevis(); rendreDevis(); }
   sauver(false);
   toast(`${MODULES_VALIDABLES[cle]} retiré du devis`, 'ok');
 }
@@ -1606,6 +1650,18 @@ function nouvelleSemelle(id, numero = 1) {
   return { id, nom: 'Semelle ' + numero, L: '', l: '', h: '0.25', n: '1', n1Nuance: 'HA', n1Diam: '10', n1Enrobage: '5', n1Espacement: '15', n1Crochet: '15', n2Nuance: 'HA', n2Diam: '10', n2Enrobage: '5', n2Espacement: '15', n2Crochet: '15' };
 }
 function ajouterSemelle() { semelles.push(nouvelleSemelle(uid++, semelles.length + 1)); rendre(); }
+function solivageCalc() {
+  const L = num($('sol-lg') ? $('sol-lg').value : '');
+  const W = num($('sol-la') ? $('sol-la').value : '');
+  const e = num($('sol-esp') ? $('sol-esp').value : '');
+  let mlSensLong = 0, mlSensLarge = 0, lattes = 0;
+  if (L > 0 && W > 0 && e > 0) {
+    mlSensLong = (L / e + 1) * W;
+    mlSensLarge = (W / e + 1) * L;
+    lattes = Math.ceil((mlSensLong + mlSensLarge) / 4.8);
+  }
+  return { L, W, e, mlSensLong, mlSensLarge, lattes };
+}
 const ITEMS_MAIN_DOEUVRE = [
   ['Parpaing', 'u'], ['Poteaux', 'ml'], ['Poutres', 'ml'], ['Longrines', 'ml'], ['Chenage', 'ml'],
   ['Semelle', 'u'], ['Crépissage', 'm²'], ['Amorce', 'ml'], ['Dalle pleine', 'm²'],
@@ -2644,6 +2700,13 @@ function calculer() {
   if (moTotalCell) moTotalCell.innerText = fmtM(totalMo);
   const moNbCell = $('mo-nb');
   if (moNbCell) moNbCell.innerText = String(mainsOeuvre.length);
+  // --- Solivage : nombre de lattes du panneau ---
+  const sv = solivageCalc();
+  const svPu = num($('sol-pu') ? $('sol-pu').value : '');
+  const svLattesCell = $('sv-lattes');
+  if (svLattesCell) svLattesCell.textContent = String(sv.lattes);
+  const svLinCell = $('sv-lin');
+  if (svLinCell) svLinCell.textContent = fmt(sv.mlSensLong + sv.mlSensLarge);
 
   T = { longVol: tLongVol, longFerML: tLongFerML, longFer: tLongFerCommande, longCadreML: tLongCadreML, longCadre: tLongCadreCommande, longEpingleML: tLongEpingleML, longEpingle: tLongEpingleCommande, sMur, nbPP: nb, ppArr: ppArrondi, potSec: tSec, potLat: tLat, potVol: tVol, potFer: tFerCommande, potCadreML: tCadreML, potCadre: tCadreCommande, potEpingleML: tEpingleML, potEpingle: tEpingleCommande,
         amSec: tAmSec, amLat: tAmLat, amVol: tAmVol, amFer: tAmFerCommande, amCadreML: tAmCadreML, amCadre: tAmCadreCommande, amEpingleML: tAmEpingleML, amEpingle: tAmEpingleCommande,
@@ -2702,7 +2765,8 @@ function calculer() {
     dalle: { surface: tDS, volume: tDV, fers: fersDallesCommande },
     corps: { surface: tCS, hourdis: tCH, nervures: tCG },
     semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande },
-    maindoeuvre: { lignes: mainsOeuvre.map(o => ({ designation: o.designation, unite: o.unite, qte: o.qte, pu: o.pu })), total: totalMo }
+    maindoeuvre: { lignes: mainsOeuvre.map(o => ({ designation: o.designation, unite: o.unite, qte: o.qte, pu: o.pu })), total: totalMo },
+    solivage: { longueur: sv.L, largeur: sv.W, espace: sv.e, lattes: sv.lattes, pu: svPu }
   };
   const valideActif = cle => $('sel-' + cle).checked ? validationsModules[cle]?.donnees : null;
   const longrineValidee = valideActif('longrine'), murValide = valideActif('mur'), poteauValide = valideActif('poteau');
@@ -2768,7 +2832,7 @@ const SEMELLES_DEVIS = [
 ];
 function ordonnerEtNumeroterDevis() {
   const fixes = devis.filter(s => !s.auto);
-  const dynamiques = ['crepissage', 'semelles', 'maindoeuvre'].map(auto => devis.find(s => s.auto === auto)).filter(Boolean);
+  const dynamiques = ['crepissage', 'semelles', 'maindoeuvre', 'solivage'].map(auto => devis.find(s => s.auto === auto)).filter(Boolean);
   devis = [...fixes, ...dynamiques];
   const romains = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
   devis.forEach((section, index) => { section.n = romains[index] || String(index + 1); });
@@ -2837,6 +2901,25 @@ function syncMainDoeuvreDevis(opts = {}) {
     section.lignes = lignes
       .filter(l => String(l.designation || '').trim())
       .map(l => ({ id: dvId++, des: String(l.designation), unite: String(l.unite || ''), qte: l.qte ?? '', pu: String(l.pu ?? '0'), total: null, auto: null }));
+  }
+  ordonnerEtNumeroterDevis();
+}
+function syncSolivageDevis(opts = {}) {
+  const actif = !!validationsModules.solivage && !!$('sel-solivage')?.checked;
+  let section = devis.find(s => s.auto === 'solivage');
+  if (!actif) {
+    if (section) { devis = devis.filter(s => s !== section); ordonnerEtNumeroterDevis(); }
+    return;
+  }
+  if (!section) {
+    section = { n: '', titre: 'SOLIVAGE', auto: 'solivage', lignes: [] };
+    devis.push(section);
+  }
+  if (opts.rafraichir || !section.lignes.length) {
+    const d = validationsModules.solivage.donnees || {};
+    section.lignes = d.lattes > 0 ? [{
+      id: dvId++, des: 'Lattes de solivage', unite: 'u', qte: num(d.lattes), pu: String(num(d.pu) || 0), total: null, auto: null
+    }] : [];
   }
   ordonnerEtNumeroterDevis();
 }
@@ -3146,7 +3229,7 @@ function syncProjet() { sauver(); }
    ============================================================ */
 function majVisibilite() {
   syncSwitches();
-  ['longrine', 'mur', 'poteau', 'amorce', 'poutre', 'chenage', 'maindoeuvre', 'dalle', 'corps', 'semelle'].forEach(k => {
+  ['longrine', 'mur', 'poteau', 'amorce', 'poutre', 'chenage', 'solivage', 'maindoeuvre', 'dalle', 'corps', 'semelle'].forEach(k => {
     const on = $('sel-' + k).checked;
     const nav = document.querySelector(`.nav-item[data-tab="${k}"]`);
     if (nav) nav.classList.toggle('off', !on);
@@ -3154,6 +3237,7 @@ function majVisibilite() {
     if (panel) panel.classList.toggle('module-off', !on);
   });
   syncMainDoeuvreDevis();
+  syncSolivageDevis();
   calculer();
 }
 
@@ -3200,6 +3284,9 @@ function updateDashboard() {
   $('nav-v-corps').textContent = fmt(T.ccHour) + ' hourdis · ' + fmt(T.ccSurf) + ' m²';
   $('nav-v-semelle').textContent = fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres';
   $('nav-v-crepissage').textContent = fmt(T.crepTotal) + ' m² · ' + fmt(T.crepVolume) + ' m³ · ' + fmt(T.crepCiment) + ' sacs · ' + fmt(T.crepSable) + ' m³ sable';
+  const svNav = solivageCalc();
+  const svNavPu = num($('sol-pu') ? $('sol-pu').value : '');
+  $('nav-v-solivage').textContent = svNav.lattes + ' lattes · ' + fmtM(svNav.lattes * svNavPu) + ' ' + dev;
   $('nav-v-maindoeuvre').textContent = mainsOeuvre.length + ' ligne(s) · ' + fmtM(totalMo) + ' ' + dev;
   const aciersActifs = aciersDevisActifs();
   const nbArt = devis.reduce((a, s) => a + s.lignes.filter(l => !estLigneAcier(l) || l.auto in aciersActifs).length, 0);
@@ -3229,6 +3316,8 @@ function updateDashboard() {
     : `<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun volume de béton pour l'instant. Saisissez des dimensions dans les modules Longrines, Poteaux, Amorce, Poutres, Chenage, Dalles ou Semelles.</div></div>`;
 
   // état des modules
+  const svMods = solivageCalc();
+  const svModsPu = num($('sol-pu') ? $('sol-pu').value : '');
   const mods = [
     { k: 'longrine', ico: 'fa-grip-lines', label: 'Longrines', detail: longrines.length + ' type(s) saisi(s)', val: fmt(T.longVol) + ' m³ · ' + fmt(T.longFer + T.longCadre + T.longEpingle) + ' barres' },
     { k: 'mur', ico: 'fa-border-all', label: 'Murs & parpaings', detail: murs.length + ' mur(s) saisi(s)', val: fmt(T.sMur) + ' m²' },
@@ -3239,7 +3328,8 @@ function updateDashboard() {
     { k: 'dalle', ico: 'fa-square', label: 'Dalles pleines', detail: dalles.length + ' dalle(s) saisie(s)', val: fmt(T.dalSurf) + ' m²' },
     { k: 'corps', ico: 'fa-table-cells', label: 'Dalle à corps creux', detail: corps.length + ' panneau(x) saisi(s)', val: fmt(T.ccHour) + ' hourdis' },
     { k: 'semelle', ico: 'fa-layer-group', label: 'Semelles', detail: semelles.length + ' semelle(s) saisie(s)', val: fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres' },
-    { k: 'maindoeuvre', ico: 'fa-hard-hat', label: 'Mains d’œuvre', detail: mainsOeuvre.length + ' ligne(s)', val: fmtM(totalMo) + ' ' + dev }
+    { k: 'maindoeuvre', ico: 'fa-hard-hat', label: 'Mains d’œuvre', detail: mainsOeuvre.length + ' ligne(s)', val: fmtM(totalMo) + ' ' + dev },
+    { k: 'solivage', ico: 'fa-grip-lines', label: 'Solivage', detail: svMods.lattes + ' lattes', val: fmtM(svMods.lattes * svModsPu) + ' ' + dev }
   ];
   $('dash-modules').innerHTML = mods.map(m => {
     const on = $('sel-' + m.k).checked;
@@ -3277,7 +3367,8 @@ function basculerTheme() {
 const CLE = 'gros-oeuvre-projet-v2';
 const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
   'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
-  'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-dalle', 'sel-corps', 'sel-semelle'];
+  'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-solivage', 'sel-dalle', 'sel-corps', 'sel-semelle',
+  'sol-lg', 'sol-la', 'sol-esp', 'sol-pu'];
 let saveTimer = null;
 let reinitialisationEnCours = false;
 
@@ -3419,6 +3510,7 @@ function charger() {
       if (el.type === 'checkbox') el.checked = !!d.champs[id]; else el.value = d.champs[id];
     });
     syncMainDoeuvreDevis();
+    syncSolivageDevis();
     return true;
   } catch (e) { return false; }
 }
