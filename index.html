@@ -214,6 +214,10 @@ td .inp{padding:9px 10px;font-size:13px}
 .semelle-nappe.dalle-cavalier{border-top-color:#7c3aed}
 .semelle-nappe.dalle-lattes{border-top-color:#0f766e}
 .semelle-nappe.dalle-planche{border-top-color:#b45309}
+.semelle-nappe.escalier-palier{border-top-color:var(--brand)}
+.semelle-nappe.escalier-fer{border-top-color:#2563eb}
+.semelle-nappe.escalier-marche{border-top-color:#0f766e}
+.semelle-nappe.escalier-paillasse{border-top-color:#b45309}
 .semelle-nappe-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .dalle-panneaux-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .semelle-nappe-total{font-size:12px;color:var(--muted);font-weight:600}
@@ -684,6 +688,11 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
         <i class="fa-solid fa-layer-group ni"></i>
         <span class="ni-txt"><b>Semelles</b><span class="ni-val" id="nav-v-semelle">0 m³ · 0 barres</span></span>
         <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-semelle" checked onchange="majVisibilite()"><span class="track"></span></label>
+      </button>
+      <button class="nav-item" data-tab="escalier" onclick="aller('escalier')">
+        <i class="fa-solid fa-stairs ni"></i>
+        <span class="ni-txt"><b>Escalier</b><span class="ni-val" id="nav-v-escalier">0 m³ · 0 barres</span></span>
+        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-escalier" checked onchange="majVisibilite()"><span class="track"></span></label>
       </button>
       <button class="nav-item" data-tab="crepissage" onclick="aller('crepissage')">
         <i class="fa-solid fa-paint-roller ni"></i>
@@ -1389,6 +1398,52 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
         </div>
       </section>
 
+      <!-- ============ ONGLET : ESCALIER ============ -->
+      <section class="panel" id="bloc-escalier">
+        <div class="card">
+          <div class="card-head">
+            <div class="ch-txt">
+              <h3><i class="fa-solid fa-stairs"></i> Escalier</h3>
+              <div class="ch-sub">Sous-modules Palier (volume béton et quantité de fer) et Volet (partie Marches et partie Paillasse)</div>
+            </div>
+            <div class="ch-act">
+              <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-escalier" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
+              <button class="btn btn-sm btn-danger" onclick="viderModule('escalier')"><i class="fa-solid fa-eraser"></i> Vider</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="subcard" style="margin-bottom:16px">
+              <div class="semelle-nappe-head" style="margin-bottom:14px">
+                <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-square"></i> Sous-module 1 — Palier</div>
+                <button class="btn btn-sm btn-primary no-print" onclick="ajouterPalierEscalier()"><i class="fa-solid fa-plus"></i> Ajouter un palier</button>
+              </div>
+              <div id="liste-escalier-paliers"></div>
+            </div>
+
+            <div class="subcard" style="margin-bottom:16px">
+              <div class="semelle-nappe-head" style="margin-bottom:14px">
+                <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-stairs"></i> Sous-module 2 — Volet (Marches &amp; Paillasse)</div>
+                <button class="btn btn-sm btn-primary no-print" onclick="ajouterVoletEscalier()"><i class="fa-solid fa-plus"></i> Ajouter un volet</button>
+              </div>
+              <div id="liste-escalier-volets"></div>
+            </div>
+
+            <div class="tiles" style="margin-top:16px">
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-square"></i> Béton paliers</div><div class="t-val"><span id="esc-pal-vol">0</span><small>m³</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-stairs"></i> Béton marches</div><div class="t-val"><span id="esc-mar-vol">0</span><small>m³</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-layer-group"></i> Béton paillasses</div><div class="t-val"><span id="esc-pai-vol">0</span><small>m³</small></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-cube"></i> Volume béton total</div><div class="t-val"><span id="esc-vol">0</span><small>m³</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-ruler"></i> Fer paliers (linéaire)</div><div class="t-val"><span id="esc-fer-ml">0</span><small>m</small></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-divide"></i> Barres exactes (÷ 12)</div><div class="t-val" id="esc-fer-exact">0</div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-cart-flatbed"></i> Barres à commander</div><div class="t-val" id="esc-fer-commande">0</div></div>
+            </div>
+            <div class="note" id="esc-fer-detail" style="margin-top:14px"><i class="fa-solid fa-stairs"></i><div>Aucune armature d’escalier calculée.</div></div>
+            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Palier :</b> volume béton = longueur × largeur × épaisseur × nb ; quantité de fer = ((longueur + longueur des crochets) × nombre) ÷ <b>12 m</b>, regroupée par nuance et diamètre. <b>Volet — partie Marches :</b> ((giron × hauteur de marche) ÷ 2) × emmarchement × nombre de marches total. <b>Volet — partie Paillasse :</b> longueur × emmarchement × épaisseur × nombre de volets. Après validation, le volume béton total et les barres à commander alimentent automatiquement le devis.</div></div>
+            <div id="validation-module-escalier"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- ============ ONGLET : DEVIS ============ -->
       <section class="panel" id="bloc-devis">
 
@@ -1492,7 +1547,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
 <div class="modal-bg" id="modal-reset">
   <div class="modal">
     <header><i class="fa-solid fa-triangle-exclamation"></i><b>Réinitialiser le projet ?</b></header>
-    <div class="m-body">Toutes les saisies (murs, poteaux, amorces, poutres, chenage, dalles, corps creux, semelles, crépissage, solivage, main-d’œuvre, devis et paramètres) seront effacées et remplacées par un projet vierge. Cette action est irréversible.</div>
+    <div class="m-body">Toutes les saisies (murs, poteaux, amorces, poutres, chenage, dalles, corps creux, semelles, escalier, crépissage, solivage, main-d’œuvre, devis et paramètres) seront effacées et remplacées par un projet vierge. Cette action est irréversible.</div>
     <footer>
       <button class="btn" onclick="fermerModal()">Annuler</button>
       <button class="btn btn-solid-danger" onclick="reinitialiser()"><i class="fa-solid fa-trash-can"></i> Tout effacer et repartir à zéro</button>
@@ -1533,6 +1588,7 @@ const ONGLETS = {
   dalle:     { titre: 'Dalle pleine', sub: 'Surfaces, volumes, nappes 1 & 2, cavaliers, lattes et planches' },
   corps:     { titre: 'Dalle à corps creux', sub: 'Hourdis, nervures, longueurs et lattes' },
   semelle:   { titre: 'Semelles', sub: 'Volume de béton et armatures des nappes 1 et 2 (Lit 1 et Lit 2)' },
+  escalier:  { titre: 'Escalier', sub: 'Palier (béton & fer) et Volet (marches & paillasse)' },
   crepissage:{ titre: 'Crépissage', sub: 'Surface des murs sur deux faces et surface des dalles' },
   solivage:  { titre: 'Solivage', sub: 'Nombre de lattes selon l’espacement du panneau' },
   maindoeuvre:{ titre: 'Mains d’œuvre', sub: 'Désignation, quantités, prix unitaires et montants' },
@@ -1574,14 +1630,14 @@ function syncSwitches() {
    DONNÉES
    ============================================================ */
 let uid = 1;
-let murs = [], poteaux = [], amorces = [], poutres = [], chenages = [], mainsOeuvre = [], dalles = [], corps = [], corpsLattes = [], semelles = [], longrines = [], crepMurs = [], crepDalles = [];
+let murs = [], poteaux = [], amorces = [], poutres = [], chenages = [], mainsOeuvre = [], dalles = [], corps = [], corpsLattes = [], semelles = [], longrines = [], escalierPaliers = [], escalierVolets = [], crepMurs = [], crepDalles = [];
 let crepValidation = null;
 const MODULES_VALIDABLES = {
-  longrine: 'Longrines', mur: 'Murs & parpaings', poteau: 'Poteaux', amorce: 'Amorce', poutre: 'Poutres', chenage: 'Chenage', solivage: 'Solivage', maindoeuvre: 'Mains d’œuvre', dalle: 'Dalle pleine', corps: 'Dalle corps creux', semelle: 'Semelles'
+  longrine: 'Longrines', mur: 'Murs & parpaings', poteau: 'Poteaux', amorce: 'Amorce', poutre: 'Poutres', chenage: 'Chenage', solivage: 'Solivage', maindoeuvre: 'Mains d’œuvre', dalle: 'Dalle pleine', corps: 'Dalle corps creux', semelle: 'Semelles', escalier: 'Escalier'
 };
-let calculsModules = { longrine: {}, mur: {}, poteau: {}, amorce: {}, poutre: {}, chenage: {}, maindoeuvre: {}, solivage: {}, dalle: {}, corps: {}, semelle: {} };
-let validationsModules = { longrine: null, mur: null, poteau: null, amorce: null, poutre: null, chenage: null, maindoeuvre: null, solivage: null, dalle: null, corps: null, semelle: null };
-let T = { longVol: 0, longFerML: 0, longFer: 0, longCadreML: 0, longCadre: 0, longEpingleML: 0, longEpingle: 0, sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, potCadreML: 0, potCadre: 0, potEpingleML: 0, potEpingle: 0, amSec: 0, amLat: 0, amVol: 0, amFer: 0, amCadreML: 0, amCadre: 0, amEpingleML: 0, amEpingle: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, pouCadreML: 0, pouCadre: 0, pouEpingleML: 0, pouEpingle: 0, cheCof: 0, cheSur: 0, cheVol: 0, cheFer: 0, cheChap: 0, cheCadreML: 0, cheCadre: 0, cheEpingleML: 0, cheEpingle: 0, dalSurf: 0, dalVol: 0, dalFer: 0, dalCavML: 0, dalCav: 0, dalLatteML: 0, dalLatte: 0, dalPlancheExact: 0, dalPlanche: 0, semVol: 0, semFer1: 0, semFer2: 0, semFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0, ccLatteML: 0, ccLatte: 0 };
+let calculsModules = { longrine: {}, mur: {}, poteau: {}, amorce: {}, poutre: {}, chenage: {}, maindoeuvre: {}, solivage: {}, dalle: {}, corps: {}, semelle: {}, escalier: {} };
+let validationsModules = { longrine: null, mur: null, poteau: null, amorce: null, poutre: null, chenage: null, maindoeuvre: null, solivage: null, dalle: null, corps: null, semelle: null, escalier: null };
+let T = { longVol: 0, longFerML: 0, longFer: 0, longCadreML: 0, longCadre: 0, longEpingleML: 0, longEpingle: 0, sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, potCadreML: 0, potCadre: 0, potEpingleML: 0, potEpingle: 0, amSec: 0, amLat: 0, amVol: 0, amFer: 0, amCadreML: 0, amCadre: 0, amEpingleML: 0, amEpingle: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, pouCadreML: 0, pouCadre: 0, pouEpingleML: 0, pouEpingle: 0, cheCof: 0, cheSur: 0, cheVol: 0, cheFer: 0, cheChap: 0, cheCadreML: 0, cheCadre: 0, cheEpingleML: 0, cheEpingle: 0, dalSurf: 0, dalVol: 0, dalFer: 0, dalCavML: 0, dalCav: 0, dalLatteML: 0, dalLatte: 0, dalPlancheExact: 0, dalPlanche: 0, semVol: 0, semFer1: 0, semFer2: 0, semFer: 0, escPalVol: 0, escMarVol: 0, escPaiVol: 0, escVol: 0, escFerML: 0, escFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0, ccLatteML: 0, ccLatte: 0 };
 
 const copierCalcul = valeur => JSON.parse(JSON.stringify(valeur || {}));
 const calculModuleValideAJour = cle => {
@@ -1761,6 +1817,38 @@ function nouvelleSemelle(id, numero = 1) {
   };
 }
 function ajouterSemelle() { semelles.push(nouvelleSemelle(uid++, semelles.length + 1)); rendre(); }
+function nouveauFerPalierEscalier() {
+  return { id: uid++, nuance: 'HA', diam: '10', L: '', nb: '1', crochet: '' };
+}
+function nouveauPalierEscalier(id, numero = 1) {
+  return { id, nom: 'Palier ' + numero, L: '', l: '', e: '', n: '1', fers: [nouveauFerPalierEscalier()] };
+}
+function ajouterPalierEscalier() { escalierPaliers.push(nouveauPalierEscalier(uid++, escalierPaliers.length + 1)); rendre(); }
+function ajouterFerPalierEscalier(palierId) {
+  const p = escalierPaliers.find(x => x.id === palierId); if (!p) return;
+  if (!Array.isArray(p.fers)) p.fers = [];
+  p.fers.push(nouveauFerPalierEscalier());
+  rendre();
+}
+function supprimerFerPalierEscalier(palierId, ferId) {
+  const p = escalierPaliers.find(x => x.id === palierId); if (!p || !Array.isArray(p.fers)) return;
+  p.fers = p.fers.filter(f => f.id !== ferId);
+  rendre();
+}
+function majFerPalierEscalier(palierId, ferId, champ, val) {
+  const p = escalierPaliers.find(x => x.id === palierId); if (!p || !Array.isArray(p.fers)) return;
+  const f = p.fers.find(x => x.id === ferId); if (!f) return;
+  f[champ] = val;
+  calculer();
+}
+function nouveauVoletEscalier(id, numero = 1) {
+  return {
+    id, nom: 'Volet ' + numero,
+    giron: '', hauteurMarche: '', emmarchement: '', nbMarches: '',
+    paillasseL: '', paillasseEmm: '', paillasseE: '', nbVolets: '1'
+  };
+}
+function ajouterVoletEscalier() { escalierVolets.push(nouveauVoletEscalier(uid++, escalierVolets.length + 1)); rendre(); }
 function solivageCalc() {
   const L = num($('sol-lg') ? $('sol-lg').value : '');
   const W = num($('sol-la') ? $('sol-la').value : '');
@@ -1788,6 +1876,8 @@ function supprimer(type, id) {
   if (type === 'dalle') dalles = dalles.filter(x => x.id !== id);
   if (type === 'corps') corps = corps.filter(x => x.id !== id);
   if (type === 'semelle') semelles = semelles.filter(x => x.id !== id);
+  if (type === 'escPalier') escalierPaliers = escalierPaliers.filter(x => x.id !== id);
+  if (type === 'escVolet') escalierVolets = escalierVolets.filter(x => x.id !== id);
   if (type === 'longrine') longrines = longrines.filter(x => x.id !== id);
   if (type === 'mur') murs = murs.filter(x => x.id !== id);
   if (type === 'poteau') poteaux = poteaux.filter(x => x.id !== id);
@@ -1800,10 +1890,10 @@ function supprimer(type, id) {
   rendre();
 }
 function viderModule(type) {
-  const map = { longrine: 'longrines', mur: 'murs', poteau: 'poteaux', amorce: 'amorces', poutre: 'poutres', chenage: 'chenages', maindoeuvre: 'main-d’œuvre', dalle: 'dalles', corps: 'corps', semelle: 'semelles' };
-  const nom = { longrine: 'les longrines', mur: 'les murs', poteau: 'les poteaux', amorce: 'les amorces', poutre: 'les poutres', chenage: 'les chenages', maindoeuvre: 'les lignes de main-d’œuvre', dalle: 'les dalles', corps: 'les panneaux', semelle: 'les semelles' }[type];
+  const map = { longrine: 'longrines', mur: 'murs', poteau: 'poteaux', amorce: 'amorces', poutre: 'poutres', chenage: 'chenages', maindoeuvre: 'main-d’œuvre', dalle: 'dalles', corps: 'corps', semelle: 'semelles', escalier: 'escalier' };
+  const nom = { longrine: 'les longrines', mur: 'les murs', poteau: 'les poteaux', amorce: 'les amorces', poutre: 'les poutres', chenage: 'les chenages', maindoeuvre: 'les lignes de main-d’œuvre', dalle: 'les dalles', corps: 'les panneaux', semelle: 'les semelles', escalier: 'les paliers et volets de l’escalier' }[type];
   if (!window.confirm('Supprimer toutes les lignes : ' + nom + ' ?')) return;
-  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], amorce: () => amorces = [], poutre: () => poutres = [], chenage: () => chenages = [], maindoeuvre: () => mainsOeuvre = [], dalle: () => dalles = [], corps: () => { corps = []; corpsLattes = []; }, semelle: () => semelles = [] })[type]();
+  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], amorce: () => amorces = [], poutre: () => poutres = [], chenage: () => chenages = [], maindoeuvre: () => mainsOeuvre = [], dalle: () => dalles = [], corps: () => { corps = []; corpsLattes = []; }, semelle: () => semelles = [], escalier: () => { escalierPaliers = []; escalierVolets = []; } })[type]();
   rendre(); toast('Lignes supprimées (' + map[type] + ')', 'ok');
 }
 function viderCrepissage(type) {
@@ -1814,7 +1904,7 @@ function viderCrepissage(type) {
   toast(`Lignes de ${estMur ? 'murs' : 'dalles'} supprimées`, 'ok');
 }
 function maj(type, id, champ, val) {
-  const liste = { longrine: longrines, mur: murs, poteau: poteaux, amorce: amorces, poutre: poutres, chenage: chenages, maindoeuvre: mainsOeuvre, dalle: dalles, corps, semelle: semelles, crepMur: crepMurs, crepDalle: crepDalles }[type] || [];
+  const liste = { longrine: longrines, mur: murs, poteau: poteaux, amorce: amorces, poutre: poutres, chenage: chenages, maindoeuvre: mainsOeuvre, dalle: dalles, corps, semelle: semelles, escPalier: escalierPaliers, escVolet: escalierVolets, crepMur: crepMurs, crepDalle: crepDalles }[type] || [];
   const o = liste.find(x => x.id === id);
   if (!o) return;
   o[champ] = val;
@@ -2362,6 +2452,116 @@ function rendre() {
     </div>`;
   }).join('')
     : '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucune dalle — cliquez sur « Ajouter une dalle ».</div></div>';
+
+  const ciblePaliers = $('liste-escalier-paliers');
+  if (ciblePaliers) ciblePaliers.innerHTML = escalierPaliers.length ? escalierPaliers.map(o => {
+    const fers = Array.isArray(o.fers) ? o.fers : [];
+    const lignesFers = fers.length ? fers.map(f => `<tr>
+      <td><select class="inp" onchange="majFerPalierEscalier(${o.id},${f.id},'nuance',this.value)"><option value="HA" ${f.nuance === 'RL' ? '' : 'selected'}>HA</option><option value="RL" ${f.nuance === 'RL' ? 'selected' : ''}>RL</option></select></td>
+      <td><select class="inp" onchange="majFerPalierEscalier(${o.id},${f.id},'diam',this.value)">${optionsFer(f.diam || '10')}</select></td>
+      <td><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(f.L ?? '')}" oninput="majFerPalierEscalier(${o.id},${f.id},'L',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="1" placeholder="1" value="${esc(f.nb ?? '1')}" oninput="majFerPalierEscalier(${o.id},${f.id},'nb',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(f.crochet ?? '')}" oninput="majFerPalierEscalier(${o.id},${f.id},'crochet',this.value)"></td>
+      <td class="res" id="epf-ml-${o.id}-${f.id}">0</td>
+      <td class="res" id="epf-ex-${o.id}-${f.id}">0</td>
+      <td class="res" id="epf-nb-${o.id}-${f.id}">0</td>
+      <td class="no-print" style="text-align:center"><button class="del-btn" onclick="supprimerFerPalierEscalier(${o.id},${f.id})" title="Supprimer cette ligne de fer"><i class="fa-solid fa-trash-can"></i></button></td>
+    </tr>`).join('')
+      : ligneVide(9, 'Aucun fer — cliquez sur « Ajouter un fer »');
+    return `<div class="subcard semelle-ligne">
+      <div class="semelle-entete">
+        <div class="field"><label>Désignation</label>${inp('escPalier', o, 'nom', 'inp-txt')}</div>
+        <button class="btn btn-sm btn-danger no-print" onclick="supprimer('escPalier',${o.id})"><i class="fa-solid fa-trash-can"></i> Supprimer</button>
+      </div>
+      <div class="semelle-nappes">
+        <div class="subcard semelle-nappe escalier-palier">
+          <div class="semelle-nappe-head">
+            <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-cube"></i> Béton du palier</div>
+            <div class="semelle-nappe-total">Volume béton : <b class="res" id="ep-vol-h-${o.id}">0</b> m³</div>
+          </div>
+          <div class="semelle-lit">
+            <div class="semelle-lit-grid">
+              <div class="field"><label>Longueur (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.L ?? '')}" oninput="maj('escPalier',${o.id},'L',this.value)"></div>
+              <div class="field"><label>Largeur (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.l ?? '')}" oninput="maj('escPalier',${o.id},'l',this.value)"></div>
+              <div class="field"><label>Épaisseur (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.e ?? '')}" oninput="maj('escPalier',${o.id},'e',this.value)"></div>
+              <div class="field"><label>Nb</label><input class="inp" type="number" min="0" step="1" placeholder="1" value="${esc(o.n ?? '1')}" oninput="maj('escPalier',${o.id},'n',this.value)"></div>
+              <div class="field"><label>Volume béton</label><div class="inp semelle-resultat"><b class="res" id="ep-vol-${o.id}">0</b> m³</div></div>
+            </div>
+            <div class="semelle-formule">Volume béton palier = Longueur × Largeur × Épaisseur × Nb</div>
+          </div>
+        </div>
+        <div class="subcard semelle-nappe escalier-fer">
+          <div class="semelle-nappe-head">
+            <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-grip-lines"></i> Quantité de fer du palier</div>
+            <div class="dalle-panneaux-actions">
+              <div class="semelle-nappe-total">Linéaire : <b class="res" id="ep-ferml-${o.id}">0</b> ml · Barres : <b class="res" id="ep-fernb-${o.id}">0</b> <span style="font-weight:400">(exact : <b class="res" id="ep-ferex-${o.id}">0</b>)</span></div>
+              <button class="btn btn-sm btn-primary no-print" onclick="ajouterFerPalierEscalier(${o.id})"><i class="fa-solid fa-plus"></i> Ajouter un fer</button>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr>
+                <th class="w-sm">Nuance</th><th class="w-sm">Diamètre (mm)</th>
+                <th class="w-md">Longueur (m)</th><th class="w-sm">Nombre</th><th class="w-md">Longueur crochets (m)</th>
+                <th class="th-r">Linéaire (ml)</th><th class="th-r">Barres exact (÷ 12)</th><th class="th-r">Barres</th><th class="w-sm no-print"></th>
+              </tr></thead>
+              <tbody>${lignesFers}</tbody>
+            </table>
+          </div>
+          <div class="semelle-formule">Quantité de fer = ((Longueur + Longueur des crochets) × Nombre) ÷ 12 (arrondi au supérieur)</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('')
+    : '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun palier — cliquez sur « Ajouter un palier ».</div></div>';
+
+  const cibleVolets = $('liste-escalier-volets');
+  if (cibleVolets) cibleVolets.innerHTML = escalierVolets.length ? escalierVolets.map(o => `<div class="subcard semelle-ligne">
+      <div class="semelle-entete">
+        <div class="field"><label>Désignation</label>${inp('escVolet', o, 'nom', 'inp-txt')}</div>
+        <button class="btn btn-sm btn-danger no-print" onclick="supprimer('escVolet',${o.id})"><i class="fa-solid fa-trash-can"></i> Supprimer</button>
+      </div>
+      <div class="semelle-nappes">
+        <div class="subcard semelle-nappe escalier-marche">
+          <div class="semelle-nappe-head">
+            <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-stairs"></i> Partie Marches</div>
+            <div class="semelle-nappe-total">Volume marches : <b class="res" id="ev-mv-h-${o.id}">0</b> m³</div>
+          </div>
+          <div class="semelle-lit">
+            <div class="semelle-lit-grid">
+              <div class="field"><label>Giron (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.giron ?? '')}" oninput="maj('escVolet',${o.id},'giron',this.value)"></div>
+              <div class="field"><label>Hauteur de marche (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.hauteurMarche ?? '')}" oninput="maj('escVolet',${o.id},'hauteurMarche',this.value)"></div>
+              <div class="field"><label>Emmarchement (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.emmarchement ?? '')}" oninput="maj('escVolet',${o.id},'emmarchement',this.value)"></div>
+              <div class="field"><label>Nombre de marches total</label><input class="inp" type="number" min="0" step="1" placeholder="0" value="${esc(o.nbMarches ?? '')}" oninput="maj('escVolet',${o.id},'nbMarches',this.value)"></div>
+              <div class="field"><label>Volume d’une marche</label><div class="inp semelle-resultat"><b class="res" id="ev-m1-${o.id}">0</b> m³</div></div>
+              <div class="field"><label>Volume total marches</label><div class="inp semelle-resultat"><b class="res" id="ev-mv-${o.id}">0</b> m³</div></div>
+            </div>
+            <div class="semelle-formule">Volume marches = ((Giron × Hauteur de marche) ÷ 2) × Emmarchement × Nombre de marches total</div>
+          </div>
+        </div>
+        <div class="subcard semelle-nappe escalier-paillasse">
+          <div class="semelle-nappe-head">
+            <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-layer-group"></i> Partie Paillasse</div>
+            <div class="semelle-nappe-total">Volume paillasse : <b class="res" id="ev-pv-h-${o.id}">0</b> m³</div>
+          </div>
+          <div class="semelle-lit">
+            <div class="semelle-lit-grid">
+              <div class="field"><label>Longueur (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.paillasseL ?? '')}" oninput="maj('escVolet',${o.id},'paillasseL',this.value)"></div>
+              <div class="field"><label>Emmarchement (m)</label><input class="inp" id="ev-pemm-${o.id}" type="number" min="0" step="0.01" placeholder="${esc(o.emmarchement ? 'auto : ' + o.emmarchement : '0')}" value="${esc(o.paillasseEmm ?? '')}" oninput="maj('escVolet',${o.id},'paillasseEmm',this.value)"></div>
+              <div class="field"><label>Épaisseur (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.paillasseE ?? '')}" oninput="maj('escVolet',${o.id},'paillasseE',this.value)"></div>
+              <div class="field"><label>Nombre de volets</label><input class="inp" type="number" min="0" step="1" placeholder="1" value="${esc(o.nbVolets ?? '1')}" oninput="maj('escVolet',${o.id},'nbVolets',this.value)"></div>
+              <div class="field"><label>Volume béton paillasse</label><div class="inp semelle-resultat"><b class="res" id="ev-pv-${o.id}">0</b> m³</div></div>
+            </div>
+            <div class="semelle-formule">Volume paillasse = Longueur × Emmarchement × Épaisseur × Nombre de volets</div>
+          </div>
+        </div>
+      </div>
+      <div class="semelle-nappe-head" style="margin-top:12px;margin-bottom:0;padding-top:10px;border-top:1px solid var(--border)">
+        <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-calculator"></i> Volume total du volet (Marches + Paillasse)</div>
+        <div class="semelle-nappe-total"><b class="res" id="ev-tot-${o.id}">0</b> m³</div>
+      </div>
+    </div>`).join('')
+    : '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun volet — cliquez sur « Ajouter un volet ».</div></div>';
 
   $('tb-crep-murs').innerHTML = crepMurs.length ? crepMurs.map(o => `<tr>
       <td>${inp('crepMur', o, 'nom', 'inp-txt')}</td><td>${inp('crepMur', o, 'L')}</td><td>${inp('crepMur', o, 'H')}</td><td>${inp('crepMur', o, 'n')}</td>
@@ -3150,6 +3350,89 @@ function calculer() {
   if (moTotalCell) moTotalCell.innerText = fmtM(totalMo);
   const moNbCell = $('mo-nb');
   if (moNbCell) moNbCell.innerText = String(mainsOeuvre.length);
+  // --- Escalier : Palier (béton + fer) et Volet (Marches + Paillasse) ---
+  let tEscPalVol = 0, tEscMarVol = 0, tEscPaiVol = 0, tEscFerML = 0;
+  const fersEscalierParProfil = {};
+  escalierPaliers.forEach(o => {
+    const L = Math.max(0, num(o.L)), l = Math.max(0, num(o.l)), e = Math.max(0, num(o.e));
+    const n = Math.max(0, num(o.n ?? 1));
+    const vol = L * l * e * n;
+    tEscPalVol += vol;
+    const cV = $('ep-vol-' + o.id), cVH = $('ep-vol-h-' + o.id);
+    if (cV) cV.innerText = fmt(vol);
+    if (cVH) cVH.innerText = fmt(vol);
+
+    let palFerML = 0;
+    const fers = Array.isArray(o.fers) ? o.fers : [];
+    fers.forEach(f => {
+      const fL = Math.max(0, num(f.L));
+      const fCr = Math.max(0, num(f.crochet));
+      const fNb = Math.max(0, num(f.nb ?? 1));
+      const ml = (fL + fCr) * fNb;
+      const exact = ml / 12;
+      const nbBar = ml > 0 ? Math.ceil(exact - 1e-9) : 0;
+      const nuance = f.nuance === 'RL' ? 'RL' : 'HA';
+      const diam = String(f.diam || '10');
+      const profil = `${nuance}:${diam}`;
+      if (ml > 0) fersEscalierParProfil[profil] = (fersEscalierParProfil[profil] || 0) + ml;
+      palFerML += ml;
+      const cMl = $('epf-ml-' + o.id + '-' + f.id), cEx = $('epf-ex-' + o.id + '-' + f.id), cNb = $('epf-nb-' + o.id + '-' + f.id);
+      if (cMl) cMl.innerText = fmt(ml);
+      if (cEx) cEx.innerText = fmt(exact);
+      if (cNb) cNb.innerText = fmt(nbBar);
+    });
+    tEscFerML += palFerML;
+    const palExact = palFerML / 12;
+    const palBarres = palFerML > 0 ? Math.ceil(palExact - 1e-9) : 0;
+    const cFml = $('ep-ferml-' + o.id), cFex = $('ep-ferex-' + o.id), cFnb = $('ep-fernb-' + o.id);
+    if (cFml) cFml.innerText = fmt(palFerML);
+    if (cFex) cFex.innerText = fmt(palExact);
+    if (cFnb) cFnb.innerText = fmt(palBarres);
+  });
+  escalierVolets.forEach(o => {
+    const giron = Math.max(0, num(o.giron));
+    const hMarche = Math.max(0, num(o.hauteurMarche));
+    const mEmm = Math.max(0, num(o.emmarchement));
+    const nbMarches = Math.max(0, num(o.nbMarches));
+    const vUneMarche = ((giron * hMarche) / 2) * mEmm;
+    const vMarches = vUneMarche * nbMarches;
+
+    const pL = Math.max(0, num(o.paillasseL));
+    const pEmm = String(o.paillasseEmm ?? '').trim() !== '' ? Math.max(0, num(o.paillasseEmm)) : mEmm;
+    const pE = Math.max(0, num(o.paillasseE));
+    const nbVolets = Math.max(0, num(o.nbVolets ?? 1));
+    const vPaillasse = pL * pEmm * pE * nbVolets;
+    const vTot = vMarches + vPaillasse;
+
+    tEscMarVol += vMarches;
+    tEscPaiVol += vPaillasse;
+
+    const cM1 = $('ev-m1-' + o.id), cMv = $('ev-mv-' + o.id), cMvH = $('ev-mv-h-' + o.id);
+    const cPv = $('ev-pv-' + o.id), cPvH = $('ev-pv-h-' + o.id), cTot = $('ev-tot-' + o.id);
+    const inpPEmm = $('ev-pemm-' + o.id);
+    if (inpPEmm) inpPEmm.placeholder = o.emmarchement ? ('auto : ' + o.emmarchement) : '0';
+    if (cM1) cM1.innerText = fmt(vUneMarche);
+    if (cMv) cMv.innerText = fmt(vMarches);
+    if (cMvH) cMvH.innerText = fmt(vMarches);
+    if (cPv) cPv.innerText = fmt(vPaillasse);
+    if (cPvH) cPvH.innerText = fmt(vPaillasse);
+    if (cTot) cTot.innerText = fmt(vTot);
+  });
+  const tEscVol = tEscPalVol + tEscMarVol + tEscPaiVol;
+  const profilsFerEscalier = Object.entries(fersEscalierParProfil).filter(([, ml]) => ml > 0);
+  const tEscFerExact = tEscFerML / 12;
+  const tEscFerCommande = profilsFerEscalier.reduce((s, [, ml]) => s + Math.ceil(ml / 12 - 1e-9), 0);
+  if ($('esc-pal-vol')) $('esc-pal-vol').innerText = fmt(tEscPalVol);
+  if ($('esc-mar-vol')) $('esc-mar-vol').innerText = fmt(tEscMarVol);
+  if ($('esc-pai-vol')) $('esc-pai-vol').innerText = fmt(tEscPaiVol);
+  if ($('esc-vol')) $('esc-vol').innerText = fmt(tEscVol);
+  if ($('esc-fer-ml')) $('esc-fer-ml').innerText = fmt(tEscFerML);
+  if ($('esc-fer-exact')) $('esc-fer-exact').innerText = fmt(tEscFerExact);
+  if ($('esc-fer-commande')) $('esc-fer-commande').innerText = fmt(tEscFerCommande);
+  if ($('esc-fer-detail')) $('esc-fer-detail').innerHTML = profilsFerEscalier.length
+    ? `<i class="fa-solid fa-stairs"></i><div><b>Armatures escalier (palier) :</b> ${profilsFerEscalier.map(([profil, ml]) => `${libelleFer(profil)} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
+    : '<i class="fa-solid fa-stairs"></i><div>Aucune armature d’escalier calculée.</div>';
+
   // --- Solivage : nombre de lattes du panneau ---
   const sv = solivageCalc();
   const svPu = num($('sol-pu') ? $('sol-pu').value : '');
@@ -3163,6 +3446,7 @@ function calculer() {
         pouCof: tCof, pouSur: tSur, pouVol: tV, pouFer: tPouFerCommande, pouChap: tChapCommande, pouCadreML: tPouCadreML, pouCadre: tPouCadreCommande, pouEpingleML: tPouEpingleML, pouEpingle: tPouEpingleCommande,
         cheCof: tChCof, cheSur: tChSur, cheVol: tChV, cheFer: tChFerCommande, cheChap: tChChapCommande, cheCadreML: tChCadreML, cheCadre: tChCadreCommande, cheEpingleML: tChEpingleML, cheEpingle: tChEpingleCommande,
         dalSurf: tDS, dalVol: tDV, dalFer: tDalFerCommande, dalCavML: tDalCavML, dalCav: tDalCavCommande, dalLatteML: tDalLatteML, dalLatte: tDalLatteCommande, dalPlancheExact: tDalPlancheExact, dalPlanche: tDalPlancheCommande, semVol: tSemVol, semFer1: tSemFer1, semFer2: tSemFer2, semFer: tSemFerCommande,
+        escPalVol: tEscPalVol, escMarVol: tEscMarVol, escPaiVol: tEscPaiVol, escVol: tEscVol, escFerML: tEscFerML, escFer: tEscFerCommande,
         crepMurNet, crepMur, crepDalle, crepTotal, crepEpaisseur, crepVolume, crepDosage, crepCiment, crepDosageSable, crepSable,
         ccSurf: tCS, ccHour: tCH, ccNerv: tCN, ccLg: tCG, ccLatteML: tCCLatteML, ccLatte: tCCLatteCommande };
 
@@ -3207,6 +3491,8 @@ function calculer() {
     .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
   const epinglesLongrinesCommande = Object.fromEntries(Object.entries(epinglesLongrinesParNuance)
     .map(([nuanceEpingle, ml]) => [nuanceEpingle, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
+  const fersEscalierCommande = Object.fromEntries(Object.entries(fersEscalierParProfil)
+    .map(([profil, ml]) => [profil, ml > 0 ? Math.ceil(ml / 12 - 1e-9) : 0]));
   calculsModules = {
     longrine: { volume: tLongVol, ferMetres: tLongFerML, cadreMetres: tLongCadreML, epingleMetres: tLongEpingleML, fers: fersLongrinesCommande, cadres: cadresLongrinesCommande, epingles: epinglesLongrinesCommande },
     mur: { surface: sMur, parpaings: ppArrondi, ciment: cimentPP, sable: sablePP },
@@ -3217,17 +3503,18 @@ function calculer() {
     dalle: { surface: tDS, volume: tDV, fers: fersDallesCommande, cavalierMetres: tDalCavML, cavaliers: cavaliersDallesCommande, latteMetres: tDalLatteML, lattes: tDalLatteCommande, plancheExact: tDalPlancheExact, planches: tDalPlancheCommande },
     corps: { surface: tCS, hourdis: tCH, nervures: tCG, latteMetres: tCCLatteML, lattes: tCCLatteCommande },
     semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande },
+    escalier: { volumePalier: tEscPalVol, volumeMarches: tEscMarVol, volumePaillasse: tEscPaiVol, volume: tEscVol, ferMetres: tEscFerML, barres: tEscFerCommande, fers: fersEscalierCommande },
     maindoeuvre: { lignes: mainsOeuvre.map(o => ({ designation: o.designation, unite: o.unite, qte: o.qte, pu: o.pu })), total: totalMo },
     solivage: { longueur: sv.L, largeur: sv.W, espace: sv.e, lattes: sv.lattes, pu: svPu }
   };
   const valideActif = cle => $('sel-' + cle).checked ? validationsModules[cle]?.donnees : null;
   const longrineValidee = valideActif('longrine'), murValide = valideActif('mur'), poteauValide = valideActif('poteau');
-  const poutreValide = valideActif('poutre'), dalleValidee = valideActif('dalle'), corpsValide = valideActif('corps'), semelleValidee = valideActif('semelle');
+  const poutreValide = valideActif('poutre'), dalleValidee = valideActif('dalle'), corpsValide = valideActif('corps'), semelleValidee = valideActif('semelle'), escalierValide = valideActif('escalier');
   const chenageValide = valideActif('chenage');
   const amorceValide = valideActif('amorce');
 
   // --- Alimentation du devis à partir des derniers instantanés validés ---
-  G.betonHorsSemelles = (longrineValidee?.volume || 0) + (poteauValide?.volume || 0) + (amorceValide?.volume || 0) + (poutreValide?.volume || 0) + (chenageValide?.volume || 0) + (dalleValidee?.volume || 0) + num($('dos-autre').value);
+  G.betonHorsSemelles = (longrineValidee?.volume || 0) + (poteauValide?.volume || 0) + (amorceValide?.volume || 0) + (poutreValide?.volume || 0) + (chenageValide?.volume || 0) + (dalleValidee?.volume || 0) + (escalierValide?.volume || 0) + num($('dos-autre').value);
   G.beton = G.betonHorsSemelles + (semelleValidee?.volume || 0);
   G.parpaings = murValide?.parpaings || 0;
   G.cimentMur = murValide?.ciment || 0;
@@ -3257,6 +3544,7 @@ function calculer() {
   G.lattesDalles = dalleValidee?.lattes || 0;
   G.planchesDalles = dalleValidee?.planches || 0;
   G.ferSemelles = copierCalcul(semelleValidee?.fers);
+  G.ferEscalier = copierCalcul(escalierValide?.fers);
   syncFersDevis();
   rendreDevis();
 }
@@ -3264,7 +3552,7 @@ function calculer() {
 /* ============================================================
    DEVIS QUANTITATIF
    ============================================================ */
-let G = { beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferLongrines: {}, ferCadresLongrines: {}, ferEpinglesLongrines: {}, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferAmorces: {}, ferCadresAmorces: {}, ferEpinglesAmorces: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferChenages: {}, ferChapeauxChenages: {}, ferCadresChenages: {}, ferEpinglesChenages: {}, ferDalles: {}, ferCavaliersDalles: {}, lattesDalles: 0, planchesDalles: 0, lattesCorps: 0, ferSemelles: {} };
+let G = { beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferLongrines: {}, ferCadresLongrines: {}, ferEpinglesLongrines: {}, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferAmorces: {}, ferCadresAmorces: {}, ferEpinglesAmorces: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferChenages: {}, ferChapeauxChenages: {}, ferCadresChenages: {}, ferEpinglesChenages: {}, ferDalles: {}, ferCavaliersDalles: {}, lattesDalles: 0, planchesDalles: 0, lattesCorps: 0, ferSemelles: {}, ferEscalier: {} };
 let dvId = 1000;
 function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', total: null, auto }; }
 let devis = [
@@ -3450,7 +3738,8 @@ const estLigneCavalierDalle = l => typeof l.auto === 'string' && l.auto.startsWi
 const estLigneLattesDalle = l => l.auto === 'dalle-lattes';
 const estLigneLattesCorps = l => l.auto === 'corps-lattes';
 const estLigneFerSemelle = l => typeof l.auto === 'string' && l.auto.startsWith('semellefer:');
-const estLigneAcier = l => estLigneFer(l) || estLigneFerLongrine(l) || estLigneCadreLongrine(l) || estLigneEpingleLongrine(l) || estLigneCadrePoteau(l) || estLigneEpinglePoteau(l) || estLigneCadreAmorce(l) || estLigneEpingleAmorce(l) || estLigneCadrePoutre(l) || estLigneEpinglePoutre(l) || estLigneChapeau(l) || estLigneCadreChenage(l) || estLigneEpingleChenage(l) || estLigneChapeauChenage(l) || estLigneFerDalle(l) || estLigneCavalierDalle(l) || estLigneFerSemelle(l);
+const estLigneFerEscalier = l => typeof l.auto === 'string' && l.auto.startsWith('escalierfer:');
+const estLigneAcier = l => estLigneFer(l) || estLigneFerLongrine(l) || estLigneCadreLongrine(l) || estLigneEpingleLongrine(l) || estLigneCadrePoteau(l) || estLigneEpinglePoteau(l) || estLigneCadreAmorce(l) || estLigneEpingleAmorce(l) || estLigneCadrePoutre(l) || estLigneEpinglePoutre(l) || estLigneChapeau(l) || estLigneCadreChenage(l) || estLigneEpingleChenage(l) || estLigneChapeauChenage(l) || estLigneFerDalle(l) || estLigneCavalierDalle(l) || estLigneFerSemelle(l) || estLigneFerEscalier(l);
 const ligneDevisMasquee = (l, aciers = aciersDevisActifs()) => (estLigneAcier(l) && !(l.auto in aciers)) || (estLigneLattesDalle(l) && !(G.lattesDalles > 0)) || (estLigneLattesCorps(l) && !(G.lattesCorps > 0));
 const libelleFer = cle => {
   const [nuance, diametre] = cle.split(':');
@@ -3530,6 +3819,9 @@ function aciersDevisActifs() {
   });
   Object.entries(G.ferCavaliersDalles || {}).forEach(([cle, qte]) => {
     if (num(qte) > 0) lignes[`cavdalle:${cle}`] = { qte, des: `Cavaliers dalle pleine — ${libelleFer(cle)}`, unite: 'barre' };
+  });
+  Object.entries(G.ferEscalier || {}).forEach(([cle, qte]) => {
+    if (num(qte) > 0) lignes[`escalierfer:${cle}`] = { qte, des: `Fer escalier (palier) — ${libelleFer(cle)}`, unite: 'barre' };
   });
   return lignes;
 }
@@ -3726,7 +4018,7 @@ function syncProjet() { sauver(); }
    ============================================================ */
 function majVisibilite() {
   syncSwitches();
-  ['longrine', 'mur', 'poteau', 'amorce', 'poutre', 'chenage', 'solivage', 'maindoeuvre', 'dalle', 'corps', 'semelle'].forEach(k => {
+  ['longrine', 'mur', 'poteau', 'amorce', 'poutre', 'chenage', 'solivage', 'maindoeuvre', 'dalle', 'corps', 'semelle', 'escalier'].forEach(k => {
     const on = $('sel-' + k).checked;
     const nav = document.querySelector(`.nav-item[data-tab="${k}"]`);
     if (nav) nav.classList.toggle('off', !on);
@@ -3780,6 +4072,7 @@ function updateDashboard() {
   $('nav-v-dalle').textContent = fmt(T.dalVol) + ' m³ · ' + fmt(T.dalFer) + ' barres · ' + fmt(T.dalCav) + ' cavaliers · ' + fmt(T.dalLatte) + ' lattes · ' + fmt(T.dalPlanche) + ' planches';
   $('nav-v-corps').textContent = fmt(T.ccHour) + ' hourdis · ' + fmt(T.ccSurf) + ' m² · ' + fmt(T.ccLatte) + ' lattes';
   $('nav-v-semelle').textContent = fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres';
+  $('nav-v-escalier').textContent = fmt(T.escVol) + ' m³ · ' + fmt(T.escFer) + ' barres';
   $('nav-v-crepissage').textContent = fmt(T.crepTotal) + ' m² · ' + fmt(T.crepVolume) + ' m³ · ' + fmt(T.crepCiment) + ' sacs · ' + fmt(T.crepSable) + ' m³ sable';
   const svNav = solivageCalc();
   const svNavPu = num($('sol-pu') ? $('sol-pu').value : '');
@@ -3800,6 +4093,7 @@ function updateDashboard() {
     { k: 'chenage', label: 'Chenages', ico: 'fa-link', v: $('sel-chenage').checked ? T.cheVol : 0 },
     { k: 'dalle', label: 'Dalles pleines', ico: 'fa-square', v: $('sel-dalle').checked ? T.dalVol : 0 },
     { k: 'semelle', label: 'Semelles', ico: 'fa-layer-group', v: $('sel-semelle').checked ? T.semVol : 0 },
+    { k: 'escalier', label: 'Escalier', ico: 'fa-stairs', v: $('sel-escalier').checked ? T.escVol : 0 },
     { k: 'autre', label: 'Autre béton', ico: 'fa-plus', v: num($('dos-autre').value) }
   ];
   const tot = parts.reduce((a, p) => a + p.v, 0);
@@ -3810,7 +4104,7 @@ function updateDashboard() {
         <span class="bar"><i style="width:${Math.max(2, (p.v / tot) * 100).toFixed(1)}%"></i></span></span>
       <span class="lr-val">${fmt(p.v)} m³ · ${((p.v / tot) * 100).toFixed(1)} %</span>
     </div>`).join('')
-    : `<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun volume de béton pour l'instant. Saisissez des dimensions dans les modules Longrines, Poteaux, Amorce, Poutres, Chenage, Dalles ou Semelles.</div></div>`;
+    : `<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun volume de béton pour l'instant. Saisissez des dimensions dans les modules Longrines, Poteaux, Amorce, Poutres, Chenage, Dalles, Semelles ou Escalier.</div></div>`;
 
   // état des modules
   const svMods = solivageCalc();
@@ -3825,6 +4119,7 @@ function updateDashboard() {
     { k: 'dalle', ico: 'fa-square', label: 'Dalles pleines', detail: dalles.length + ' dalle(s) · ' + dalles.reduce((a, o) => a + (Array.isArray(o.panneaux) ? o.panneaux.length : 1), 0) + ' panneau(x)', val: fmt(T.dalSurf) + ' m²' },
     { k: 'corps', ico: 'fa-table-cells', label: 'Dalle à corps creux', detail: corps.length + ' panneau(x) saisi(s)', val: fmt(T.ccHour) + ' hourdis' },
     { k: 'semelle', ico: 'fa-layer-group', label: 'Semelles', detail: semelles.length + ' semelle(s) saisie(s)', val: fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres' },
+    { k: 'escalier', ico: 'fa-stairs', label: 'Escalier', detail: escalierPaliers.length + ' palier(s) · ' + escalierVolets.length + ' volet(s)', val: fmt(T.escVol) + ' m³ · ' + fmt(T.escFer) + ' barres' },
     { k: 'maindoeuvre', ico: 'fa-hard-hat', label: 'Mains d’œuvre', detail: mainsOeuvre.length + ' ligne(s)', val: fmtM(totalMo) + ' ' + dev },
     { k: 'solivage', ico: 'fa-grip-lines', label: 'Solivage', detail: svMods.lattes + ' lattes', val: fmtM(svMods.lattes * svModsPu) + ' ' + dev }
   ];
@@ -3864,7 +4159,7 @@ function basculerTheme() {
 const CLE = 'gros-oeuvre-projet-v2';
 const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
   'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
-  'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-solivage', 'sel-dalle', 'sel-corps', 'sel-semelle',
+  'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-solivage', 'sel-dalle', 'sel-corps', 'sel-semelle', 'sel-escalier',
   'sol-lg', 'sol-la', 'sol-esp', 'sol-pu'];
 let saveTimer = null;
 let reinitialisationEnCours = false;
@@ -3883,7 +4178,7 @@ function sauver(silencieux = true) {
   try {
     const champs = {};
     CHAMPS.forEach(id => { const el = $(id); if (el) champs[id] = el.type === 'checkbox' ? el.checked : el.value; });
-    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, moduleSemellesInitialise: true, moduleLongrinesInitialise: true, moduleChenagesInitialise: true, moduleAmorcesInitialise: true, moduleMainDoeuvreInitialise: true, crepMurs, crepDalles, crepValidation, validationsModules, champs, devis };
+    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, escalierPaliers, escalierVolets, moduleSemellesInitialise: true, moduleLongrinesInitialise: true, moduleChenagesInitialise: true, moduleAmorcesInitialise: true, moduleMainDoeuvreInitialise: true, moduleEscalierInitialise: true, crepMurs, crepDalles, crepValidation, validationsModules, champs, devis };
     localStorage.setItem(CLE, JSON.stringify(data));
     const s = $('save-state');
     s.classList.remove('dirty');
@@ -3949,7 +4244,7 @@ function charger() {
       epingleNuance: 'HA', epingleNb: '', epingleL: '', ...o,
       ferL: o.ferL ?? o.L ?? '', chapL: o.chapL ?? ''
     }));
-    uid = Math.max(d.uid || 1, ...(d.dalles || []).flatMap(o => [o.id || 0, ...(o.panneaux || []).map(p => p.id || 0), ...(o.lattePanneaux || []).map(p => p.id || 0)]).map(id => id + 1), ...(d.corpsLattes || []).map(p => (p.id || 0) + 1), 1);
+    uid = Math.max(d.uid || 1, ...(d.dalles || []).flatMap(o => [o.id || 0, ...(o.panneaux || []).map(p => p.id || 0), ...(o.lattePanneaux || []).map(p => p.id || 0)]).map(id => id + 1), ...(d.corpsLattes || []).map(p => (p.id || 0) + 1), ...(d.escalierPaliers || []).flatMap(o => [o.id || 0, ...(o.fers || []).map(f => f.id || 0)]).map(id => id + 1), ...(d.escalierVolets || []).map(o => (o.id || 0) + 1), 1);
     dalles = (d.dalles || []).map(o => ({
       ...o,
       panneaux: normaliserPanneauxDalle(o),
@@ -4012,6 +4307,20 @@ function charger() {
     // Les anciens projets reçoivent automatiquement un premier espace pour les nouveaux modules.
     if (!d.moduleSemellesInitialise && !semelles.length) semelles.push(nouvelleSemelle(d.uid || 1, 1));
     if (!d.moduleLongrinesInitialise && !longrines.length) longrines.push(nouvelleLongrine((d.uid || 1) + (semelles.some(o => o.id === (d.uid || 1)) ? 1 : 0), 1));
+    escalierPaliers = (d.escalierPaliers || []).map((o, idx) => ({
+      id: o.id ?? uid++, nom: o.nom ?? ('Palier ' + (idx + 1)),
+      L: o.L ?? '', l: o.l ?? '', e: o.e ?? '', n: o.n ?? '1',
+      fers: Array.isArray(o.fers)
+        ? o.fers.map(f => ({ id: f.id ?? uid++, nuance: f.nuance ?? 'HA', diam: f.diam ?? '10', L: f.L ?? '', nb: f.nb ?? '1', crochet: f.crochet ?? '' }))
+        : [nouveauFerPalierEscalier()]
+    }));
+    escalierVolets = (d.escalierVolets || []).map((o, idx) => ({
+      id: o.id ?? uid++, nom: o.nom ?? ('Volet ' + (idx + 1)),
+      giron: o.giron ?? '', hauteurMarche: o.hauteurMarche ?? '', emmarchement: o.emmarchement ?? '', nbMarches: o.nbMarches ?? '',
+      paillasseL: o.paillasseL ?? '', paillasseEmm: o.paillasseEmm ?? '', paillasseE: o.paillasseE ?? '', nbVolets: o.nbVolets ?? '1'
+    }));
+    if (!d.moduleEscalierInitialise && !escalierPaliers.length) escalierPaliers.push(nouveauPalierEscalier(uid++, 1));
+    if (!d.moduleEscalierInitialise && !escalierVolets.length) escalierVolets.push(nouveauVoletEscalier(uid++, 1));
     crepMurs = (d.crepMurs || []).map(o => ({
       ...o,
       porteL: o.porteL ?? '0', porteH: o.porteH ?? '0', porteN: o.porteN ?? '1',
@@ -4029,7 +4338,7 @@ function charger() {
       ...section, lignes: (section.lignes || []).map(l => ({ ...l, total: l.total ?? null }))
     }));
     migrerFersDevis();
-    uid = Math.max(uid, d.uid || 1, ...[murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, crepMurs, crepDalles].flat().map(o => o.id + 1), ...dalles.flatMap(o => [...(o.panneaux || []), ...(o.lattePanneaux || [])]).map(p => (p.id || 0) + 1), 1);
+    uid = Math.max(uid, d.uid || 1, ...[murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, escalierPaliers, escalierVolets, crepMurs, crepDalles].flat().map(o => o.id + 1), ...dalles.flatMap(o => [...(o.panneaux || []), ...(o.lattePanneaux || [])]).map(p => (p.id || 0) + 1), ...escalierPaliers.flatMap(o => o.fers || []).map(f => (f.id || 0) + 1), 1);
     // Les projets antérieurs à l'ajout du module reçoivent leur première ligne de chenage.
     if (!d.moduleAmorcesInitialise && !amorces.length) amorces.push({ id: uid++, nom: 'Amorce 1', forme: 'rect', a: '', b: '', H: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '', ferNb: '4', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' });
     // Les projets antérieurs à l'ajout du module reçoivent les lignes de main-d'œuvre pré-remplies.
@@ -4087,7 +4396,7 @@ function appliquerTout() {
 
   const restaure = charger();
   if (!restaure) {
-    ajouterLongrine(); ajouterMur(); ajouterPoteau(); ajouterAmorce(); ajouterPoutre(); ajouterChenage(); ajouterDalle(); ajouterCorps(); ajouterPanneauLatteCorps(); ajouterSemelle(); initialiserLignesMainDoeuvre();
+    ajouterLongrine(); ajouterMur(); ajouterPoteau(); ajouterAmorce(); ajouterPoutre(); ajouterChenage(); ajouterDalle(); ajouterCorps(); ajouterPanneauLatteCorps(); ajouterSemelle(); ajouterPalierEscalier(); ajouterVoletEscalier(); initialiserLignesMainDoeuvre();
     $('dv-date').value = new Date().toLocaleDateString('fr-FR');
   }
   // préparation silencieuse : on ne rend pas encore l'interface, l'utilisateur doit cliquer sur "Connexion"
