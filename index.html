@@ -218,6 +218,10 @@ td .inp{padding:9px 10px;font-size:13px}
 .semelle-nappe.escalier-fer{border-top-color:#2563eb}
 .semelle-nappe.escalier-marche{border-top-color:#0f766e}
 .semelle-nappe.escalier-paillasse{border-top-color:#b45309}
+#bloc-escalier,#bloc-escalier .card,#bloc-escalier .card-body,#bloc-escalier .subcard,#bloc-escalier .semelle-nappes,#bloc-escalier .semelle-lit{min-width:0;max-width:100%}
+#bloc-escalier .semelle-entete .field{min-width:min(220px,100%)}
+#bloc-escalier .semelle-lit-grid{grid-template-columns:repeat(auto-fit,minmax(min(155px,100%),1fr))}
+#bloc-escalier .escalier-fers-liste{display:flex;flex-direction:column;gap:10px}
 .semelle-nappe-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .dalle-panneaux-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .semelle-nappe-total{font-size:12px;color:var(--muted);font-weight:600}
@@ -2456,18 +2460,23 @@ function rendre() {
   const ciblePaliers = $('liste-escalier-paliers');
   if (ciblePaliers) ciblePaliers.innerHTML = escalierPaliers.length ? escalierPaliers.map(o => {
     const fers = Array.isArray(o.fers) ? o.fers : [];
-    const lignesFers = fers.length ? fers.map(f => `<tr>
-      <td><select class="inp" onchange="majFerPalierEscalier(${o.id},${f.id},'nuance',this.value)"><option value="HA" ${f.nuance === 'RL' ? '' : 'selected'}>HA</option><option value="RL" ${f.nuance === 'RL' ? 'selected' : ''}>RL</option></select></td>
-      <td><select class="inp" onchange="majFerPalierEscalier(${o.id},${f.id},'diam',this.value)">${optionsFer(f.diam || '10')}</select></td>
-      <td><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(f.L ?? '')}" oninput="majFerPalierEscalier(${o.id},${f.id},'L',this.value)"></td>
-      <td><input class="inp" type="number" min="0" step="1" placeholder="1" value="${esc(f.nb ?? '1')}" oninput="majFerPalierEscalier(${o.id},${f.id},'nb',this.value)"></td>
-      <td><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(f.crochet ?? '')}" oninput="majFerPalierEscalier(${o.id},${f.id},'crochet',this.value)"></td>
-      <td class="res" id="epf-ml-${o.id}-${f.id}">0</td>
-      <td class="res" id="epf-ex-${o.id}-${f.id}">0</td>
-      <td class="res" id="epf-nb-${o.id}-${f.id}">0</td>
-      <td class="no-print" style="text-align:center"><button class="del-btn" onclick="supprimerFerPalierEscalier(${o.id},${f.id})" title="Supprimer cette ligne de fer"><i class="fa-solid fa-trash-can"></i></button></td>
-    </tr>`).join('')
-      : ligneVide(9, 'Aucun fer — cliquez sur « Ajouter un fer »');
+    const cartesFers = fers.length ? fers.map((f, idx) => `<div class="semelle-lit">
+      <div class="semelle-nappe-head" style="margin-bottom:10px">
+        <div class="subcard-title" style="margin-bottom:0">Fer ${idx + 1}</div>
+        <button class="del-btn no-print" onclick="supprimerFerPalierEscalier(${o.id},${f.id})" title="Supprimer cette ligne de fer"><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+      <div class="semelle-lit-grid">
+        <div class="field"><label>Nuance</label><select class="inp" onchange="majFerPalierEscalier(${o.id},${f.id},'nuance',this.value)"><option value="HA" ${f.nuance === 'RL' ? '' : 'selected'}>HA</option><option value="RL" ${f.nuance === 'RL' ? 'selected' : ''}>RL</option></select></div>
+        <div class="field"><label>Diamètre (mm)</label><select class="inp" onchange="majFerPalierEscalier(${o.id},${f.id},'diam',this.value)">${optionsFer(f.diam || '10')}</select></div>
+        <div class="field"><label>Longueur (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(f.L ?? '')}" oninput="majFerPalierEscalier(${o.id},${f.id},'L',this.value)"></div>
+        <div class="field"><label>Nombre</label><input class="inp" type="number" min="0" step="1" placeholder="1" value="${esc(f.nb ?? '1')}" oninput="majFerPalierEscalier(${o.id},${f.id},'nb',this.value)"></div>
+        <div class="field"><label>Longueur crochets (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(f.crochet ?? '')}" oninput="majFerPalierEscalier(${o.id},${f.id},'crochet',this.value)"></div>
+        <div class="field"><label>Linéaire</label><div class="inp semelle-resultat"><b class="res" id="epf-ml-${o.id}-${f.id}">0</b> ml</div></div>
+        <div class="field"><label>Barres exact (÷ 12)</label><div class="inp semelle-resultat"><b class="res" id="epf-ex-${o.id}-${f.id}">0</b></div></div>
+        <div class="field"><label>Barres</label><div class="inp semelle-resultat"><b class="res" id="epf-nb-${o.id}-${f.id}">0</b></div></div>
+      </div>
+    </div>`).join('')
+      : '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun fer — cliquez sur « Ajouter un fer ».</div></div>';
     return `<div class="subcard semelle-ligne">
       <div class="semelle-entete">
         <div class="field"><label>Désignation</label>${inp('escPalier', o, 'nom', 'inp-txt')}</div>
@@ -2498,16 +2507,7 @@ function rendre() {
               <button class="btn btn-sm btn-primary no-print" onclick="ajouterFerPalierEscalier(${o.id})"><i class="fa-solid fa-plus"></i> Ajouter un fer</button>
             </div>
           </div>
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr>
-                <th class="w-sm">Nuance</th><th class="w-sm">Diamètre (mm)</th>
-                <th class="w-md">Longueur (m)</th><th class="w-sm">Nombre</th><th class="w-md">Longueur crochets (m)</th>
-                <th class="th-r">Linéaire (ml)</th><th class="th-r">Barres exact (÷ 12)</th><th class="th-r">Barres</th><th class="w-sm no-print"></th>
-              </tr></thead>
-              <tbody>${lignesFers}</tbody>
-            </table>
-          </div>
+          <div class="escalier-fers-liste">${cartesFers}</div>
           <div class="semelle-formule">Quantité de fer = ((Longueur + Longueur des crochets) × Nombre) ÷ 12 (arrondi au supérieur)</div>
         </div>
       </div>
