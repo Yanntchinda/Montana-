@@ -1858,6 +1858,7 @@ function nouveauVoletEscalier(id, numero = 1) {
     id, nom: 'Volet ' + numero,
     giron: '', hauteurMarche: '', emmarchement: '', nbMarches: '',
     paillasseL: '', paillasseEmm: '', paillasseE: '', nbVolets: '1',
+    avecNappe2: false,
     n1l1Nuance: 'HA', n1l1Diam: '10', n1l1Esp: '20',
     n1l2Nuance: 'HA', n1l2Diam: '10', n1l2Esp: '20',
     n2l1Nuance: 'HA', n2l1Diam: '10', n2l1Esp: '20',
@@ -1865,6 +1866,11 @@ function nouveauVoletEscalier(id, numero = 1) {
   };
 }
 function ajouterVoletEscalier() { escalierVolets.push(nouveauVoletEscalier(uid++, escalierVolets.length + 1)); rendre(); }
+function basculerNappe2VoletEscalier(voletId, actif) {
+  const o = escalierVolets.find(x => x.id === voletId); if (!o) return;
+  o.avecNappe2 = !!actif;
+  rendre();
+}
 function solivageCalc() {
   const L = num($('sol-lg') ? $('sol-lg').value : '');
   const W = num($('sol-la') ? $('sol-la').value : '');
@@ -2051,7 +2057,11 @@ const blocLitVoletEscalier = (o, nappe, lit) => {
 const blocNappeVoletEscalier = (o, numero) => `<div class="subcard semelle-nappe escalier-nappe-${numero}">
   <div class="semelle-nappe-head">
     <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-grip-lines"></i> Nappe ${numero} <span style="font-weight:400;color:var(--muted)">(2 lits : Lit 1 &amp; Lit 2)</span></div>
-    <div class="semelle-nappe-total">Total Nappe ${numero} : <b class="res" id="ev-n${numero}ml-${o.id}">0</b> ml · <b class="res" id="ev-n${numero}bar-${o.id}">0</b> barres</div>
+    <div class="dalle-panneaux-actions">
+      <div class="semelle-nappe-total">Total Nappe ${numero} : <b class="res" id="ev-n${numero}ml-${o.id}">0</b> ml · <b class="res" id="ev-n${numero}bar-${o.id}">0</b> barres</div>
+      ${numero === 1 && !o.avecNappe2 ? `<button class="btn btn-sm btn-primary no-print" onclick="basculerNappe2VoletEscalier(${o.id},true)"><i class="fa-solid fa-plus"></i> Ajouter une nappe</button>` : ''}
+      ${numero === 2 ? `<button class="btn btn-sm btn-danger no-print" onclick="basculerNappe2VoletEscalier(${o.id},false)"><i class="fa-solid fa-trash-can"></i> Supprimer Nappe 2</button>` : ''}
+    </div>
   </div>
   <div class="semelle-lits">${blocLitVoletEscalier(o, numero, 1)}${blocLitVoletEscalier(o, numero, 2)}</div>
 </div>`;
@@ -2597,7 +2607,7 @@ function rendre() {
           </div>
         </div>
         ${blocNappeVoletEscalier(o, 1)}
-        ${blocNappeVoletEscalier(o, 2)}
+        ${o.avecNappe2 ? blocNappeVoletEscalier(o, 2) : ''}
       </div>
       <div class="semelle-nappe-head" style="margin-top:12px;margin-bottom:0;padding-top:10px;border-top:1px solid var(--border)">
         <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-calculator"></i> Total de ce volet (béton &amp; armatures)</div>
@@ -3469,7 +3479,7 @@ function calculer() {
       if (cBar) cBar.innerText = fmt(ml / 12);
       return ml;
     };
-    const volFerML = calculNappeVolet(1) + calculNappeVolet(2);
+    const volFerML = calculNappeVolet(1) + (o.avecNappe2 ? calculNappeVolet(2) : 0);
     tEscVolFerML += volFerML;
     tEscMarVol += vMarches;
     tEscPaiVol += vPaillasse;
@@ -4391,6 +4401,7 @@ function charger() {
       id: o.id ?? uid++, nom: o.nom ?? ('Volet ' + (idx + 1)),
       giron: o.giron ?? '', hauteurMarche: o.hauteurMarche ?? '', emmarchement: o.emmarchement ?? '', nbMarches: o.nbMarches ?? '',
       paillasseL: o.paillasseL ?? '', paillasseEmm: o.paillasseEmm ?? '', paillasseE: o.paillasseE ?? '', nbVolets: o.nbVolets ?? '1',
+      avecNappe2: !!o.avecNappe2,
       n1l1Nuance: o.n1l1Nuance ?? 'HA', n1l1Diam: o.n1l1Diam ?? '10', n1l1Esp: o.n1l1Esp ?? '20',
       n1l2Nuance: o.n1l2Nuance ?? 'HA', n1l2Diam: o.n1l2Diam ?? '10', n1l2Esp: o.n1l2Esp ?? '20',
       n2l1Nuance: o.n2l1Nuance ?? 'HA', n2l1Diam: o.n2l1Diam ?? '10', n2l1Esp: o.n2l1Esp ?? '20',
