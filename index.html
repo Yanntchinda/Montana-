@@ -1983,39 +1983,32 @@ const blocLattesDalle = o => {
 };
 
 const blocLattesCorps = () => {
-  const lignes = corpsLattes.length ? corpsLattes.map(p => `<tr>
-      <td><input class="inp inp-txt" value="${esc(p.nom)}" oninput="majPanneauLatteCorps(${p.id},'nom',this.value)"></td>
-      <td><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(p.L ?? '')}" oninput="majPanneauLatteCorps(${p.id},'L',this.value)"></td>
-      <td><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(p.W ?? '')}" oninput="majPanneauLatteCorps(${p.id},'W',this.value)"></td>
-      <td><input class="inp" type="number" min="0" step="0.01" placeholder="0.30" value="${esc(p.espL ?? '')}" oninput="majPanneauLatteCorps(${p.id},'espL',this.value)"></td>
-      <td><input class="inp" type="number" min="0" step="0.01" placeholder="0.30" value="${esc(p.espW ?? '')}" oninput="majPanneauLatteCorps(${p.id},'espW',this.value)"></td>
-      <td><input class="inp" type="number" min="0" step="1" placeholder="1" value="${esc(p.n ?? '1')}" oninput="majPanneauLatteCorps(${p.id},'n',this.value)"></td>
-      <td class="res" id="ccl-ml-${p.id}">0</td>
-      <td class="res" id="ccl-ex-${p.id}">0</td>
-      <td class="no-print" style="text-align:center"><button class="del-btn" onclick="supprimerPanneauLatteCorps(${p.id})" title="Supprimer ce panneau"><i class="fa-solid fa-trash-can"></i></button></td>
-    </tr>`).join('')
-    : ligneVide(9, 'Aucun panneau de lattes — cliquez sur « Ajouter un panneau »');
+  const cartes = corpsLattes.length ? corpsLattes.map(p => `<div class="semelle-lit" style="margin-top:10px">
+      ${corpsLattes.length > 1 ? `<div class="semelle-nappe-head" style="margin-bottom:10px">
+        <div class="field" style="flex:1;min-width:180px;max-width:320px"><input class="inp inp-txt" value="${esc(p.nom)}" oninput="majPanneauLatteCorps(${p.id},'nom',this.value)"></div>
+        <button class="del-btn no-print" onclick="supprimerPanneauLatteCorps(${p.id})" title="Supprimer ce panneau"><i class="fa-solid fa-trash-can"></i></button>
+      </div>` : ''}
+      <div class="semelle-lit-grid">
+        <div class="field"><label>Longueur du panneau (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(p.L ?? '')}" oninput="majPanneauLatteCorps(${p.id},'L',this.value)"></div>
+        <div class="field"><label>Largeur du panneau (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(p.W ?? '')}" oninput="majPanneauLatteCorps(${p.id},'W',this.value)"></div>
+        <div class="field"><label>Espacement sens longueur (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0.30" value="${esc(p.espL ?? '')}" oninput="majPanneauLatteCorps(${p.id},'espL',this.value)"></div>
+        <div class="field"><label>Espacement sens largeur (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0.30" value="${esc(p.espW ?? '')}" oninput="majPanneauLatteCorps(${p.id},'espW',this.value)"></div>
+        <div class="field"><label>Linéaire total</label><div class="inp semelle-resultat"><b class="res" id="ccl-ml-${p.id}">0</b> m</div></div>
+        <div class="field"><label>Lattes exact (÷ 4,9)</label><div class="inp semelle-resultat"><b class="res" id="ccl-ex-${p.id}">0</b></div></div>
+        <div class="field"><label>Nombre de lattes</label><div class="inp semelle-resultat"><b class="res" id="ccl-nb-${p.id}">0</b></div></div>
+      </div>
+      <div class="semelle-formule">Nombre de lattes = [ ((longueur ÷ espacement sens L) + 1) × largeur + ((largeur ÷ espacement sens l) + 1) × longueur ] ÷ 4,9</div>
+    </div>`).join('')
+    : '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun panneau de lattes — cliquez sur « Ajouter un panneau ».</div></div>';
   return `<div class="subcard semelle-nappe dalle-lattes">
-    <div class="semelle-nappe-head">
+    <div class="semelle-nappe-head" style="margin-bottom:2px">
       <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-grip-lines"></i> Lattes</div>
       <div class="dalle-panneaux-actions">
-        <div class="semelle-nappe-total">Linéaire : <b class="res" id="cc-latte-ml-h">0</b> m · Exact : <b class="res" id="cc-latte-exact-h">0</b> · Nombre de lattes : <b class="res" id="cc-latte-nb-h">0</b></div>
+        <div class="semelle-nappe-total">Nombre de lattes : <b class="res" id="cc-latte-nb-h">0</b> <span style="font-weight:400">(exact : <b class="res" id="cc-latte-exact-h">0</b>)</span></div>
         <button class="btn btn-sm btn-primary no-print" onclick="ajouterPanneauLatteCorps()"><i class="fa-solid fa-plus"></i> Ajouter un panneau</button>
       </div>
     </div>
-    <div class="semelle-lit">
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr>
-            <th>Désignation</th><th class="w-md">Longueur (m)</th><th class="w-md">Largeur (m)</th>
-            <th class="w-md">Esp. sens L (m)</th><th class="w-md">Esp. sens l (m)</th><th class="w-sm">Nb</th>
-            <th class="th-r">Linéaire (m)</th><th class="th-r">Lattes (÷ 4,9)</th><th class="w-sm no-print"></th>
-          </tr></thead>
-          <tbody>${lignes}</tbody>
-        </table>
-      </div>
-      <div class="semelle-formule">Pour chaque panneau : [ ((longueur ÷ espacement sens L) + 1) × largeur + ((largeur ÷ espacement sens l) + 1) × longueur ] × nb ; total ÷ 4,9 (arrondi au supérieur)</div>
-    </div>
+    ${cartes}
   </div>`;
 };
 
@@ -2914,14 +2907,17 @@ function calculer() {
     const latW = Math.max(0, num(p.W));
     const latEspL = Math.max(0, num(p.espL));
     const latEspW = Math.max(0, num(p.espW));
-    const latN = Math.max(0, num(p.n));
+    const latN = p.n === '' || p.n == null ? 1 : Math.max(0, num(p.n));
     const latMlL = latL > 0 && latW > 0 && latEspL > 0 ? (latL / latEspL + 1) * latW : 0;
     const latMlW = latL > 0 && latW > 0 && latEspW > 0 ? (latW / latEspW + 1) * latL : 0;
     const pML = (latMlL + latMlW) * latN;
+    const pEx = pML / 4.9;
+    const pNb = pML > 0 ? Math.ceil(pEx - 1e-9) : 0;
     tCCLatteML += pML;
-    const cPml = $('ccl-ml-' + p.id), cPex = $('ccl-ex-' + p.id);
+    const cPml = $('ccl-ml-' + p.id), cPex = $('ccl-ex-' + p.id), cPnb = $('ccl-nb-' + p.id);
     if (cPml) cPml.innerText = fmt(pML);
-    if (cPex) cPex.innerText = fmt(pML / 4.9);
+    if (cPex) cPex.innerText = fmt(pEx);
+    if (cPnb) cPnb.innerText = fmt(pNb);
   });
   const tCCLatteExact = tCCLatteML / 4.9;
   const tCCLatteCommande = tCCLatteML > 0 ? Math.ceil(tCCLatteExact - 1e-9) : 0;
@@ -2930,8 +2926,7 @@ function calculer() {
   $('cc-latte-ml').innerText = fmt(tCCLatteML);
   $('cc-latte-exact').innerText = fmt(tCCLatteExact);
   $('cc-latte-commande').innerText = fmt(tCCLatteCommande);
-  const cCcLatMlH = $('cc-latte-ml-h'), cCcLatExH = $('cc-latte-exact-h'), cCcLatNbH = $('cc-latte-nb-h');
-  if (cCcLatMlH) cCcLatMlH.innerText = fmt(tCCLatteML);
+  const cCcLatExH = $('cc-latte-exact-h'), cCcLatNbH = $('cc-latte-nb-h');
   if (cCcLatExH) cCcLatExH.innerText = fmt(tCCLatteExact);
   if (cCcLatNbH) cCcLatNbH.innerText = fmt(tCCLatteCommande);
 
