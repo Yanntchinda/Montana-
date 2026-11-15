@@ -213,6 +213,7 @@ td .inp{padding:9px 10px;font-size:13px}
 .semelle-nappe:nth-child(2){border-top-color:#2563eb}
 .semelle-nappe.dalle-cavalier{border-top-color:#7c3aed}
 .semelle-nappe.dalle-lattes{border-top-color:#0f766e}
+.semelle-nappe.dalle-planche{border-top-color:#b45309}
 .semelle-nappe-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .dalle-panneaux-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .semelle-nappe-total{font-size:12px;color:var(--muted);font-weight:600}
@@ -1273,7 +1274,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           <div class="card-head">
             <div class="ch-txt">
               <h3><i class="fa-solid fa-square"></i> Dalle pleine</h3>
-              <div class="ch-sub">Plusieurs panneaux par dalle, Nappes 1 et 2 (Lit 1 et Lit 2), Cavaliers et Lattes multi-panneaux</div>
+              <div class="ch-sub">Plusieurs panneaux par dalle, Nappes 1 et 2 (Lit 1 et Lit 2), Cavaliers, Lattes et Planches</div>
             </div>
             <div class="ch-act">
               <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-dalle" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
@@ -1299,10 +1300,12 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-ruler"></i> Lattes (linéaire)</div><div class="t-val"><span id="dal-latte-ml">0</span><small>m</small></div></div>
               <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-divide"></i> Lattes (exact ÷ 4,9)</div><div class="t-val"><span id="dal-latte-exact">0</span></div></div>
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-grip-lines"></i> Lattes à commander</div><div class="t-val"><span id="dal-latte-commande">0</span></div></div>
+              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-divide"></i> Planches (exact)</div><div class="t-val"><span id="dal-planche-exact">0</span></div></div>
+              <div class="tile"><div class="t-lab"><i class="fa-solid fa-layer-group"></i> Planches à commander</div><div class="t-val"><span id="dal-planche-commande">0</span></div></div>
             </div>
             <div class="note" id="dal-fer-detail" style="margin-top:14px"><i class="fa-solid fa-table-cells-large"></i><div>Aucune armature de dalle calculée.</div></div>
             <div class="note" id="dal-cav-detail" style="margin-top:10px"><i class="fa-solid fa-archway"></i><div>Aucun cavalier calculé.</div></div>
-            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Panneaux de dalle :</b> vous pouvez ajouter autant de panneaux que nécessaire dans une même dalle (Longueur L, Largeur l, Épaisseur, Nb) ; la surface, le volume béton et les armatures cumulent tous les panneaux de la dalle. <b>Pour chaque nappe (Nappe 1 et Nappe 2) :</b> <b>Lit 1 (sens longueur L) :</b> Σ panneaux [(L ÷ espacement) × (largeur + 0,15 m) × nb] ; <b>Lit 2 (sens largeur l) :</b> Σ panneaux [(largeur ÷ espacement) × (L + 0,15 m) × nb]. <b>Cavaliers :</b> (nombre × longueur) ÷ <b>12 m</b>, regroupés par nuance et diamètre. <b>Lattes :</b> plusieurs panneaux possibles, chacun calculé par [ ((longueur ÷ espacement sens L) + 1) × largeur + ((largeur ÷ espacement sens l) + 1) × longueur ] × nb, puis total ÷ <b>4,9</b> (arrondi au supérieur). Les résultats validés (armatures, cavaliers et lattes) alimentent automatiquement le devis.</div></div>
+            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Panneaux de dalle :</b> vous pouvez ajouter autant de panneaux que nécessaire dans une même dalle (Longueur L, Largeur l, Épaisseur, Nb) ; la surface, le volume béton et les armatures cumulent tous les panneaux de la dalle. <b>Pour chaque nappe (Nappe 1 et Nappe 2) :</b> <b>Lit 1 (sens longueur L) :</b> Σ panneaux [(L ÷ espacement) × (largeur + 0,15 m) × nb] ; <b>Lit 2 (sens largeur l) :</b> Σ panneaux [(largeur ÷ espacement) × (L + 0,15 m) × nb]. <b>Cavaliers :</b> (nombre × longueur) ÷ <b>12 m</b>, regroupés par nuance et diamètre. <b>Lattes :</b> plusieurs panneaux possibles, chacun calculé par [ ((longueur ÷ espacement sens L) + 1) × largeur + ((largeur ÷ espacement sens l) + 1) × longueur ] × nb, puis total ÷ <b>4,9</b> (arrondi au supérieur). <b>Planche :</b> surface des panneaux ÷ (longueur d’une planche × largeur d’une planche), arrondi au supérieur et envoyé directement dans la ligne <b>Planche</b> du devis. Les résultats validés (armatures, cavaliers, lattes et planches) alimentent automatiquement le devis.</div></div>
             <div id="validation-module-dalle"></div>
           </div>
         </div>
@@ -1527,7 +1530,7 @@ const ONGLETS = {
   amorce:    { titre: 'Amorce', sub: 'Sections, coffrage et volumes de béton' },
   poutre:    { titre: 'Poutres', sub: 'Coffrage, surfaces et volumes de béton' },
   chenage:   { titre: 'Chenage', sub: 'Coffrage, surfaces et volumes de béton' },
-  dalle:     { titre: 'Dalle pleine', sub: 'Surfaces, volumes, nappes 1 & 2, cavaliers et lattes' },
+  dalle:     { titre: 'Dalle pleine', sub: 'Surfaces, volumes, nappes 1 & 2, cavaliers, lattes et planches' },
   corps:     { titre: 'Dalle à corps creux', sub: 'Hourdis, nervures, longueurs et lattes' },
   semelle:   { titre: 'Semelles', sub: 'Volume de béton et armatures des nappes 1 et 2 (Lit 1 et Lit 2)' },
   crepissage:{ titre: 'Crépissage', sub: 'Surface des murs sur deux faces et surface des dalles' },
@@ -1578,7 +1581,7 @@ const MODULES_VALIDABLES = {
 };
 let calculsModules = { longrine: {}, mur: {}, poteau: {}, amorce: {}, poutre: {}, chenage: {}, maindoeuvre: {}, solivage: {}, dalle: {}, corps: {}, semelle: {} };
 let validationsModules = { longrine: null, mur: null, poteau: null, amorce: null, poutre: null, chenage: null, maindoeuvre: null, solivage: null, dalle: null, corps: null, semelle: null };
-let T = { longVol: 0, longFerML: 0, longFer: 0, longCadreML: 0, longCadre: 0, longEpingleML: 0, longEpingle: 0, sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, potCadreML: 0, potCadre: 0, potEpingleML: 0, potEpingle: 0, amSec: 0, amLat: 0, amVol: 0, amFer: 0, amCadreML: 0, amCadre: 0, amEpingleML: 0, amEpingle: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, pouCadreML: 0, pouCadre: 0, pouEpingleML: 0, pouEpingle: 0, cheCof: 0, cheSur: 0, cheVol: 0, cheFer: 0, cheChap: 0, cheCadreML: 0, cheCadre: 0, cheEpingleML: 0, cheEpingle: 0, dalSurf: 0, dalVol: 0, dalFer: 0, dalCavML: 0, dalCav: 0, dalLatteML: 0, dalLatte: 0, semVol: 0, semFer1: 0, semFer2: 0, semFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0, ccLatteML: 0, ccLatte: 0 };
+let T = { longVol: 0, longFerML: 0, longFer: 0, longCadreML: 0, longCadre: 0, longEpingleML: 0, longEpingle: 0, sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, potCadreML: 0, potCadre: 0, potEpingleML: 0, potEpingle: 0, amSec: 0, amLat: 0, amVol: 0, amFer: 0, amCadreML: 0, amCadre: 0, amEpingleML: 0, amEpingle: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, pouCadreML: 0, pouCadre: 0, pouEpingleML: 0, pouEpingle: 0, cheCof: 0, cheSur: 0, cheVol: 0, cheFer: 0, cheChap: 0, cheCadreML: 0, cheCadre: 0, cheEpingleML: 0, cheEpingle: 0, dalSurf: 0, dalVol: 0, dalFer: 0, dalCavML: 0, dalCav: 0, dalLatteML: 0, dalLatte: 0, dalPlancheExact: 0, dalPlanche: 0, semVol: 0, semFer1: 0, semFer2: 0, semFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0, ccLatteML: 0, ccLatte: 0 };
 
 const copierCalcul = valeur => JSON.parse(JSON.stringify(valeur || {}));
 const calculModuleValideAJour = cle => {
@@ -1688,7 +1691,8 @@ function nouvelleDalle(id, numero = 1) {
     n2l1Nuance: 'HA', n2l1Diam: '10', n2l1Esp: '20',
     n2l2Nuance: 'HA', n2l2Diam: '10', n2l2Esp: '20',
     cavNuance: 'HA', cavDiam: '10', cavL: '', cavNb: '',
-    lattePanneaux: [nouveauPanneauLatte(1)]
+    lattePanneaux: [nouveauPanneauLatte(1)],
+    plancheL: '', plancheW: ''
   };
 }
 function ajouterDalle()  { dalles.push(nouvelleDalle(uid++, dalles.length + 1)); rendre(); }
@@ -1981,6 +1985,23 @@ const blocLattesDalle = o => {
     </div>
   </div>`;
 };
+const blocPlancheDalle = o => `<div class="subcard semelle-nappe dalle-planche">
+  <div class="semelle-nappe-head">
+    <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-layer-group"></i> Planche</div>
+    <div class="semelle-nappe-total">Nombre de planches : <b class="res" id="d-plnb-h-${o.id}">0</b> <span style="font-weight:400">(exact : <b class="res" id="d-plex-h-${o.id}">0</b>)</span></div>
+  </div>
+  <div class="semelle-lit">
+    <div class="semelle-lit-grid">
+      <div class="field"><label>Surface du panneau</label><div class="inp semelle-resultat"><b class="res" id="d-pls-${o.id}">0</b> m²</div></div>
+      <div class="field"><label>Longueur d’une planche (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.plancheL ?? '')}" oninput="maj('dalle',${o.id},'plancheL',this.value)"></div>
+      <div class="field"><label>Largeur d’une planche (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.plancheW ?? '')}" oninput="maj('dalle',${o.id},'plancheW',this.value)"></div>
+      <div class="field"><label>Surface d’une planche</label><div class="inp semelle-resultat"><b class="res" id="d-plsurf-${o.id}">0</b> m²</div></div>
+      <div class="field"><label>Planches exact</label><div class="inp semelle-resultat"><b class="res" id="d-plex-${o.id}">0</b></div></div>
+      <div class="field"><label>Nombre de planches</label><div class="inp semelle-resultat"><b class="res" id="d-plnb-${o.id}">0</b></div></div>
+    </div>
+    <div class="semelle-formule">Nombre de planches = Surface des panneaux ÷ (Longueur d’une planche × Largeur d’une planche) (arrondi au supérieur)</div>
+  </div>
+</div>`;
 
 const blocLattesCorps = () => {
   const cartes = corpsLattes.length ? corpsLattes.map(p => `<div class="semelle-lit" style="margin-top:10px">
@@ -2333,7 +2354,7 @@ function rendre() {
           <tbody>${lignesPanneaux}</tbody>
         </table>
       </div>
-      <div class="semelle-nappes">${blocNappeDalle(o, 1)}${blocNappeDalle(o, 2)}${blocCavalierDalle(o)}${blocLattesDalle(o)}</div>
+      <div class="semelle-nappes">${blocNappeDalle(o, 1)}${blocNappeDalle(o, 2)}${blocCavalierDalle(o)}${blocLattesDalle(o)}${blocPlancheDalle(o)}</div>
       <div class="semelle-nappe-head" style="margin-top:12px;margin-bottom:0;padding-top:10px;border-top:1px solid var(--border)">
         <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-calculator"></i> Total armatures de cette dalle</div>
         <div class="semelle-nappe-total">Fer total : <b class="res" id="d-ft-${o.id}">0</b> ml · Barres totales / 12 m : <b class="res" id="d-fb-${o.id}">0</b></div>
@@ -2754,8 +2775,8 @@ function calculer() {
     ? `<i class="fa-solid fa-link"></i><div><b>Épingles de chenages :</b> ${nuancesEpinglesChenages.map(([nuance, ml]) => `${nuance} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
     : '<i class="fa-solid fa-link"></i><div>Aucune épingle calculée.</div>';
 
-  // --- Dalles pleines & fers : Nappe 1 et Nappe 2 (chacune composée de Lit 1 et Lit 2) + Cavaliers + Lattes ---
-  let tDS = 0, tDV = 0, tDalFerN1 = 0, tDalFerN2 = 0, tDalFerL = 0, tDalFerl = 0, tDalFerML = 0, tDalCavML = 0, tDalLatteML = 0;
+  // --- Dalles pleines & fers : Nappe 1 et Nappe 2 (chacune composée de Lit 1 et Lit 2) + Cavaliers + Lattes + Planche ---
+  let tDS = 0, tDV = 0, tDalFerN1 = 0, tDalFerN2 = 0, tDalFerL = 0, tDalFerl = 0, tDalFerML = 0, tDalCavML = 0, tDalLatteML = 0, tDalPlancheExact = 0;
   const fersDallesParProfil = {};
   const cavaliersDallesParProfil = {};
   dalles.forEach(o => {
@@ -2845,6 +2866,20 @@ function calculer() {
     if (cLatExH) cLatExH.innerText = fmt(latExact);
     if (cLatNbH) cLatNbH.innerText = fmt(latNb);
 
+    // Planche : Surface des panneaux ÷ (Longueur planche × Largeur planche)
+    const plL = Math.max(0, num(o.plancheL));
+    const plW = Math.max(0, num(o.plancheW));
+    const plSurf = plL * plW;
+    const plExact = plSurf > 0 && s > 0 ? s / plSurf : 0;
+    const plNb = plExact > 0 ? Math.ceil(plExact - 1e-9) : 0;
+    const cPlS = $('d-pls-' + o.id), cPlSurf = $('d-plsurf-' + o.id), cPlEx = $('d-plex-' + o.id), cPlExH = $('d-plex-h-' + o.id), cPlNb = $('d-plnb-' + o.id), cPlNbH = $('d-plnb-h-' + o.id);
+    if (cPlS) cPlS.innerText = fmt(s);
+    if (cPlSurf) cPlSurf.innerText = fmt(plSurf);
+    if (cPlEx) cPlEx.innerText = fmt(plExact);
+    if (cPlExH) cPlExH.innerText = fmt(plExact);
+    if (cPlNb) cPlNb.innerText = fmt(plNb);
+    if (cPlNbH) cPlNbH.innerText = fmt(plNb);
+
     tDS += s; tDV += v;
     tDalFerN1 += n1.ml; tDalFerN2 += n2.ml;
     tDalFerL += n1.lit1 + n2.lit1;
@@ -2852,6 +2887,7 @@ function calculer() {
     tDalFerML += ferTotal;
     tDalCavML += cavML;
     tDalLatteML += latML;
+    tDalPlancheExact += plExact;
     const cFt = $('d-ft-' + o.id), cFb = $('d-fb-' + o.id), cS = $('d-s-' + o.id), cV = $('d-v-' + o.id);
     if (cFt) cFt.innerText = fmt(ferTotal);
     if (cFb) cFb.innerText = fmt(ferBarres);
@@ -2866,6 +2902,7 @@ function calculer() {
   const tDalCavCommande = profilsCavDalles.reduce((s, [, ml]) => s + Math.ceil(ml / 12 - 1e-9), 0);
   const tDalLatteExact = tDalLatteML / 4.9;
   const tDalLatteCommande = tDalLatteML > 0 ? Math.ceil(tDalLatteExact - 1e-9) : 0;
+  const tDalPlancheCommande = tDalPlancheExact > 0 ? Math.ceil(tDalPlancheExact - 1e-9) : 0;
   $('dal-surf').innerText = fmt(tDS); $('dal-vol').innerText = fmt(tDV);
   $('dal-fer-n1').innerText = fmt(tDalFerN1);
   $('dal-fer-n2').innerText = fmt(tDalFerN2);
@@ -2880,6 +2917,8 @@ function calculer() {
   $('dal-latte-ml').innerText = fmt(tDalLatteML);
   $('dal-latte-exact').innerText = fmt(tDalLatteExact);
   $('dal-latte-commande').innerText = fmt(tDalLatteCommande);
+  $('dal-planche-exact').innerText = fmt(tDalPlancheExact);
+  $('dal-planche-commande').innerText = fmt(tDalPlancheCommande);
   $('dal-fer-detail').innerHTML = profilsFerDalles.length
     ? `<i class="fa-solid fa-table-cells-large"></i><div><b>Armatures des dalles :</b> ${profilsFerDalles.map(([profil, ml]) => `${libelleFer(profil)} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
     : '<i class="fa-solid fa-table-cells-large"></i><div>Aucune armature de dalle calculée.</div>';
@@ -3123,7 +3162,7 @@ function calculer() {
         amSec: tAmSec, amLat: tAmLat, amVol: tAmVol, amFer: tAmFerCommande, amCadreML: tAmCadreML, amCadre: tAmCadreCommande, amEpingleML: tAmEpingleML, amEpingle: tAmEpingleCommande,
         pouCof: tCof, pouSur: tSur, pouVol: tV, pouFer: tPouFerCommande, pouChap: tChapCommande, pouCadreML: tPouCadreML, pouCadre: tPouCadreCommande, pouEpingleML: tPouEpingleML, pouEpingle: tPouEpingleCommande,
         cheCof: tChCof, cheSur: tChSur, cheVol: tChV, cheFer: tChFerCommande, cheChap: tChChapCommande, cheCadreML: tChCadreML, cheCadre: tChCadreCommande, cheEpingleML: tChEpingleML, cheEpingle: tChEpingleCommande,
-        dalSurf: tDS, dalVol: tDV, dalFer: tDalFerCommande, dalCavML: tDalCavML, dalCav: tDalCavCommande, dalLatteML: tDalLatteML, dalLatte: tDalLatteCommande, semVol: tSemVol, semFer1: tSemFer1, semFer2: tSemFer2, semFer: tSemFerCommande,
+        dalSurf: tDS, dalVol: tDV, dalFer: tDalFerCommande, dalCavML: tDalCavML, dalCav: tDalCavCommande, dalLatteML: tDalLatteML, dalLatte: tDalLatteCommande, dalPlancheExact: tDalPlancheExact, dalPlanche: tDalPlancheCommande, semVol: tSemVol, semFer1: tSemFer1, semFer2: tSemFer2, semFer: tSemFerCommande,
         crepMurNet, crepMur, crepDalle, crepTotal, crepEpaisseur, crepVolume, crepDosage, crepCiment, crepDosageSable, crepSable,
         ccSurf: tCS, ccHour: tCH, ccNerv: tCN, ccLg: tCG, ccLatteML: tCCLatteML, ccLatte: tCCLatteCommande };
 
@@ -3175,7 +3214,7 @@ function calculer() {
     amorce: { volume: tAmVol, ferMetres: tAmFerML, cadreMetres: tAmCadreML, epingleMetres: tAmEpingleML, fers: fersAmorcesCommande, cadres: cadresAmorcesCommande, epingles: epinglesAmorcesCommande },
     poutre: { volume: tV, cadreMetres: tPouCadreML, epingleMetres: tPouEpingleML, fers: fersPoutresCommande, chapeaux: chapeauxCommande, cadres: cadresPoutresCommande, epingles: epinglesPoutresCommande },
     chenage: { volume: tChV, cadreMetres: tChCadreML, epingleMetres: tChEpingleML, fers: fersChenagesCommande, chapeaux: chapeauxChenagesCommande, cadres: cadresChenagesCommande, epingles: epinglesChenagesCommande },
-    dalle: { surface: tDS, volume: tDV, fers: fersDallesCommande, cavalierMetres: tDalCavML, cavaliers: cavaliersDallesCommande, latteMetres: tDalLatteML, lattes: tDalLatteCommande },
+    dalle: { surface: tDS, volume: tDV, fers: fersDallesCommande, cavalierMetres: tDalCavML, cavaliers: cavaliersDallesCommande, latteMetres: tDalLatteML, lattes: tDalLatteCommande, plancheExact: tDalPlancheExact, planches: tDalPlancheCommande },
     corps: { surface: tCS, hourdis: tCH, nervures: tCG, latteMetres: tCCLatteML, lattes: tCCLatteCommande },
     semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande },
     maindoeuvre: { lignes: mainsOeuvre.map(o => ({ designation: o.designation, unite: o.unite, qte: o.qte, pu: o.pu })), total: totalMo },
@@ -3216,6 +3255,7 @@ function calculer() {
   G.ferDalles = copierCalcul(dalleValidee?.fers);
   G.ferCavaliersDalles = copierCalcul(dalleValidee?.cavaliers);
   G.lattesDalles = dalleValidee?.lattes || 0;
+  G.planchesDalles = dalleValidee?.planches || 0;
   G.ferSemelles = copierCalcul(semelleValidee?.fers);
   syncFersDevis();
   rendreDevis();
@@ -3224,7 +3264,7 @@ function calculer() {
 /* ============================================================
    DEVIS QUANTITATIF
    ============================================================ */
-let G = { beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferLongrines: {}, ferCadresLongrines: {}, ferEpinglesLongrines: {}, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferAmorces: {}, ferCadresAmorces: {}, ferEpinglesAmorces: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferChenages: {}, ferChapeauxChenages: {}, ferCadresChenages: {}, ferEpinglesChenages: {}, ferDalles: {}, ferCavaliersDalles: {}, lattesDalles: 0, lattesCorps: 0, ferSemelles: {} };
+let G = { beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferLongrines: {}, ferCadresLongrines: {}, ferEpinglesLongrines: {}, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferAmorces: {}, ferCadresAmorces: {}, ferEpinglesAmorces: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferChenages: {}, ferChapeauxChenages: {}, ferCadresChenages: {}, ferEpinglesChenages: {}, ferDalles: {}, ferCavaliersDalles: {}, lattesDalles: 0, planchesDalles: 0, lattesCorps: 0, ferSemelles: {} };
 let dvId = 1000;
 function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', total: null, auto }; }
 let devis = [
@@ -3523,6 +3563,18 @@ function syncFersDevis() {
   };
   syncLigneLatte('dalle-lattes', 'Lattes dalle pleine', G.lattesDalles);
   syncLigneLatte('corps-lattes', 'Lattes dalle corps creux', G.lattesCorps);
+  if (materiels && G.planchesDalles > 0) {
+    let l = materiels.lignes.find(x => x.auto === 'dalle-planches')
+      || materiels.lignes.find(x => /^planche\b/i.test((x.des || '').trim()));
+    if (!l) {
+      l = { id: dvId++, des: 'Planche', unite: 'u', qte: null, pu: '0', total: null, auto: 'dalle-planches' };
+      materiels.lignes.unshift(l);
+    } else {
+      l.auto = 'dalle-planches';
+      if (!l.unite || l.unite === '/') l.unite = 'u';
+    }
+    l.qte = null;
+  }
 }
 function migrerFersDevis() {
   const materiaux = devis.find(s => s.n === 'II');
@@ -3573,6 +3625,7 @@ function autoVal(l) {
     case 'crep-ciment': return crepValidation?.ciment || 0;
     case 'crep-sable': return crepValidation?.sable || 0;
     case 'dalle-lattes': return G.lattesDalles;
+    case 'dalle-planches': return G.planchesDalles;
     case 'corps-lattes': return G.lattesCorps;
   }
   return 0;
@@ -3724,7 +3777,7 @@ function updateDashboard() {
   $('nav-v-amorce').textContent = fmt(T.amVol) + ' m³ · ' + fmt(T.amFer) + ' fers · ' + fmt(T.amCadre) + ' cadres · ' + fmt(T.amEpingle) + ' épingles';
   $('nav-v-poutre').textContent = fmt(T.pouVol) + ' m³ · ' + fmt(T.pouFer) + ' fers · ' + fmt(T.pouChap) + ' chapeaux · ' + fmt(T.pouCadre) + ' cadres · ' + fmt(T.pouEpingle) + ' épingles';
   $('nav-v-chenage').textContent = fmt(T.cheVol) + ' m³ · ' + fmt(T.cheFer) + ' fers · ' + fmt(T.cheChap) + ' chapeaux · ' + fmt(T.cheCadre) + ' cadres · ' + fmt(T.cheEpingle) + ' épingles';
-  $('nav-v-dalle').textContent = fmt(T.dalVol) + ' m³ · ' + fmt(T.dalFer) + ' barres · ' + fmt(T.dalCav) + ' cavaliers · ' + fmt(T.dalLatte) + ' lattes';
+  $('nav-v-dalle').textContent = fmt(T.dalVol) + ' m³ · ' + fmt(T.dalFer) + ' barres · ' + fmt(T.dalCav) + ' cavaliers · ' + fmt(T.dalLatte) + ' lattes · ' + fmt(T.dalPlanche) + ' planches';
   $('nav-v-corps').textContent = fmt(T.ccHour) + ' hourdis · ' + fmt(T.ccSurf) + ' m² · ' + fmt(T.ccLatte) + ' lattes';
   $('nav-v-semelle').textContent = fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres';
   $('nav-v-crepissage').textContent = fmt(T.crepTotal) + ' m² · ' + fmt(T.crepVolume) + ' m³ · ' + fmt(T.crepCiment) + ' sacs · ' + fmt(T.crepSable) + ' m³ sable';
@@ -3916,7 +3969,9 @@ function charger() {
       cavDiam: o.cavDiam ?? '10',
       cavL: o.cavL ?? '',
       cavNb: o.cavNb ?? '',
-      lattePanneaux: normaliserLattePanneauxDalle(o)
+      lattePanneaux: normaliserLattePanneauxDalle(o),
+      plancheL: o.plancheL ?? '',
+      plancheW: o.plancheW ?? ''
     }));
     corps = d.corps || [];
     corpsLattes = Array.isArray(d.corpsLattes)
