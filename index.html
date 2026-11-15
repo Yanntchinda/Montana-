@@ -214,6 +214,7 @@ td .inp{padding:9px 10px;font-size:13px}
 .semelle-nappe.dalle-cavalier{border-top-color:#7c3aed}
 .semelle-nappe.dalle-lattes{border-top-color:#0f766e}
 .semelle-nappe-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.dalle-panneaux-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .semelle-nappe-total{font-size:12px;color:var(--muted);font-weight:600}
 .semelle-lits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .semelle-lit{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px}
@@ -1272,7 +1273,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           <div class="card-head">
             <div class="ch-txt">
               <h3><i class="fa-solid fa-square"></i> Dalle pleine</h3>
-              <div class="ch-sub">Nappes 1 et 2 (Lit 1 et Lit 2 indépendants), Cavaliers et Lattes</div>
+              <div class="ch-sub">Plusieurs panneaux par dalle, Nappes 1 et 2 (Lit 1 et Lit 2), Cavaliers et Lattes multi-panneaux</div>
             </div>
             <div class="ch-act">
               <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-dalle" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
@@ -1301,7 +1302,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
             </div>
             <div class="note" id="dal-fer-detail" style="margin-top:14px"><i class="fa-solid fa-table-cells-large"></i><div>Aucune armature de dalle calculée.</div></div>
             <div class="note" id="dal-cav-detail" style="margin-top:10px"><i class="fa-solid fa-archway"></i><div>Aucun cavalier calculé.</div></div>
-            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Pour chaque nappe (Nappe 1 et Nappe 2) :</b> <b>Lit 1 (sens longueur L) :</b> (L ÷ espacement) × (largeur + 0,15 m) × nb dalles ; <b>Lit 2 (sens largeur l) :</b> (largeur ÷ espacement) × (L + 0,15 m) × nb dalles. Chaque lit possède sa propre nuance, son propre diamètre et son propre espacement (en cm). <b>Cavaliers :</b> (nombre × longueur) ÷ <b>12 m</b>, regroupés par nuance et diamètre. <b>Lattes :</b> [ ((longueur panneau ÷ espacement longueur) + 1) × largeur panneau + ((largeur panneau ÷ espacement largeur) + 1) × longueur panneau ] ÷ <b>4,9</b> (arrondi au supérieur). Les résultats validés (armatures, cavaliers et lattes) alimentent automatiquement le devis.</div></div>
+            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Panneaux de dalle :</b> vous pouvez ajouter autant de panneaux que nécessaire dans une même dalle (Longueur L, Largeur l, Épaisseur, Nb) ; la surface, le volume béton et les armatures cumulent tous les panneaux de la dalle. <b>Pour chaque nappe (Nappe 1 et Nappe 2) :</b> <b>Lit 1 (sens longueur L) :</b> Σ panneaux [(L ÷ espacement) × (largeur + 0,15 m) × nb] ; <b>Lit 2 (sens largeur l) :</b> Σ panneaux [(largeur ÷ espacement) × (L + 0,15 m) × nb]. <b>Cavaliers :</b> (nombre × longueur) ÷ <b>12 m</b>, regroupés par nuance et diamètre. <b>Lattes :</b> plusieurs panneaux possibles, chacun calculé par [ ((longueur ÷ espacement sens L) + 1) × largeur + ((largeur ÷ espacement sens l) + 1) × longueur ] × nb, puis total ÷ <b>4,9</b> (arrondi au supérieur). Les résultats validés (armatures, cavaliers et lattes) alimentent automatiquement le devis.</div></div>
             <div id="validation-module-dalle"></div>
           </div>
         </div>
@@ -1641,18 +1642,88 @@ function ajouterPoteau() { poteaux.push({ id: uid++, nom: 'Poteau ' + (poteaux.l
 function ajouterAmorce() { amorces.push({ id: uid++, nom: 'Amorce ' + (amorces.length + 1), forme: 'rect', a: '', b: '', H: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '', ferNb: '4', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' }); rendre(); }
 function ajouterPoutre() { poutres.push({ id: uid++, nom: 'Poutre ' + (poutres.length + 1), b: '0.15', h: '0.20', L: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferNb: '4', chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' }); rendre(); }
 function ajouterChenage() { chenages.push({ id: uid++, nom: 'Chenage ' + (chenages.length + 1), b: '0.15', h: '0.20', L: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferNb: '4', chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' }); rendre(); }
+function nouveauPanneauDalle(numero = 1, L = '', l = '', e = '0.15', n = '1') {
+  return { id: uid++, nom: 'Panneau ' + numero, L, l, e, n };
+}
+function normaliserPanneauxDalle(o) {
+  if (Array.isArray(o.panneaux)) {
+    return o.panneaux.map((p, idx) => ({
+      id: p.id ?? uid++,
+      nom: p.nom ?? ('Panneau ' + (idx + 1)),
+      L: p.L ?? '',
+      l: p.l ?? '',
+      e: p.e ?? '0.15',
+      n: p.n ?? '1'
+    }));
+  }
+  return [nouveauPanneauDalle(1, o.L ?? '', o.l ?? '', o.e ?? '0.15', o.n ?? '1')];
+}
+function nouveauPanneauLatte(numero = 1, L = '', W = '', espL = '', espW = '', n = '1') {
+  return { id: uid++, nom: 'Panneau ' + numero, L, W, espL, espW, n };
+}
+function normaliserLattePanneauxDalle(o) {
+  if (Array.isArray(o.lattePanneaux)) {
+    return o.lattePanneaux.map((p, idx) => ({
+      id: p.id ?? uid++,
+      nom: p.nom ?? ('Panneau ' + (idx + 1)),
+      L: p.L ?? '',
+      W: p.W ?? '',
+      espL: p.espL ?? '',
+      espW: p.espW ?? '',
+      n: p.n ?? '1'
+    }));
+  }
+  return [nouveauPanneauLatte(1, o.latteL ?? '', o.latteW ?? '', o.latteEspL ?? '', o.latteEspW ?? '', '1')];
+}
 function nouvelleDalle(id, numero = 1) {
   return {
-    id, nom: 'Dalle ' + numero, L: '', l: '', e: '0.15', n: '1',
+    id, nom: 'Dalle ' + numero,
+    panneaux: [nouveauPanneauDalle(1)],
     n1l1Nuance: 'HA', n1l1Diam: '10', n1l1Esp: '20',
     n1l2Nuance: 'HA', n1l2Diam: '10', n1l2Esp: '20',
     n2l1Nuance: 'HA', n2l1Diam: '10', n2l1Esp: '20',
     n2l2Nuance: 'HA', n2l2Diam: '10', n2l2Esp: '20',
     cavNuance: 'HA', cavDiam: '10', cavL: '', cavNb: '',
-    latteL: '', latteW: '', latteEspL: '', latteEspW: ''
+    lattePanneaux: [nouveauPanneauLatte(1)]
   };
 }
 function ajouterDalle()  { dalles.push(nouvelleDalle(uid++, dalles.length + 1)); rendre(); }
+function ajouterPanneauDalle(dalleId) {
+  const o = dalles.find(x => x.id === dalleId); if (!o) return;
+  if (!Array.isArray(o.panneaux)) o.panneaux = normaliserPanneauxDalle(o);
+  const dernier = o.panneaux[o.panneaux.length - 1];
+  o.panneaux.push(nouveauPanneauDalle(o.panneaux.length + 1, '', '', dernier?.e || '0.15', '1'));
+  rendre();
+}
+function supprimerPanneauDalle(dalleId, panneauId) {
+  const o = dalles.find(x => x.id === dalleId); if (!o || !Array.isArray(o.panneaux)) return;
+  o.panneaux = o.panneaux.filter(p => p.id !== panneauId);
+  rendre();
+}
+function majPanneauDalle(dalleId, panneauId, champ, val) {
+  const o = dalles.find(x => x.id === dalleId); if (!o || !Array.isArray(o.panneaux)) return;
+  const p = o.panneaux.find(x => x.id === panneauId); if (!p) return;
+  p[champ] = val;
+  calculer();
+}
+function ajouterPanneauLatteDalle(dalleId) {
+  const o = dalles.find(x => x.id === dalleId); if (!o) return;
+  if (!Array.isArray(o.lattePanneaux)) o.lattePanneaux = normaliserLattePanneauxDalle(o);
+  const dernier = o.lattePanneaux[o.lattePanneaux.length - 1];
+  o.lattePanneaux.push(nouveauPanneauLatte(o.lattePanneaux.length + 1, '', '', dernier?.espL ?? '', dernier?.espW ?? '', '1'));
+  rendre();
+}
+function supprimerPanneauLatteDalle(dalleId, panneauId) {
+  const o = dalles.find(x => x.id === dalleId); if (!o || !Array.isArray(o.lattePanneaux)) return;
+  o.lattePanneaux = o.lattePanneaux.filter(p => p.id !== panneauId);
+  rendre();
+}
+function majPanneauLatteDalle(dalleId, panneauId, champ, val) {
+  const o = dalles.find(x => x.id === dalleId); if (!o || !Array.isArray(o.lattePanneaux)) return;
+  const p = o.lattePanneaux.find(x => x.id === panneauId); if (!p) return;
+  p[champ] = val;
+  calculer();
+}
 function ajouterCorps()  { corps.push({ id: uid++, nom: 'Panneau ' + (corps.length + 1), L: '', l: '', pb: '0.15', n: '1' }); rendre(); }
 function nouvelleLongrine(id, numero = 1) {
   return { id, nom: 'Longrine ' + numero, L: '', l: '', h: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferL: '', ferCrochet: '', ferNb: '', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' };
@@ -1812,8 +1883,8 @@ const blocLitDalle = (o, nappe, lit) => {
   const esp = o[p + 'Esp'] ?? o['ferEsp' + sensSuffix] ?? o.ferEsp ?? '20';
   const sensLabel = lit === 1 ? 'sens longueur L' : 'sens largeur l';
   const formule = lit === 1
-    ? '(L ÷ espacement) × (largeur + 0,15 m) × nb dalles'
-    : '(largeur ÷ espacement) × (L + 0,15 m) × nb dalles';
+    ? 'Σ panneaux : (L ÷ espacement) × (largeur + 0,15 m) × nb'
+    : 'Σ panneaux : (largeur ÷ espacement) × (L + 0,15 m) × nb';
   return `<div class="subcard semelle-lit">
     <div class="subcard-title"><i class="fa-solid fa-bars"></i> Lit ${lit} — ${sensLabel}</div>
     <div class="semelle-lit-grid">
@@ -1855,24 +1926,43 @@ const blocCavalierDalle = o => {
     </div>
   </div>`;
 };
-const blocLattesDalle = o => `<div class="subcard semelle-nappe dalle-lattes">
-  <div class="semelle-nappe-head">
-    <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-grip-lines"></i> Lattes</div>
-    <div class="semelle-nappe-total">Nombre de lattes : <b class="res" id="d-latnb-h-${o.id}">0</b> <span style="font-weight:400">(exact : <b class="res" id="d-latex-h-${o.id}">0</b>)</span></div>
-  </div>
-  <div class="semelle-lit">
-    <div class="semelle-lit-grid">
-      <div class="field"><label>Longueur du panneau (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.latteL ?? '')}" oninput="maj('dalle',${o.id},'latteL',this.value)"></div>
-      <div class="field"><label>Largeur du panneau (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.latteW ?? '')}" oninput="maj('dalle',${o.id},'latteW',this.value)"></div>
-      <div class="field"><label>Espacement sens longueur (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0.30" value="${esc(o.latteEspL ?? '')}" oninput="maj('dalle',${o.id},'latteEspL',this.value)"></div>
-      <div class="field"><label>Espacement sens largeur (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0.30" value="${esc(o.latteEspW ?? '')}" oninput="maj('dalle',${o.id},'latteEspW',this.value)"></div>
-      <div class="field"><label>Linéaire total</label><div class="inp semelle-resultat"><b class="res" id="d-latml-${o.id}">0</b> m</div></div>
-      <div class="field"><label>Lattes exact (÷ 4,9)</label><div class="inp semelle-resultat"><b class="res" id="d-latex-${o.id}">0</b></div></div>
-      <div class="field"><label>Nombre de lattes</label><div class="inp semelle-resultat"><b class="res" id="d-latnb-${o.id}">0</b></div></div>
+const blocLattesDalle = o => {
+  if (!Array.isArray(o.lattePanneaux)) o.lattePanneaux = normaliserLattePanneauxDalle(o);
+  const lignes = o.lattePanneaux.length ? o.lattePanneaux.map(p => `<tr>
+      <td><input class="inp inp-txt" value="${esc(p.nom)}" oninput="majPanneauLatteDalle(${o.id},${p.id},'nom',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(p.L ?? '')}" oninput="majPanneauLatteDalle(${o.id},${p.id},'L',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(p.W ?? '')}" oninput="majPanneauLatteDalle(${o.id},${p.id},'W',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="0.01" placeholder="0.30" value="${esc(p.espL ?? '')}" oninput="majPanneauLatteDalle(${o.id},${p.id},'espL',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="0.01" placeholder="0.30" value="${esc(p.espW ?? '')}" oninput="majPanneauLatteDalle(${o.id},${p.id},'espW',this.value)"></td>
+      <td><input class="inp" type="number" min="0" step="1" placeholder="1" value="${esc(p.n ?? '1')}" oninput="majPanneauLatteDalle(${o.id},${p.id},'n',this.value)"></td>
+      <td class="res" id="dl-ml-${o.id}-${p.id}">0</td>
+      <td class="res" id="dl-ex-${o.id}-${p.id}">0</td>
+      <td class="no-print" style="text-align:center"><button class="del-btn" onclick="supprimerPanneauLatteDalle(${o.id},${p.id})" title="Supprimer ce panneau"><i class="fa-solid fa-trash-can"></i></button></td>
+    </tr>`).join('')
+    : ligneVide(9, 'Aucun panneau de lattes — cliquez sur « Ajouter un panneau »');
+  return `<div class="subcard semelle-nappe dalle-lattes">
+    <div class="semelle-nappe-head">
+      <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-grip-lines"></i> Lattes</div>
+      <div class="dalle-panneaux-actions">
+        <div class="semelle-nappe-total">Linéaire : <b class="res" id="d-latml-${o.id}">0</b> m · Exact : <b class="res" id="d-latex-h-${o.id}">0</b> · Nombre de lattes : <b class="res" id="d-latnb-h-${o.id}">0</b></div>
+        <button class="btn btn-sm btn-primary no-print" onclick="ajouterPanneauLatteDalle(${o.id})"><i class="fa-solid fa-plus"></i> Ajouter un panneau</button>
+      </div>
     </div>
-    <div class="semelle-formule">Nombre de lattes = [ ((longueur ÷ espacement sens L) + 1) × largeur + ((largeur ÷ espacement sens l) + 1) × longueur ] ÷ 4,9</div>
-  </div>
-</div>`;
+    <div class="semelle-lit">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Désignation</th><th class="w-md">Longueur (m)</th><th class="w-md">Largeur (m)</th>
+            <th class="w-md">Esp. sens L (m)</th><th class="w-md">Esp. sens l (m)</th><th class="w-sm">Nb</th>
+            <th class="th-r">Linéaire (m)</th><th class="th-r">Lattes (÷ 4,9)</th><th class="w-sm no-print"></th>
+          </tr></thead>
+          <tbody>${lignes}</tbody>
+        </table>
+      </div>
+      <div class="semelle-formule">Pour chaque panneau : [ ((longueur ÷ espacement sens L) + 1) × largeur + ((largeur ÷ espacement sens l) + 1) × longueur ] × nb ; total ÷ 4,9 (arrondi au supérieur)</div>
+    </div>
+  </div>`;
+};
 
 function rendre() {
   $('liste-longrines').innerHTML = longrines.length ? longrines.map(o => `<div class="subcard longrine-ligne">
@@ -2159,26 +2249,48 @@ function rendre() {
     </div>`).join('')
     : '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucune semelle — cliquez sur « Ajouter une semelle ».</div></div>';
 
-  $('liste-dalles').innerHTML = dalles.length ? dalles.map(o => `<div class="subcard semelle-ligne">
+  $('liste-dalles').innerHTML = dalles.length ? dalles.map(o => {
+    if (!Array.isArray(o.panneaux)) o.panneaux = normaliserPanneauxDalle(o);
+    const lignesPanneaux = o.panneaux.length ? o.panneaux.map(p => `<tr>
+        <td><input class="inp inp-txt" value="${esc(p.nom)}" oninput="majPanneauDalle(${o.id},${p.id},'nom',this.value)"></td>
+        <td><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(p.L ?? '')}" oninput="majPanneauDalle(${o.id},${p.id},'L',this.value)"></td>
+        <td><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(p.l ?? '')}" oninput="majPanneauDalle(${o.id},${p.id},'l',this.value)"></td>
+        <td><input class="inp" type="number" min="0" step="0.01" placeholder="0.15" value="${esc(p.e ?? '0.15')}" oninput="majPanneauDalle(${o.id},${p.id},'e',this.value)"></td>
+        <td><input class="inp" type="number" min="0" step="1" placeholder="1" value="${esc(p.n ?? '1')}" oninput="majPanneauDalle(${o.id},${p.id},'n',this.value)"></td>
+        <td class="res" id="dp-s-${o.id}-${p.id}">0</td>
+        <td class="res" id="dp-v-${o.id}-${p.id}">0</td>
+        <td class="no-print" style="text-align:center"><button class="del-btn" onclick="supprimerPanneauDalle(${o.id},${p.id})" title="Supprimer ce panneau"><i class="fa-solid fa-trash-can"></i></button></td>
+      </tr>`).join('')
+      : ligneVide(8, 'Aucun panneau — cliquez sur « Ajouter un panneau »');
+    return `<div class="subcard semelle-ligne">
       <div class="semelle-entete">
         <div class="field"><label>Désignation</label>${inp('dalle', o, 'nom', 'inp-txt')}</div>
         <button class="btn btn-sm btn-danger no-print" onclick="supprimer('dalle',${o.id})"><i class="fa-solid fa-trash-can"></i> Supprimer</button>
       </div>
-      <div class="subcard-title"><i class="fa-solid fa-ruler-combined"></i> Dimensions, surface et volume</div>
-      <div class="grid g6">
-        <div class="field"><label>Longueur L (m)</label>${inp('dalle', o, 'L')}</div>
-        <div class="field"><label>Largeur l (m)</label>${inp('dalle', o, 'l')}</div>
-        <div class="field"><label>Épaisseur (m)</label>${inp('dalle', o, 'e')}</div>
-        <div class="field"><label>Nb dalles</label>${inp('dalle', o, 'n')}</div>
-        <div class="field"><label>Surface</label><div class="inp semelle-resultat"><b class="res" id="d-s-${o.id}">0</b> m²</div></div>
-        <div class="field"><label>Volume béton</label><div class="inp semelle-resultat"><b class="res" id="d-v-${o.id}">0</b> m³</div></div>
+      <div class="semelle-nappe-head">
+        <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-ruler-combined"></i> Dimensions, surface et volume</div>
+        <div class="dalle-panneaux-actions">
+          <div class="semelle-nappe-total">Surface : <b class="res" id="d-s-${o.id}">0</b> m² · Volume béton : <b class="res" id="d-v-${o.id}">0</b> m³</div>
+          <button class="btn btn-sm btn-primary no-print" onclick="ajouterPanneauDalle(${o.id})"><i class="fa-solid fa-plus"></i> Ajouter un panneau</button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Désignation</th><th class="w-md">Longueur L (m)</th><th class="w-md">Largeur l (m)</th>
+            <th class="w-md">Épaisseur (m)</th><th class="w-sm">Nb</th>
+            <th class="th-r">Surface (m²)</th><th class="th-r">Volume béton (m³)</th><th class="w-sm no-print"></th>
+          </tr></thead>
+          <tbody>${lignesPanneaux}</tbody>
+        </table>
       </div>
       <div class="semelle-nappes">${blocNappeDalle(o, 1)}${blocNappeDalle(o, 2)}${blocCavalierDalle(o)}${blocLattesDalle(o)}</div>
       <div class="semelle-nappe-head" style="margin-top:12px;margin-bottom:0;padding-top:10px;border-top:1px solid var(--border)">
         <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-calculator"></i> Total armatures de cette dalle</div>
         <div class="semelle-nappe-total">Fer total : <b class="res" id="d-ft-${o.id}">0</b> ml · Barres totales / 12 m : <b class="res" id="d-fb-${o.id}">0</b></div>
       </div>
-    </div>`).join('')
+    </div>`;
+  }).join('')
     : '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucune dalle — cliquez sur « Ajouter une dalle ».</div></div>';
 
   $('tb-crep-murs').innerHTML = crepMurs.length ? crepMurs.map(o => `<tr>
@@ -2598,14 +2710,30 @@ function calculer() {
   const fersDallesParProfil = {};
   const cavaliersDallesParProfil = {};
   dalles.forEach(o => {
-    const L = Math.max(0, num(o.L)), l = Math.max(0, num(o.l)), n = Math.max(0, num(o.n));
-    const s = L * l * n, v = s * num(o.e);
+    if (!Array.isArray(o.panneaux)) o.panneaux = normaliserPanneauxDalle(o);
+    if (!Array.isArray(o.lattePanneaux)) o.lattePanneaux = normaliserLattePanneauxDalle(o);
+    let s = 0, v = 0;
+    o.panneaux.forEach(p => {
+      const pL = Math.max(0, num(p.L)), pl = Math.max(0, num(p.l)), pe = Math.max(0, num(p.e)), pn = Math.max(0, num(p.n));
+      const ps = pL * pl * pn, pv = ps * pe;
+      s += ps; v += pv;
+      const cPs = $(`dp-s-${o.id}-${p.id}`), cPv = $(`dp-v-${o.id}-${p.id}`);
+      if (cPs) cPs.innerText = fmt(ps);
+      if (cPv) cPv.innerText = fmt(pv);
+    });
     const calculLit = (nappe, lit) => {
       const p = `n${nappe}l${lit}`;
       const sensSuffix = lit === 1 ? 'Long' : 'Larg';
       const esp = Math.max(0, num(o[p + 'Esp'] ?? o['ferEsp' + sensSuffix] ?? o.ferEsp)) / 100; // cm → m
-      const nb = esp > 0 ? ((lit === 1 ? L : l) / esp) * n : 0;
-      const ml = nb * ((lit === 1 ? l : L) + 0.15); // +15 cm automatique sur chaque barre
+      let nb = 0, ml = 0;
+      if (esp > 0) {
+        o.panneaux.forEach(pan => {
+          const pL = Math.max(0, num(pan.L)), pl = Math.max(0, num(pan.l)), pn = Math.max(0, num(pan.n));
+          const panNb = ((lit === 1 ? pL : pl) / esp) * pn;
+          nb += panNb;
+          ml += panNb * ((lit === 1 ? pl : pL) + 0.15); // +15 cm automatique sur chaque barre
+        });
+      }
       const nuance = (o[p + 'Nuance'] ?? o['ferNuance' + sensSuffix] ?? o.ferNuance) === 'RL' ? 'RL' : 'HA';
       const diam = String(o[p + 'Diam'] ?? o['ferDiam' + sensSuffix] ?? o.ferDiam ?? '10');
       const profil = `${nuance}:${diam}`;
@@ -2645,21 +2773,27 @@ function calculer() {
     if (cCavBarH) cCavBarH.innerText = fmt(cavBarres);
     if (cCavCmdH) cCavCmdH.innerText = fmt(cavCmd);
 
-    // Lattes : [ ((longueur ÷ espL) + 1) × largeur + ((largeur ÷ espW) + 1) × longueur ] ÷ 4,9
-    const latL = Math.max(0, num(o.latteL));
-    const latW = Math.max(0, num(o.latteW));
-    const latEspL = Math.max(0, num(o.latteEspL));
-    const latEspW = Math.max(0, num(o.latteEspW));
-    const latMlL = latL > 0 && latW > 0 && latEspL > 0 ? (latL / latEspL + 1) * latW : 0;
-    const latMlW = latL > 0 && latW > 0 && latEspW > 0 ? (latW / latEspW + 1) * latL : 0;
-    const latML = latMlL + latMlW;
+    // Lattes (multi-panneaux) : Σ [ ((L ÷ espL) + 1) × W + ((W ÷ espW) + 1) × L ] × nb, puis ÷ 4,9
+    let latML = 0;
+    o.lattePanneaux.forEach(p => {
+      const latL = Math.max(0, num(p.L));
+      const latW = Math.max(0, num(p.W));
+      const latEspL = Math.max(0, num(p.espL));
+      const latEspW = Math.max(0, num(p.espW));
+      const latN = Math.max(0, num(p.n));
+      const latMlL = latL > 0 && latW > 0 && latEspL > 0 ? (latL / latEspL + 1) * latW : 0;
+      const latMlW = latL > 0 && latW > 0 && latEspW > 0 ? (latW / latEspW + 1) * latL : 0;
+      const pML = (latMlL + latMlW) * latN;
+      latML += pML;
+      const cPml = $(`dl-ml-${o.id}-${p.id}`), cPex = $(`dl-ex-${o.id}-${p.id}`);
+      if (cPml) cPml.innerText = fmt(pML);
+      if (cPex) cPex.innerText = fmt(pML / 4.9);
+    });
     const latExact = latML / 4.9;
     const latNb = latML > 0 ? Math.ceil(latExact - 1e-9) : 0;
-    const cLatMl = $('d-latml-' + o.id), cLatEx = $('d-latex-' + o.id), cLatExH = $('d-latex-h-' + o.id), cLatNb = $('d-latnb-' + o.id), cLatNbH = $('d-latnb-h-' + o.id);
+    const cLatMl = $('d-latml-' + o.id), cLatExH = $('d-latex-h-' + o.id), cLatNbH = $('d-latnb-h-' + o.id);
     if (cLatMl) cLatMl.innerText = fmt(latML);
-    if (cLatEx) cLatEx.innerText = fmt(latExact);
     if (cLatExH) cLatExH.innerText = fmt(latExact);
-    if (cLatNb) cLatNb.innerText = fmt(latNb);
     if (cLatNbH) cLatNbH.innerText = fmt(latNb);
 
     tDS += s; tDV += v;
@@ -3555,7 +3689,7 @@ function updateDashboard() {
     { k: 'amorce', ico: 'fa-ruler-vertical', label: 'Amorce', detail: amorces.length + ' amorce(s) saisie(s)', val: fmt(T.amVol) + ' m³' },
     { k: 'poutre', ico: 'fa-grip-lines', label: 'Poutres', detail: poutres.length + ' poutre(s) saisie(s)', val: fmt(T.pouVol) + ' m³' },
     { k: 'chenage', ico: 'fa-link', label: 'Chenage', detail: chenages.length + ' chenage(s) saisi(s)', val: fmt(T.cheVol) + ' m³' },
-    { k: 'dalle', ico: 'fa-square', label: 'Dalles pleines', detail: dalles.length + ' dalle(s) saisie(s)', val: fmt(T.dalSurf) + ' m²' },
+    { k: 'dalle', ico: 'fa-square', label: 'Dalles pleines', detail: dalles.length + ' dalle(s) · ' + dalles.reduce((a, o) => a + (Array.isArray(o.panneaux) ? o.panneaux.length : 1), 0) + ' panneau(x)', val: fmt(T.dalSurf) + ' m²' },
     { k: 'corps', ico: 'fa-table-cells', label: 'Dalle à corps creux', detail: corps.length + ' panneau(x) saisi(s)', val: fmt(T.ccHour) + ' hourdis' },
     { k: 'semelle', ico: 'fa-layer-group', label: 'Semelles', detail: semelles.length + ' semelle(s) saisie(s)', val: fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres' },
     { k: 'maindoeuvre', ico: 'fa-hard-hat', label: 'Mains d’œuvre', detail: mainsOeuvre.length + ' ligne(s)', val: fmtM(totalMo) + ' ' + dev },
@@ -3682,8 +3816,10 @@ function charger() {
       epingleNuance: 'HA', epingleNb: '', epingleL: '', ...o,
       ferL: o.ferL ?? o.L ?? '', chapL: o.chapL ?? ''
     }));
+    uid = Math.max(d.uid || 1, ...(d.dalles || []).flatMap(o => [o.id || 0, ...(o.panneaux || []).map(p => p.id || 0), ...(o.lattePanneaux || []).map(p => p.id || 0)]).map(id => id + 1), 1);
     dalles = (d.dalles || []).map(o => ({
       ...o,
+      panneaux: normaliserPanneauxDalle(o),
       n1l1Nuance: o.n1l1Nuance ?? o.ferNuanceLong ?? o.ferNuance ?? 'HA',
       n1l1Diam: o.n1l1Diam ?? o.ferDiamLong ?? o.ferDiam ?? '10',
       n1l1Esp: o.n1l1Esp ?? o.ferEspLong ?? o.ferEsp ?? '20',
@@ -3700,10 +3836,7 @@ function charger() {
       cavDiam: o.cavDiam ?? '10',
       cavL: o.cavL ?? '',
       cavNb: o.cavNb ?? '',
-      latteL: o.latteL ?? '',
-      latteW: o.latteW ?? '',
-      latteEspL: o.latteEspL ?? '',
-      latteEspW: o.latteEspW ?? ''
+      lattePanneaux: normaliserLattePanneauxDalle(o)
     }));
     corps = d.corps || [];
     semelles = (d.semelles || []).map(o => ({
@@ -3758,7 +3891,7 @@ function charger() {
       ...section, lignes: (section.lignes || []).map(l => ({ ...l, total: l.total ?? null }))
     }));
     migrerFersDevis();
-    uid = Math.max(d.uid || 1, ...[murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, semelles, longrines, crepMurs, crepDalles].flat().map(o => o.id + 1), 1);
+    uid = Math.max(uid, d.uid || 1, ...[murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, semelles, longrines, crepMurs, crepDalles].flat().map(o => o.id + 1), ...dalles.flatMap(o => [...(o.panneaux || []), ...(o.lattePanneaux || [])]).map(p => (p.id || 0) + 1), 1);
     // Les projets antérieurs à l'ajout du module reçoivent leur première ligne de chenage.
     if (!d.moduleAmorcesInitialise && !amorces.length) amorces.push({ id: uid++, nom: 'Amorce 1', forme: 'rect', a: '', b: '', H: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '', ferNb: '4', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' });
     // Les projets antérieurs à l'ajout du module reçoivent les lignes de main-d'œuvre pré-remplies.
