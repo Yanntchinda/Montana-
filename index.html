@@ -218,11 +218,15 @@ td .inp{padding:9px 10px;font-size:13px}
 .semelle-nappe.escalier-fer{border-top-color:#2563eb}
 .semelle-nappe.escalier-marche{border-top-color:#0f766e}
 .semelle-nappe.escalier-paillasse{border-top-color:#b45309}
+.semelle-nappe.escalier-nappe-1{border-top-color:var(--brand)}
+.semelle-nappe.escalier-nappe-2{border-top-color:#2563eb}
 #bloc-escalier,#bloc-escalier .card,#bloc-escalier .card-body,#bloc-escalier .subcard,#bloc-escalier .semelle-nappes,#bloc-escalier .semelle-lit{min-width:0;max-width:100%}
 #bloc-escalier .semelle-entete .field{min-width:min(220px,100%)}
-#bloc-escalier .semelle-lits{grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))}
-#bloc-escalier .semelle-lit-grid{grid-template-columns:repeat(auto-fit,minmax(min(155px,100%),1fr))}
+#bloc-escalier .semelle-lits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#bloc-escalier .semelle-lit-grid{grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr))}
+#bloc-escalier .semelle-lits .semelle-lit-grid{grid-template-columns:repeat(auto-fit,minmax(min(110px,100%),1fr))}
 #bloc-escalier .escalier-fers-liste{display:flex;flex-direction:column;gap:10px}
+@media (max-width:640px){#bloc-escalier .semelle-lits{grid-template-columns:1fr}}
 .semelle-nappe-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .dalle-panneaux-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .semelle-nappe-total{font-size:12px;color:var(--muted);font-weight:600}
@@ -256,7 +260,8 @@ td .inp{padding:9px 10px;font-size:13px}
 .longrine-groupe-epingle{border-top-color:#7c3aed}
 .longrine-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
 .longrine-resultat{min-height:41px;display:flex;align-items:center;gap:5px}
-@media (max-width:1000px){.poutre-sections,.longrine-sections,.semelle-lits{grid-template-columns:1fr}.poutre-groupe-large{grid-column:auto}}
+@media (max-width:1000px){.poutre-sections,.longrine-sections{grid-template-columns:1fr}.poutre-groupe-large{grid-column:auto}}
+@media (max-width:720px){.semelle-lits{grid-template-columns:1fr}}
 #tb-poteau td > select.inp,#tb-dalle td > select.inp{min-width:122px}
 #tb-mur td > div .inp{width:64px !important;min-width:64px;padding:8px 7px !important;font-size:12.8px !important}
 .ouvertures-mur{min-width:310px;display:flex;flex-direction:column;gap:7px}
@@ -2043,9 +2048,9 @@ const blocLitVoletEscalier = (o, nappe, lit) => {
     <div class="semelle-formule">${formule}</div>
   </div>`;
 };
-const blocNappeVoletEscalier = (o, numero) => `<div class="subcard semelle-nappe">
+const blocNappeVoletEscalier = (o, numero) => `<div class="subcard semelle-nappe escalier-nappe-${numero}">
   <div class="semelle-nappe-head">
-    <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-grip-lines"></i> Nappe ${numero}</div>
+    <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-grip-lines"></i> Nappe ${numero} <span style="font-weight:400;color:var(--muted)">(2 lits : Lit 1 &amp; Lit 2)</span></div>
     <div class="semelle-nappe-total">Total Nappe ${numero} : <b class="res" id="ev-n${numero}ml-${o.id}">0</b> ml · <b class="res" id="ev-n${numero}bar-${o.id}">0</b> barres</div>
   </div>
   <div class="semelle-lits">${blocLitVoletEscalier(o, numero, 1)}${blocLitVoletEscalier(o, numero, 2)}</div>
