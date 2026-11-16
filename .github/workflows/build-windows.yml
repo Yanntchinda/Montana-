@@ -17,7 +17,7 @@ on:
       - ".github/workflows/build-windows.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: windows-${{ github.ref }}
@@ -57,6 +57,22 @@ jobs:
           if (-not $installer) { throw "Aucun installateur EXE n'a été généré." }
           $hash = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash.ToLower()
           "$hash  $($installer.Name)" | Set-Content -Path release/SHA256SUMS.txt -Encoding ascii
+
+
+      - name: Publier le fichier .exe téléchargeable
+        if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $tag = "v$version"
+          $installer = Get-ChildItem -Path release -Filter "*.exe" | Select-Object -First 1
+          if (-not $installer) { throw "Aucun installateur EXE n'a été généré." }
+          $notes = "Installateur Windows x64 de GROS ŒUVRE PRO $version.`n`nCliquez sur le fichier .exe ci-dessous : le téléchargement démarre directement.`n`nSomme de contrôle SHA-256 disponible dans SHA256SUMS.txt."
+          gh release delete $tag --yes --cleanup-tag 2>$null
+          gh release create $tag --title "GROS ŒUVRE PRO $version" --notes $notes --latest
+          gh release upload $tag $installer.FullName release/SHA256SUMS.txt --clobber
 
       - name: Publier l'installateur comme artefact
         uses: actions/upload-artifact@v7
