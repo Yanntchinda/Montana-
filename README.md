@@ -19,6 +19,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 - Devis avec quantités, prix unitaires, prix totaux, TVA et export PDF.
 - Sauvegarde automatique et fonctionnement hors connexion.
 - Thèmes clair et sombre.
+- **Import / export de devis** : bouton « Exporter le devis » (fichier `.devis.json`), bouton « Importer un devis » pour charger un fichier reçu, l’ouvrir dans l’écran de travail et le modifier ; chaque archive peut aussi être exportée séparément. Le projet en cours est archivé automatiquement avant d’être remplacé par le devis importé.
 - Interface bilingue **français / anglais** : bouton `EN` / `FR` sur l’écran d’accueil et dans la barre supérieure, langue mémorisée sur l’appareil. Les libellés, unités, dates et nombres suivent la langue choisie ; les calculs et les devis archivés restent inchangés.
 
 ## Structure du projet

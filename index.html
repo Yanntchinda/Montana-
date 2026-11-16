@@ -162,6 +162,8 @@ html[data-theme="light"] .sidebar{box-shadow:6px 0 24px -18px rgba(15,23,42,.5)}
 .card-head h3 i{color:var(--brand-2);font-size:14px}
 .card-head .ch-sub{font-size:11.8px;color:var(--muted);margin-top:3px}
 .card-head .ch-act{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn-upload{cursor:pointer}
+.btn-upload:focus-within{outline:2px solid var(--brand);outline-offset:2px}
 .card-body{padding:18px}
 .card-body.tight{padding:14px 18px}
 
@@ -1529,9 +1531,18 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
         <div class="card no-print" id="archive-devis-card">
           <div class="card-head">
             <div class="ch-txt"><h3><i class="fa-solid fa-box-archive"></i> Archives des devis</h3><div class="ch-sub">Enregistrez, restaurez et modifiez vos devis archivés sur cet appareil.</div></div>
-            <div class="ch-act"><button class="btn btn-primary" onclick="archiverDevis()"><i class="fa-solid fa-box-archive"></i> Archiver le devis actuel</button></div>
+            <div class="ch-act">
+              <button class="btn btn-primary" onclick="archiverDevis()"><i class="fa-solid fa-box-archive"></i> Archiver le devis actuel</button>
+              <button class="btn" onclick="exporterDevisFichier()" title="Enregistrer le devis dans un fichier .devis.json"><i class="fa-solid fa-file-export"></i> Exporter le devis</button>
+              <label class="btn btn-upload" for="fichier-devis" title="Charger un devis depuis un fichier .devis.json"><i class="fa-solid fa-file-import"></i> Importer un devis</label>
+              <input type="file" id="fichier-devis" accept=".json,.devis,application/json" hidden onchange="importerDevisFichier(this)">
+            </div>
           </div>
-          <div class="card-body"><div id="liste-archives-devis" class="grid g2"></div><div id="archives-vides" class="note" style="display:none"><i class="fa-solid fa-circle-info"></i><div>Aucun devis archivé pour le moment. L’archive est conservée localement dans ce navigateur/appareil.</div></div></div>
+          <div class="card-body">
+            <div id="liste-archives-devis" class="grid g2"></div>
+            <div id="archives-vides" class="note" style="display:none"><i class="fa-solid fa-circle-info"></i><div>Aucun devis archivé pour le moment. L’archive est conservée localement dans ce navigateur/appareil.</div></div>
+            <div class="note" style="margin-top:12px"><i class="fa-solid fa-file-import"></i><div><b>Importer un devis :</b> chargez un fichier <code>.devis.json</code> exporté depuis cette application. Le devis s’ouvre dans l’écran de travail : quantités, prix, modules et archives restent modifiables. Le projet actuellement ouvert est conservé dans vos archives avant remplacement.</div></div>
+          </div>
         </div>
 
         <!-- Document imprimable -->
@@ -1631,6 +1642,8 @@ const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').
    LANGUE (FR / EN)
    ============================================================ */
 const TEXTES_EN = {
+  " chargez un fichier ": " load a ",
+  " exporté depuis cette application. Le devis s’ouvre dans l’écran de travail : quantités, prix, modules et archives restent modifiables. Le projet actuellement ouvert est conservé dans vos archives avant remplacement.": " file exported from this application. The quote opens in the workspace: quantities, prices, modules and archives stay editable. The current project is archived before being replaced.",
   "— Ø seul —": "— Ø only —",
   ", regroupés par nuance et diamètre.": ", grouped by grade and diameter.",
   "· Nombre de lattes :": "· Number of battens:",
@@ -1679,6 +1692,7 @@ const TEXTES_EN = {
   "amorce(s) saisie(s)": "starter(s) entered",
   "Annuler": "Cancel",
   "Archive active": "Active archive",
+  "Archive exportée dans un fichier .devis.json": "Archive exported to a .devis.json file",
   "Archive restaurée": "Archive restored",
   "Archive supprimée": "Archive deleted",
   "Archiver le devis actuel": "Archive the current quote",
@@ -1693,6 +1707,7 @@ const TEXTES_EN = {
   "Aucun cavalier calculé.": "No spacer bar calculated.",
   "Aucun chapeau calculé.": "No top bar calculated.",
   "Aucun chenage — cliquez sur « Ajouter un chenage ».": "No ring beam — click \"Add a ring beam\".",
+  "Aucun devis à exporter pour le moment": "No quote to export yet",
   "Aucun devis archivé pour le moment. L’archive est conservée localement dans ce navigateur/appareil.": "No archived quote yet. Archives are stored locally on this browser/device.",
   "Aucun fer de longrine calculé.": "No footing-beam rebar calculated.",
   "Aucun palier — cliquez sur « Ajouter un palier ».": "No landing — click \"Add a landing\".",
@@ -1784,6 +1799,7 @@ const TEXTES_EN = {
   "Chapeaux 12 m (exact)": "Top bars 12 m (exact)",
   "Chapeaux à commander": "Top bars to order",
   "Chaque mur peut recevoir plusieurs portes et plusieurs fenêtres de dimensions différentes. Utilisez": "Each wall can have several doors and windows of different sizes. Use",
+  "Charger un devis depuis un fichier .devis.json": "Load a quote from a .devis.json file",
   "Chenage": "Ring beam",
   "chenage(s) saisi(s)": "ring beam(s) entered",
   "Choisissez « Enregistrer au format PDF » pour télécharger le devis": "Choose \"Save as PDF\" to download the quote",
@@ -1830,6 +1846,11 @@ const TEXTES_EN = {
   "Deux faces (m²)": "Both faces (m²)",
   "Devis": "Quote",
   "Devis archivé. Les prochaines modifications seront enregistrées dans cette archive.": "Quote archived. Further changes will be saved in this archive.",
+  "Devis exporté dans un fichier .devis.json": "Quote exported to a .devis.json file",
+  "Devis importé — ouverture du devis pour modification": "Quote imported — opening it for editing",
+  "Devis incomplet : en-tête absent": "Incomplete quote: header missing",
+  "Devis incomplet : lignes du devis absentes": "Incomplete quote: quote lines missing",
+  "Devis incomplet : une section du devis est illisible": "Incomplete quote: a quote section is unreadable",
   "Devis quantitatif": "Quantity quote",
   "Devis quantitatif établi sur la base des relevés de dimensions ci-contre. Quantités à confirmer sur site.": "Quantity quote based on the measurements opposite. Quantities to be confirmed on site.",
   "Devis téléchargé": "Quote downloaded",
@@ -1854,6 +1875,7 @@ const TEXTES_EN = {
   "Éléments saisis et inclusion dans le devis": "Elements entered and inclusion in the quote",
   "Emmarchement (m)": "Stair width (m)",
   "Enregistrer": "Save",
+  "Enregistrer le devis dans un fichier .devis.json": "Save the quote to a .devis.json file",
   "Enregistrez, restaurez et modifiez vos devis archivés sur cet appareil.": "Save, restore and edit your archived quotes on this device.",
   "Enrobage": "Cover",
   "Enrobage (cm)": "Cover (cm)",
@@ -1894,6 +1916,9 @@ const TEXTES_EN = {
   "Étais exact": "Exact props",
   "État des modules": "Module status",
   "Exact": "Exact",
+  "Exporter": "Export",
+  "Exporter ce devis dans un fichier": "Export this quote to a file",
+  "Exporter le devis": "Export the quote",
   "Facteur": "Factor",
   "fenêtre": "window",
   "Fenêtre": "Window",
@@ -1929,6 +1954,8 @@ const TEXTES_EN = {
   "Fers verticaux :": "Vertical bars:",
   "Fers verticaux par nuance :": "Vertical bars by grade:",
   "Fichier": "File",
+  "Fichier de devis illisible": "Unreadable quote file",
+  "Fichier trop volumineux (8 Mo maximum)": "File too large (8 MB maximum)",
   "Forme": "Shape",
   "Giron (m)": "Tread (m)",
   "Gravier": "Gravel",
@@ -1964,6 +1991,9 @@ const TEXTES_EN = {
   "HT": "excl. tax",
   "Hypothèses de calcul": "Calculation assumptions",
   "Identifiez votre chantier pour ouvrir le calculateur de quantitatifs": "Identify your site to open the quantity calculator",
+  "Import du devis impossible": "Could not import the quote",
+  "Importer un devis": "Import a quote",
+  "Importer un devis : ": "Import a quote: ",
   "Impossible de créer l’archive du devis": "Could not create the quote archive",
   "Imprimer": "Print",
   "Imprimer la synthèse complète": "Print the full summary",
@@ -1993,7 +2023,9 @@ const TEXTES_EN = {
   "Lattes exact (÷ 4,9)": "Exact battens (÷ 4.9)",
   "Le Client": "The Client",
   "Le devis conserve les anciennes quantités jusqu’à votre confirmation.": "The quote keeps the previous quantities until you confirm.",
+  "Le fichier ne contient pas du JSON valide": "The file does not contain valid JSON",
   "Le prix doit être positif": "The price must be positive",
+  "Lecture du fichier impossible": "Could not read the file",
   "Les désignations sont pré-remplies et les": "Descriptions are pre-filled and",
   "les lignes de main-d’œuvre": "the labour lines",
   "Les quantités des modules sont intégrées ici uniquement après clic sur": "Module quantities are added here only after clicking",
@@ -2327,6 +2359,7 @@ const TEXTES_EN = {
   "Valider": "Validate",
   "Valider et enregistrer dans le devis": "Validate and save to the quote",
   "Valider le ciment et le sable": "Validate cement and sand",
+  "Version de fichier non prise en charge par cette application": "File version not supported by this application",
   "Vider": "Clear",
   "Vider les dalles": "Clear the slabs",
   "Vider les murs": "Clear the walls",
@@ -2473,6 +2506,11 @@ function rendreAvecTraduction() { const l = langue; langue = 'fr'; rendre(); lan
 function rendreDevisAvecTraduction() { const l = langue; langue = 'fr'; rendreDevis(); langue = l; traduireVisible(); }
 function updateDashboardAvecTraduction() { const l = langue; langue = 'fr'; updateDashboard(); langue = l; traduireVisible(); }
 function rendreArchivesDevisAvecTraduction() { const l = langue; langue = 'fr'; rendreArchivesDevis(); langue = l; traduireVisible(); }
+
+async function importerDevisFichierTraduit(input) {
+  const l = langue; langue = 'fr';
+  try { await importerDevisFichier(input); } finally { langue = l; }
+}
 
 function appliquerLangue() {
   rendre();
@@ -5311,6 +5349,95 @@ function supprimerArchiveDevis(id) {
   rendreArchivesDevis();
   toast('Archive supprimée', 'ok');
 }
+/* ============================================================
+   IMPORT / EXPORT DE FICHIERS DEVIS
+   ============================================================ */
+const FORMAT_FICHIER_DEVIS = 'gros-oeuvre-pro/devis';
+const CHAMPS_LISTES_PROJET = ['murs', 'poteaux', 'amorces', 'poutres', 'chenages', 'mainsOeuvre', 'dalles', 'corps', 'corpsLattes', 'semelles', 'longrines', 'escalierPaliers', 'escalierVolets', 'crepMurs', 'crepDalles'];
+
+function nomFichierDevis(nom) {
+  const base = String(nom || 'devis').replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim().slice(0, 70) || 'devis';
+  return `${base}.devis.json`;
+}
+function donneesProjetActuelles() {
+  sauver();
+  try { return JSON.parse(localStorage.getItem(CLE) || 'null'); } catch (e) { return null; }
+}
+function telechargerDonneesDevis(data, nom) {
+  const paquet = { format: FORMAT_FICHIER_DEVIS, version: 2, exporte: new Date().toISOString(), nom: nomArchive(data), data };
+  const blob = new Blob([JSON.stringify(paquet, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const lien = document.createElement('a');
+  lien.href = url;
+  lien.download = nomFichierDevis(nom || paquet.nom);
+  document.body.appendChild(lien);
+  lien.click();
+  lien.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+function exporterDevisFichier() {
+  const data = donneesProjetActuelles();
+  if (!data) { toast('Aucun devis à exporter pour le moment', 'err'); return; }
+  telechargerDonneesDevis(data);
+  toast('Devis exporté dans un fichier .devis.json', 'ok', 'fa-file-export');
+}
+function exporterArchiveDevis(id) {
+  const item = lireArchivesDevis().find(a => a.id === id);
+  if (!item?.data) { toast('Archive introuvable ou illisible', 'err'); return; }
+  telechargerDonneesDevis(item.data, item.nom);
+  toast('Archive exportée dans un fichier .devis.json', 'ok', 'fa-file-export');
+}
+/* Vérifie la structure d'un fichier importé et renvoie { data, nom }. */
+function validerPaquetDevis(paquet) {
+  if (!paquet || typeof paquet !== 'object' || Array.isArray(paquet)) throw new Error('Fichier de devis illisible');
+  const data = paquet.data && typeof paquet.data === 'object' ? paquet.data : paquet;
+  if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Fichier de devis illisible');
+  if (Number(data.v) !== 2) throw new Error('Version de fichier non prise en charge par cette application');
+  if (!data.champs || typeof data.champs !== 'object' || Array.isArray(data.champs)) throw new Error('Devis incomplet : en-tête absent');
+  if (!Array.isArray(data.devis)) throw new Error('Devis incomplet : lignes du devis absentes');
+  CHAMPS_LISTES_PROJET.forEach(cle => {
+    if (data[cle] !== undefined && !Array.isArray(data[cle])) throw new Error(`Devis incomplet : ${cle} illisible`);
+  });
+  data.devis.forEach(section => {
+    if (!section || typeof section !== 'object' || !Array.isArray(section.lignes)) throw new Error('Devis incomplet : une section du devis est illisible');
+  });
+  const nom = nomArchive(data);
+  return { data, nom };
+}
+async function importerDevisFichier(input) {
+  if (langue === 'en') return importerDevisFichierTraduit(input);
+  const fichier = input.files && input.files[0];
+  input.value = '';
+  if (!fichier) return;
+  try {
+    if (fichier.size > 8 * 1024 * 1024) throw new Error('Fichier trop volumineux (8 Mo maximum)');
+    let texte = '';
+    if (typeof fichier.text === 'function') texte = await fichier.text();
+    else texte = await new Promise((resoudre, rejeter) => {
+      const lecteur = new FileReader();
+      lecteur.onload = () => resoudre(String(lecteur.result || ''));
+      lecteur.onerror = () => rejeter(new Error('Lecture du fichier impossible'));
+      lecteur.readAsText(fichier);
+    });
+    let paquet;
+    try { paquet = JSON.parse(texte); } catch (e) { throw new Error('Le fichier ne contient pas du JSON valide'); }
+    const { data, nom } = validerPaquetDevis(paquet);
+    if (!confirm(`Importer « ${nom} » et l’ouvrir pour modification ? Le projet actuellement ouvert sera archivé puis remplacé.`)) return;
+    // Le travail en cours est conservé avant d'être remplacé par le devis importé.
+    archiverDevis();
+    const id = 'dv-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
+    const archives = lireArchivesDevis();
+    archives.unshift({ id, nom: nomArchive(data), cree: new Date().toISOString(), modifie: new Date().toISOString(), importe: true, data });
+    localStorage.setItem(CLE_ARCHIVES_DEVIS, JSON.stringify(archives));
+    localStorage.setItem(CLE, JSON.stringify(data));
+    localStorage.setItem(CLE_ARCHIVE_ACTIVE, id);
+    toast('Devis importé — ouverture du devis pour modification', 'ok', 'fa-file-import');
+    setTimeout(() => location.reload(), 600);
+  } catch (e) {
+    toast(e && e.message ? e.message : 'Import du devis impossible', 'err');
+  }
+}
+
 function rendreArchivesDevis() {
   if (langue === 'en') return rendreArchivesDevisAvecTraduction();
   const liste = document.getElementById('liste-archives-devis');
@@ -5322,7 +5449,7 @@ function rendreArchivesDevis() {
     const champs = a.data?.champs || {};
     const ref = champs['dv-ref'] || 'Sans référence';
     const client = champs['dv-client'] || 'Client non renseigné';
-    return `<article class="subcard"><div class="subcard-title"><i class="fa-solid fa-file-invoice"></i> ${esc(a.nom)} ${a.id === activeId ? '<span class="badge-count">Archive active</span>' : ''}</div><div class="muted" style="font-size:12px;margin:6px 0 12px">${esc(ref)} · ${esc(client)}<br><span>Dernière modification :</span> ${esc(date)}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-sm btn-primary" onclick="restaurerArchiveDevis('${a.id}')"><i class="fa-solid fa-rotate-left"></i> Restaurer / modifier</button><button class="btn btn-sm btn-danger" onclick="supprimerArchiveDevis('${a.id}')"><i class="fa-solid fa-trash-can"></i> Supprimer</button></div></article>`;
+    return `<article class="subcard"><div class="subcard-title"><i class="fa-solid fa-file-invoice"></i> ${esc(a.nom)} ${a.id === activeId ? '<span class="badge-count">Archive active</span>' : ''}</div><div class="muted" style="font-size:12px;margin:6px 0 12px">${esc(ref)} · ${esc(client)}<br><span>Dernière modification :</span> ${esc(date)}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-sm btn-primary" onclick="restaurerArchiveDevis('${a.id}')"><i class="fa-solid fa-rotate-left"></i> Restaurer / modifier</button><button class="btn btn-sm" onclick="exporterArchiveDevis('${a.id}')" title="Exporter ce devis dans un fichier"><i class="fa-solid fa-file-export"></i> Exporter</button><button class="btn btn-sm btn-danger" onclick="supprimerArchiveDevis('${a.id}')"><i class="fa-solid fa-trash-can"></i> Supprimer</button></div></article>`;
   }).join('');
 }
 
