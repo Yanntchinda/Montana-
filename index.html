@@ -106,6 +106,9 @@ html[data-theme="light"] .sidebar{box-shadow:6px 0 24px -18px rgba(15,23,42,.5)}
 .side-foot{margin-top:auto;display:flex;flex-direction:column;gap:9px;padding-top:12px;border-top:1px solid rgba(148,163,184,.16)}
 .save-state{display:flex;align-items:center;gap:7px;font-size:10.8px;color:#7f96ba;padding:0 4px}
 .save-state i{color:#34d399}
+.side-copyright{display:flex;align-items:center;justify-content:center;gap:5px;font-size:10.3px;letter-spacing:.2px;color:#7f96ba;padding:2px 4px 0;text-align:center;opacity:.9}
+.side-copyright b{font-weight:600;color:#a5b4cb}
+.side-copyright .cc{font-size:12px;line-height:1;color:#7f96ba}
 .save-state.dirty i{color:#fbbf24}
 .side-actions{display:flex;gap:6px}
 .side-actions button{
@@ -744,6 +747,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
       <div class="side-actions">
         <button onclick="demanderReset()" title="Tout réinitialiser"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</button>
       </div>
+      <div class="side-copyright" title="Copyright"><span class="cc">&copy;</span><span>&nbsp;Copyright by <b>free 1</b></span></div>
     </div>
   </aside>
   <div class="scrim" onclick="document.body.classList.remove('nav-open')"></div>
