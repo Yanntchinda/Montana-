@@ -1441,7 +1441,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           <div class="card-head">
             <div class="ch-txt">
               <h3><i class="fa-solid fa-stairs"></i> Escalier</h3>
-              <div class="ch-sub">Sous-modules Palier (volume béton et quantité de fer) et Volet (partie Marches, partie Paillasse et Fer Nappes 1 &amp; 2)</div>
+              <div class="ch-sub">Sous-modules Palier (volume béton et Fer Nappes 1 &amp; 2) et Volet (partie Marches, partie Paillasse et Fer Nappes 1 &amp; 2)</div>
             </div>
             <div class="ch-act">
               <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-escalier" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
@@ -1451,7 +1451,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           <div class="card-body">
             <div class="subcard" style="margin-bottom:16px">
               <div class="semelle-nappe-head" style="margin-bottom:14px">
-                <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-square"></i> Sous-module 1 — Palier</div>
+                <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-square"></i> Sous-module 1 — Palier (Béton &amp; Fer)</div>
                 <button class="btn btn-sm btn-primary no-print" onclick="ajouterPalierEscalier()"><i class="fa-solid fa-plus"></i> Ajouter un palier</button>
               </div>
               <div id="liste-escalier-paliers"></div>
@@ -1477,7 +1477,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-cart-flatbed"></i> Barres à commander</div><div class="t-val" id="esc-fer-commande">0</div></div>
             </div>
             <div class="note" id="esc-fer-detail" style="margin-top:14px"><i class="fa-solid fa-stairs"></i><div>Aucune armature d’escalier calculée.</div></div>
-            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Palier :</b> volume béton = longueur × largeur × épaisseur × nb ; quantité de fer = ((longueur + longueur des crochets) × nombre) ÷ <b>12 m</b>. <b>Volet — partie Marches :</b> ((giron × hauteur de marche) ÷ 2) × emmarchement × nombre de marches total. <b>Volet — partie Paillasse :</b> longueur × emmarchement × épaisseur × nombre de volets. <b>Volet — Fer (Nappe 1 et Nappe 2) :</b> <b>Lit 1 (sens longueur L) :</b> (L ÷ espacement) × (largeur + 0,15 m) × nb ; <b>Lit 2 (sens largeur l) :</b> (largeur ÷ espacement) × (L + 0,15 m) × nb (avec L = longueur paillasse et l = emmarchement), regroupé par nuance et diamètre. Après validation, le volume béton total et toutes les barres à commander alimentent automatiquement le devis.</div></div>
+            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Palier :</b> volume béton = longueur × largeur × épaisseur × nb ; <b>Fer (Nappe 1 et Nappe 2) :</b> <b>Lit 1 (sens longueur L) :</b> (L ÷ espacement) × (largeur + 0,15 m) × nb ; <b>Lit 2 (sens largeur l) :</b> (largeur ÷ espacement) × (L + 0,15 m) × nb. <b>Volet — partie Marches :</b> ((giron × hauteur de marche) ÷ 2) × emmarchement × nombre de marches total. <b>Volet — partie Paillasse :</b> longueur × emmarchement × épaisseur × nombre de volets. <b>Volet — Fer (Nappe 1 et Nappe 2) :</b> mêmes formules sur la paillasse (L = longueur paillasse, l = emmarchement), regroupées par nuance et diamètre. Après validation, le volume béton total et toutes les barres à commander alimentent automatiquement le devis.</div></div>
             <div id="validation-module-escalier"></div>
           </div>
         </div>
@@ -1856,29 +1856,21 @@ function nouvelleSemelle(id, numero = 1) {
   };
 }
 function ajouterSemelle() { semelles.push(nouvelleSemelle(uid++, semelles.length + 1)); rendre(); }
-function nouveauFerPalierEscalier() {
-  return { id: uid++, nuance: 'HA', diam: '10', L: '', nb: '1', crochet: '' };
-}
 function nouveauPalierEscalier(id, numero = 1) {
-  return { id, nom: 'Palier ' + numero, L: '', l: '', e: '', n: '1', fers: [nouveauFerPalierEscalier()] };
+  return {
+    id, nom: 'Palier ' + numero, L: '', l: '', e: '', n: '1',
+    avecNappe2: true,
+    n1l1Nuance: 'HA', n1l1Diam: '10', n1l1Esp: '20',
+    n1l2Nuance: 'HA', n1l2Diam: '10', n1l2Esp: '20',
+    n2l1Nuance: 'HA', n2l1Diam: '10', n2l1Esp: '20',
+    n2l2Nuance: 'HA', n2l2Diam: '10', n2l2Esp: '20'
+  };
 }
 function ajouterPalierEscalier() { escalierPaliers.push(nouveauPalierEscalier(uid++, escalierPaliers.length + 1)); rendre(); }
-function ajouterFerPalierEscalier(palierId) {
-  const p = escalierPaliers.find(x => x.id === palierId); if (!p) return;
-  if (!Array.isArray(p.fers)) p.fers = [];
-  p.fers.push(nouveauFerPalierEscalier());
+function basculerNappe2PalierEscalier(palierId, actif) {
+  const o = escalierPaliers.find(x => x.id === palierId); if (!o) return;
+  o.avecNappe2 = !!actif;
   rendre();
-}
-function supprimerFerPalierEscalier(palierId, ferId) {
-  const p = escalierPaliers.find(x => x.id === palierId); if (!p || !Array.isArray(p.fers)) return;
-  p.fers = p.fers.filter(f => f.id !== ferId);
-  rendre();
-}
-function majFerPalierEscalier(palierId, ferId, champ, val) {
-  const p = escalierPaliers.find(x => x.id === palierId); if (!p || !Array.isArray(p.fers)) return;
-  const f = p.fers.find(x => x.id === ferId); if (!f) return;
-  f[champ] = val;
-  calculer();
 }
 function nouveauVoletEscalier(id, numero = 1) {
   return {
@@ -2059,6 +2051,39 @@ const blocLitDalle = (o, nappe, lit) => {
     <div class="semelle-formule">${formule}</div>
   </div>`;
 };
+const blocLitPalierEscalier = (o, nappe, lit) => {
+  const p = `n${nappe}l${lit}`;
+  const nuance = o[p + 'Nuance'] === 'RL' ? 'RL' : 'HA';
+  const diam = o[p + 'Diam'] ?? '10';
+  const esp = o[p + 'Esp'] ?? '20';
+  const sensLabel = lit === 1 ? 'sens longueur L' : 'sens largeur l';
+  const formule = lit === 1
+    ? '(L ÷ espacement) × (largeur + 0,15 m) × nb'
+    : '(largeur ÷ espacement) × (L + 0,15 m) × nb';
+  return `<div class="subcard semelle-lit">
+    <div class="subcard-title"><i class="fa-solid fa-bars"></i> Lit ${lit} — ${sensLabel}</div>
+    <div class="semelle-lit-grid">
+      <div class="field"><label>Nuance du fer</label><select class="inp" onchange="maj('escPalier',${o.id},'${p}Nuance',this.value)"><option value="HA" ${nuance === 'HA' ? 'selected' : ''}>HA</option><option value="RL" ${nuance === 'RL' ? 'selected' : ''}>RL</option></select></div>
+      <div class="field"><label>Diamètre (mm)</label><select class="inp" onchange="maj('escPalier',${o.id},'${p}Diam',this.value)">${optionsFer(diam)}</select></div>
+      <div class="field"><label>Espacement (cm)</label><input class="inp" type="number" min="0" step="0.1" value="${esc(esp)}" oninput="maj('escPalier',${o.id},'${p}Esp',this.value)"></div>
+      <div class="field"><label>Nb fers</label><div class="inp semelle-resultat"><b class="res" id="ep-${p}nb-${o.id}">0</b></div></div>
+      <div class="field"><label>Fer calculé</label><div class="inp semelle-resultat"><b class="res" id="ep-${p}ml-${o.id}">0</b> ml</div></div>
+      <div class="field"><label>Barres / 12 m</label><div class="inp semelle-resultat"><b class="res" id="ep-${p}bar-${o.id}">0</b></div></div>
+    </div>
+    <div class="semelle-formule">${formule}</div>
+  </div>`;
+};
+const blocNappePalierEscalier = (o, numero) => `<div class="subcard semelle-nappe escalier-nappe-${numero}">
+  <div class="semelle-nappe-head">
+    <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-grip-lines"></i> Nappe ${numero} <span style="font-weight:400;color:var(--muted)">(2 lits : Lit 1 &amp; Lit 2)</span></div>
+    <div class="dalle-panneaux-actions">
+      <div class="semelle-nappe-total">Total Nappe ${numero} : <b class="res" id="ep-n${numero}ml-${o.id}">0</b> ml · <b class="res" id="ep-n${numero}bar-${o.id}">0</b> barres</div>
+      ${numero === 1 && !o.avecNappe2 ? `<button class="btn btn-sm btn-primary no-print" onclick="basculerNappe2PalierEscalier(${o.id},true)"><i class="fa-solid fa-plus"></i> Ajouter une nappe</button>` : ''}
+      ${numero === 2 ? `<button class="btn btn-sm btn-danger no-print" onclick="basculerNappe2PalierEscalier(${o.id},false)"><i class="fa-solid fa-trash-can"></i> Supprimer Nappe 2</button>` : ''}
+    </div>
+  </div>
+  <div class="semelle-lits">${blocLitPalierEscalier(o, numero, 1)}${blocLitPalierEscalier(o, numero, 2)}</div>
+</div>`;
 const blocLitVoletEscalier = (o, nappe, lit) => {
   const p = `n${nappe}l${lit}`;
   const nuance = o[p + 'Nuance'] === 'RL' ? 'RL' : 'HA';
@@ -2539,26 +2564,7 @@ function rendre() {
     : '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucune dalle — cliquez sur « Ajouter une dalle ».</div></div>';
 
   const ciblePaliers = $('liste-escalier-paliers');
-  if (ciblePaliers) ciblePaliers.innerHTML = escalierPaliers.length ? escalierPaliers.map(o => {
-    const fers = Array.isArray(o.fers) ? o.fers : [];
-    const cartesFers = fers.length ? fers.map((f, idx) => `<div class="semelle-lit">
-      <div class="semelle-nappe-head" style="margin-bottom:10px">
-        <div class="subcard-title" style="margin-bottom:0">Fer ${idx + 1}</div>
-        <button class="del-btn no-print" onclick="supprimerFerPalierEscalier(${o.id},${f.id})" title="Supprimer cette ligne de fer"><i class="fa-solid fa-trash-can"></i></button>
-      </div>
-      <div class="semelle-lit-grid">
-        <div class="field"><label>Nuance</label><select class="inp" onchange="majFerPalierEscalier(${o.id},${f.id},'nuance',this.value)"><option value="HA" ${f.nuance === 'RL' ? '' : 'selected'}>HA</option><option value="RL" ${f.nuance === 'RL' ? 'selected' : ''}>RL</option></select></div>
-        <div class="field"><label>Diamètre (mm)</label><select class="inp" onchange="majFerPalierEscalier(${o.id},${f.id},'diam',this.value)">${optionsFer(f.diam || '10')}</select></div>
-        <div class="field"><label>Longueur (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(f.L ?? '')}" oninput="majFerPalierEscalier(${o.id},${f.id},'L',this.value)"></div>
-        <div class="field"><label>Nombre</label><input class="inp" type="number" min="0" step="1" placeholder="1" value="${esc(f.nb ?? '1')}" oninput="majFerPalierEscalier(${o.id},${f.id},'nb',this.value)"></div>
-        <div class="field"><label>Longueur crochets (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(f.crochet ?? '')}" oninput="majFerPalierEscalier(${o.id},${f.id},'crochet',this.value)"></div>
-        <div class="field"><label>Linéaire</label><div class="inp semelle-resultat"><b class="res" id="epf-ml-${o.id}-${f.id}">0</b> ml</div></div>
-        <div class="field"><label>Barres exact (÷ 12)</label><div class="inp semelle-resultat"><b class="res" id="epf-ex-${o.id}-${f.id}">0</b></div></div>
-        <div class="field"><label>Barres</label><div class="inp semelle-resultat"><b class="res" id="epf-nb-${o.id}-${f.id}">0</b></div></div>
-      </div>
-    </div>`).join('')
-      : '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun fer — cliquez sur « Ajouter un fer ».</div></div>';
-    return `<div class="subcard semelle-ligne">
+  if (ciblePaliers) ciblePaliers.innerHTML = escalierPaliers.length ? escalierPaliers.map(o => `<div class="subcard semelle-ligne">
       <div class="semelle-entete">
         <div class="field"><label>Désignation</label>${inp('escPalier', o, 'nom', 'inp-txt')}</div>
         <button class="btn btn-sm btn-danger no-print" onclick="supprimer('escPalier',${o.id})"><i class="fa-solid fa-trash-can"></i> Supprimer</button>
@@ -2580,20 +2586,14 @@ function rendre() {
             <div class="semelle-formule">Volume béton palier = Longueur × Largeur × Épaisseur × Nb</div>
           </div>
         </div>
-        <div class="subcard semelle-nappe escalier-fer">
-          <div class="semelle-nappe-head">
-            <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-grip-lines"></i> Quantité de fer du palier</div>
-            <div class="dalle-panneaux-actions">
-              <div class="semelle-nappe-total">Linéaire : <b class="res" id="ep-ferml-${o.id}">0</b> ml · Barres : <b class="res" id="ep-fernb-${o.id}">0</b> <span style="font-weight:400">(exact : <b class="res" id="ep-ferex-${o.id}">0</b>)</span></div>
-              <button class="btn btn-sm btn-primary no-print" onclick="ajouterFerPalierEscalier(${o.id})"><i class="fa-solid fa-plus"></i> Ajouter un fer</button>
-            </div>
-          </div>
-          <div class="escalier-fers-liste">${cartesFers}</div>
-          <div class="semelle-formule">Quantité de fer = ((Longueur + Longueur des crochets) × Nombre) ÷ 12 (arrondi au supérieur)</div>
-        </div>
+        ${blocNappePalierEscalier(o, 1)}
+        ${o.avecNappe2 ? blocNappePalierEscalier(o, 2) : ''}
       </div>
-    </div>`;
-  }).join('')
+      <div class="semelle-nappe-head" style="margin-top:12px;margin-bottom:0;padding-top:10px;border-top:1px solid var(--border)">
+        <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-calculator"></i> Total de ce palier (béton &amp; armatures)</div>
+        <div class="semelle-nappe-total">Béton : <b class="res" id="ep-tot-${o.id}">0</b> m³ · Fer total : <b class="res" id="ep-ferml-${o.id}">0</b> ml · Barres / 12 m : <b class="res" id="ep-ferbar-${o.id}">0</b></div>
+      </div>
+    </div>`).join('')
     : '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun palier — cliquez sur « Ajouter un palier ».</div></div>';
 
   const cibleVolets = $('liste-escalier-volets');
@@ -3454,7 +3454,7 @@ function calculer() {
   if (moTotalCell) moTotalCell.innerText = fmtM(totalMo);
   const moNbCell = $('mo-nb');
   if (moNbCell) moNbCell.innerText = String(mainsOeuvre.length);
-  // --- Escalier : Palier (béton + fer) et Volet (Marches + Paillasse + Nappes 1 & 2) ---
+  // --- Escalier : Palier (béton + Nappes 1 & 2) et Volet (Marches + Paillasse + Nappes 1 & 2) ---
   let tEscPalVol = 0, tEscMarVol = 0, tEscPaiVol = 0, tEscPalFerML = 0, tEscVolFerML = 0;
   const fersEscalierParProfil = {};
   escalierPaliers.forEach(o => {
@@ -3462,36 +3462,38 @@ function calculer() {
     const n = Math.max(0, num(o.n ?? 1));
     const vol = L * l * e * n;
     tEscPalVol += vol;
-    const cV = $('ep-vol-' + o.id), cVH = $('ep-vol-h-' + o.id);
+    const cV = $('ep-vol-' + o.id), cVH = $('ep-vol-h-' + o.id), cTot = $('ep-tot-' + o.id);
     if (cV) cV.innerText = fmt(vol);
     if (cVH) cVH.innerText = fmt(vol);
+    if (cTot) cTot.innerText = fmt(vol);
 
-    let palFerML = 0;
-    const fers = Array.isArray(o.fers) ? o.fers : [];
-    fers.forEach(f => {
-      const fL = Math.max(0, num(f.L));
-      const fCr = Math.max(0, num(f.crochet));
-      const fNb = Math.max(0, num(f.nb ?? 1));
-      const ml = (fL + fCr) * fNb;
-      const exact = ml / 12;
-      const nbBar = ml > 0 ? Math.ceil(exact - 1e-9) : 0;
-      const nuance = f.nuance === 'RL' ? 'RL' : 'HA';
-      const diam = String(f.diam || '10');
+    const calculLitPalier = (nappe, lit) => {
+      const p = `n${nappe}l${lit}`;
+      const esp = Math.max(0, num(o[p + 'Esp'])) / 100; // cm → m
+      const nb = esp > 0 && L > 0 && l > 0 && n > 0 ? (((lit === 1 ? L : l) / esp) * n) : 0;
+      const ml = nb > 0 ? nb * ((lit === 1 ? l : L) + 0.15) : 0;
+      const nuance = o[p + 'Nuance'] === 'RL' ? 'RL' : 'HA';
+      const diam = String(o[p + 'Diam'] || '10');
       const profil = `${nuance}:${diam}`;
       if (ml > 0) fersEscalierParProfil[profil] = (fersEscalierParProfil[profil] || 0) + ml;
-      palFerML += ml;
-      const cMl = $('epf-ml-' + o.id + '-' + f.id), cEx = $('epf-ex-' + o.id + '-' + f.id), cNb = $('epf-nb-' + o.id + '-' + f.id);
+      const cNb = $(`ep-${p}nb-${o.id}`), cMl = $(`ep-${p}ml-${o.id}`), cBar = $(`ep-${p}bar-${o.id}`);
+      if (cNb) cNb.innerText = fmt(nb);
       if (cMl) cMl.innerText = fmt(ml);
-      if (cEx) cEx.innerText = fmt(exact);
-      if (cNb) cNb.innerText = fmt(nbBar);
-    });
+      if (cBar) cBar.innerText = fmt(ml / 12);
+      return ml;
+    };
+    const calculNappePalier = numero => {
+      const ml = calculLitPalier(numero, 1) + calculLitPalier(numero, 2);
+      const cMl = $(`ep-n${numero}ml-${o.id}`), cBar = $(`ep-n${numero}bar-${o.id}`);
+      if (cMl) cMl.innerText = fmt(ml);
+      if (cBar) cBar.innerText = fmt(ml / 12);
+      return ml;
+    };
+    const palFerML = calculNappePalier(1) + (o.avecNappe2 ? calculNappePalier(2) : 0);
     tEscPalFerML += palFerML;
-    const palExact = palFerML / 12;
-    const palBarres = palFerML > 0 ? Math.ceil(palExact - 1e-9) : 0;
-    const cFml = $('ep-ferml-' + o.id), cFex = $('ep-ferex-' + o.id), cFnb = $('ep-fernb-' + o.id);
+    const cFml = $('ep-ferml-' + o.id), cFbar = $('ep-ferbar-' + o.id);
     if (cFml) cFml.innerText = fmt(palFerML);
-    if (cFex) cFex.innerText = fmt(palExact);
-    if (cFnb) cFnb.innerText = fmt(palBarres);
+    if (cFbar) cFbar.innerText = fmt(palFerML / 12);
   });
   escalierVolets.forEach(o => {
     const giron = Math.max(0, num(o.giron));
@@ -4398,7 +4400,7 @@ function charger() {
       epingleNuance: 'HA', epingleNb: '', epingleL: '', ...o,
       ferL: o.ferL ?? o.L ?? '', chapL: o.chapL ?? ''
     }));
-    uid = Math.max(d.uid || 1, ...(d.dalles || []).flatMap(o => [o.id || 0, ...(o.panneaux || []).map(p => p.id || 0), ...(o.lattePanneaux || []).map(p => p.id || 0)]).map(id => id + 1), ...(d.corpsLattes || []).map(p => (p.id || 0) + 1), ...(d.escalierPaliers || []).flatMap(o => [o.id || 0, ...(o.fers || []).map(f => f.id || 0)]).map(id => id + 1), ...(d.escalierVolets || []).map(o => (o.id || 0) + 1), 1);
+    uid = Math.max(d.uid || 1, ...(d.dalles || []).flatMap(o => [o.id || 0, ...(o.panneaux || []).map(p => p.id || 0), ...(o.lattePanneaux || []).map(p => p.id || 0)]).map(id => id + 1), ...(d.corpsLattes || []).map(p => (p.id || 0) + 1), ...(d.escalierPaliers || []).map(o => (o.id || 0) + 1), ...(d.escalierVolets || []).map(o => (o.id || 0) + 1), 1);
     dalles = (d.dalles || []).map(o => ({
       ...o,
       panneaux: normaliserPanneauxDalle(o),
@@ -4464,9 +4466,11 @@ function charger() {
     escalierPaliers = (d.escalierPaliers || []).map((o, idx) => ({
       id: o.id ?? uid++, nom: o.nom ?? ('Palier ' + (idx + 1)),
       L: o.L ?? '', l: o.l ?? '', e: o.e ?? '', n: o.n ?? '1',
-      fers: Array.isArray(o.fers)
-        ? o.fers.map(f => ({ id: f.id ?? uid++, nuance: f.nuance ?? 'HA', diam: f.diam ?? '10', L: f.L ?? '', nb: f.nb ?? '1', crochet: f.crochet ?? '' }))
-        : [nouveauFerPalierEscalier()]
+      avecNappe2: o.avecNappe2 !== false,
+      n1l1Nuance: o.n1l1Nuance ?? 'HA', n1l1Diam: o.n1l1Diam ?? '10', n1l1Esp: o.n1l1Esp ?? '20',
+      n1l2Nuance: o.n1l2Nuance ?? 'HA', n1l2Diam: o.n1l2Diam ?? '10', n1l2Esp: o.n1l2Esp ?? '20',
+      n2l1Nuance: o.n2l1Nuance ?? 'HA', n2l1Diam: o.n2l1Diam ?? '10', n2l1Esp: o.n2l1Esp ?? '20',
+      n2l2Nuance: o.n2l2Nuance ?? 'HA', n2l2Diam: o.n2l2Diam ?? '10', n2l2Esp: o.n2l2Esp ?? '20'
     }));
     escalierVolets = (d.escalierVolets || []).map((o, idx) => ({
       id: o.id ?? uid++, nom: o.nom ?? ('Volet ' + (idx + 1)),
@@ -4497,7 +4501,7 @@ function charger() {
       ...section, lignes: (section.lignes || []).map(l => ({ ...l, total: l.total ?? null }))
     }));
     migrerFersDevis();
-    uid = Math.max(uid, d.uid || 1, ...[murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, escalierPaliers, escalierVolets, crepMurs, crepDalles].flat().map(o => o.id + 1), ...dalles.flatMap(o => [...(o.panneaux || []), ...(o.lattePanneaux || [])]).map(p => (p.id || 0) + 1), ...escalierPaliers.flatMap(o => o.fers || []).map(f => (f.id || 0) + 1), 1);
+    uid = Math.max(uid, d.uid || 1, ...[murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, escalierPaliers, escalierVolets, crepMurs, crepDalles].flat().map(o => o.id + 1), ...dalles.flatMap(o => [...(o.panneaux || []), ...(o.lattePanneaux || [])]).map(p => (p.id || 0) + 1), 1);
     // Les projets antérieurs à l'ajout du module reçoivent leur première ligne de chenage.
     if (!d.moduleAmorcesInitialise && !amorces.length) amorces.push({ id: uid++, nom: 'Amorce 1', forme: 'rect', a: '', b: '', H: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '', ferNb: '4', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' });
     // Les projets antérieurs à l'ajout du module reçoivent les lignes de main-d'œuvre pré-remplies.
