@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Télécharger GROS ŒUVRE PRO — Windows</title>
+<style>
+  :root { --bleu:#0b1f3a; --ambre:#fbbf24; --texte:#e8eefb; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px;
+         font-family:'Segoe UI',system-ui,-apple-system,sans-serif; color:var(--texte);
+         background:radial-gradient(1200px 600px at 20% 0%, #17395f 0%, #0b1f3a 55%, #071628 100%); }
+  .carte { width:min(560px,100%); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+           border-radius:22px; padding:34px 30px 30px; text-align:center; backdrop-filter:blur(10px);
+           box-shadow:0 26px 60px rgba(0,0,0,.45); }
+  .logo { width:78px; height:78px; margin:0 auto 18px; border-radius:22px; display:grid; place-items:center;
+          background:linear-gradient(140deg,#fbbf24,#ea9a06); box-shadow:0 12px 28px rgba(234,154,6,.35); }
+  .logo svg { width:40px; height:40px; }
+  h1 { margin:0 0 6px; font-size:23px; letter-spacing:.4px; }
+  .sous { margin:0 0 24px; font-size:13.5px; color:#a9bcd6; line-height:1.55; }
+  .bouton { display:block; width:100%; padding:16px 20px; border-radius:14px; text-decoration:none;
+            font-size:15.5px; font-weight:800; letter-spacing:.3px; color:#22160a;
+            background:linear-gradient(140deg,#fbbf24,#ea9a06); box-shadow:0 14px 30px rgba(234,154,6,.32);
+            transition:transform .15s ease, box-shadow .15s ease; }
+  .bouton:hover { transform:translateY(-1px); box-shadow:0 18px 36px rgba(234,154,6,.42); }
+  .details { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:22px 0 0; }
+  .detail { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); border-radius:12px; padding:11px 8px; }
+  .detail b { display:block; font-size:13px; color:#fff; }
+  .detail span { display:block; margin-top:3px; font-size:10.6px; text-transform:uppercase; letter-spacing:.6px; color:#8fa6c4; }
+  .note { margin:20px 0 0; font-size:12px; color:#93a8c5; line-height:1.6; }
+  .note a { color:#fcd34d; }
+  footer { margin-top:20px; font-size:11px; color:#7b8fac; }
+</style>
+</head>
+<body>
+  <main class="carte">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#22160a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 20h16"/><path d="M6 20V9l6-4 6 4v11"/><path d="M10 20v-6h4v6"/>
+      </svg>
+    </div>
+    <h1>GROS ŒUVRE PRO</h1>
+    <p class="sous">Application Windows de quantitatifs de gros œuvre et de devis.<br>Cliquez sur le bouton : le fichier <b>.exe</b> se télécharge directement.</p>
+
+    <a class="bouton" href="https://github.com/Yanntchinda/Montana-/releases/latest/download/Gros-Oeuvre-Pro-Setup-1.0.0-x64.exe" rel="noopener">
+      Télécharger l’installateur Windows (.exe)
+    </a>
+
+    <div class="details">
+      <div class="detail"><b>Windows</b><span>10 / 11 · 64 bits</span></div>
+      <div class="detail"><b>1.0.0</b><span>Version</span></div>
+      <div class="detail"><b>~108 Mo</b><span>Téléchargement</span></div>
+    </div>
+
+    <p class="note">
+      Fichier : <b>Gros-Oeuvre-Pro-Setup-1.0.0-x64.exe</b><br>
+      Installation sans droits administrateur, raccourcis bureau et menu Démarrer.<br>
+      Empreinte SHA-256 : <a href="https://github.com/Yanntchinda/Montana-/releases/latest/download/SHA256SUMS.txt" rel="noopener">vérifier le fichier</a>
+    </p>
+    <footer>© Copyright by free 1</footer>
+  </main>
+</body>
+</html>
