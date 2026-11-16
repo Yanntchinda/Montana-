@@ -1,0 +1,119 @@
+# GROS ŒUVRE PRO
+
+Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, disponible en version Web locale et en application de bureau Windows.
+
+## Fonctionnalités
+
+- Murs et parpaings, avec plusieurs portes et fenêtres de dimensions différentes sur un même mur.
+- Longrines avec volume de béton, fers longitudinaux, cadres et épingles en barres de 12 m.
+- Poteaux et poutres avec fers longitudinaux, cadres et épingles; chapeaux de poutres et armatures HA/RL calculés en barres de 12 m.
+- Amorce : module complet calqué sur les poteaux (formes rectangulaire et circulaire, section, coffrage latéral, béton, fers verticaux, cadres et épingles), raccordé au tableau de bord et au devis.
+- Chenage : module complet calqué sur les poutres (coffrage, béton, fers, chapeaux, cadres et épingles), raccordé au tableau de bord et au devis.
+- Mains d’œuvre : tableau désignation · unité · quantité · prix unitaire · montant, avec les éléments de tous les modules pré-remplis (parpaing, poteaux, poutres, longrines, chenage, semelle, crépissage, amorce, dalles, solivage), les **quantités mises à jour automatiquement** depuis les modules (parpaings : quantité du devis validé des murs ; poteaux et amorce : hauteur totale ; poutres, longrines, chenage : longueur totale ; semelles : nombre ; crépissage, dalles, solivage : surfaces) et une section MAIN-D’ŒUVRE dans le devis.
+- Solivage : nombre de lattes = [ ((longueur ÷ espacement) + 1) × largeur + ((largeur ÷ espacement) + 1) × longueur ] ÷ 4,8 arrondi au supérieur, avec section SOLIVAGE (quantité × prix unitaire) dans le devis.
+- Dalle pleine (plusieurs panneaux par dalle avec dimensions, surface et volume cumulés, nappes d’armatures ajoutables à la demande — une Nappe 1 au départ puis bouton « Ajouter une nappe », deux lits par nappe : Lit 1 sens longueur L et Lit 2 sens largeur l — plus sous-modules Cavaliers, Lattes multi-panneaux, Planche et Étais envoyés au devis) et dalle à corps creux (hourdis, nervures et sous-modules Lattes multi-panneaux et Étais envoyés au devis).
+- Semelles avec nappes d’armatures ajoutables (une Nappe 1 au départ, bouton « Ajouter une nappe », jusqu’à 20 nappes), chacune composée de deux lits indépendants (Lit 1 sens longueur L et Lit 2 sens largeur l).
+- Escalier avec deux sous-modules : **Palier** (volume béton et **Fer** par nappes ajoutables avec Lit 1 sens longueur L et Lit 2 sens largeur l) et **Volet** (**Marches** : ((giron × hauteur) ÷ 2) × emmarchement × nombre de marches total ; **Paillasse** : longueur × emmarchement × épaisseur × nombre de volets ; **Fer** : nappes ajoutables avec Lit 1 sens longueur L et Lit 2 sens largeur l), raccordé au tableau de bord et au devis.
+- Crépissage.
+- Validation explicite de chaque module avant envoi au devis.
+- Devis avec quantités, prix unitaires, prix totaux, TVA et export PDF.
+- Sauvegarde automatique et fonctionnement hors connexion.
+- Thèmes clair et sombre.
+- Interface bilingue **français / anglais** : bouton `EN` / `FR` sur l’écran d’accueil et dans la barre supérieure, langue mémorisée sur l’appareil. Les libellés, unités, dates et nombres suivent la langue choisie ; les calculs et les devis archivés restent inchangés.
+
+## Structure du projet
+
+```text
+Montana-/
+├── index.html                         Application complète HTML/CSS/JS
+├── assets/fontawesome/               Icônes locales pour le mode hors connexion
+├── electron/main.cjs                 Fenêtre de bureau sécurisée
+├── build/icon.ico                    Icône de l'installateur Windows
+├── build/icon.png                    Icône de la fenêtre
+├── scripts/check-app.cjs             Vérifications avant compilation
+├── scripts/i18n-en.json              Dictionnaire français → anglais de l'interface
+├── scripts/build-i18n.cjs            Injecte le dictionnaire dans index.html
+├── .github/workflows/build-windows.yml
+├── package.json                      Scripts et configuration electron-builder
+├── package-lock.json                 Versions exactes des dépendances
+└── calculateur_batiment (3).html     Version originale conservée
+```
+
+## Utiliser la version Web locale
+
+Aucune compilation n'est nécessaire :
+
+```bash
+python3 -m http.server 8000 --bind 0.0.0.0
+```
+
+Ouvrir ensuite `http://localhost:8000/`.
+
+## Lancer la version bureau en développement
+
+Prérequis : Node.js 20 ou plus récent.
+
+```bash
+npm ci
+npm run check
+npm start
+```
+
+## Générer l'installateur Windows `.exe`
+
+Sur une machine Windows x64 :
+
+```bash
+npm ci
+npm run check
+npm run dist:win
+```
+
+L'installateur est créé dans :
+
+```text
+release/Gros-Oeuvre-Pro-Setup-1.0.0-x64.exe
+```
+
+L'installateur NSIS permet de choisir le dossier d'installation et crée les raccourcis du Bureau et du menu Démarrer.
+
+## Compiler sur GitHub Actions
+
+Le workflow **Construire l'application Windows** se déclenche automatiquement lors d'une modification de l'application sur `main` ou une branche `arena/**`.
+
+Compilation manuelle :
+
+1. Ouvrir le dépôt sur GitHub.
+2. Aller dans **Actions**.
+3. Sélectionner **Construire l'application Windows**.
+4. Cliquer sur **Run workflow**.
+5. À la fin du travail, télécharger l'artefact `GROS-OEUVRE-PRO-Windows-...`.
+6. Décompresser l'artefact pour obtenir l'installateur `.exe` et `SHA256SUMS.txt`.
+
+Le fichier `SHA256SUMS.txt` permet de vérifier l'intégrité de l'installateur téléchargé.
+
+## Données et fonctionnement hors connexion
+
+- Les données du chantier restent sur l'ordinateur dans le stockage local Electron.
+- Aucune donnée métier n'est envoyée vers un serveur.
+- Les icônes sont embarquées dans l'application : Internet n'est pas requis après installation.
+- La désinstallation conserve volontairement les données utilisateur pour éviter une perte accidentelle.
+
+## Sécurité
+
+La fenêtre Electron utilise :
+
+- `contextIsolation: true` ;
+- `nodeIntegration: false` ;
+- le bac à sable Chromium ;
+- une politique CSP ;
+- le blocage des permissions et navigations non autorisées ;
+- une instance unique de l'application.
+
+## Signature Windows
+
+L'installateur produit par GitHub est fonctionnel mais non signé. Windows SmartScreen peut donc afficher un avertissement lors des premiers téléchargements. Pour une diffusion publique sans cet avertissement, il faudra ajouter ultérieurement un certificat de signature de code au workflow GitHub.
+
+## Version
+
+La version de l'application se règle dans `package.json`. Avant chaque publication officielle, augmenter la propriété `version`, par exemple de `1.0.0` à `1.1.0`.

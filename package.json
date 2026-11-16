@@ -1,0 +1,67 @@
+{
+  "name": "gros-oeuvre-pro",
+  "version": "1.0.0",
+  "description": "Calculateur professionnel de gros œuvre et générateur de devis quantitatifs.",
+  "main": "electron/main.cjs",
+  "author": "Yanntchinda",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "check": "node scripts/check-app.cjs",
+    "pack": "electron-builder --dir --publish never",
+    "dist": "electron-builder --publish never",
+    "dist:win": "electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.9.2",
+    "electron-builder": "26.15.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "build": {
+    "appId": "cm.grosoeuvre.pro",
+    "productName": "GROS ŒUVRE PRO",
+    "copyright": "Copyright © 2026 Yanntchinda",
+    "asar": true,
+    "compression": "maximum",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "index.html",
+      "assets/**/*",
+      "electron/**/*",
+      "build/icon.png",
+      "package.json",
+      "!**/*.map"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "Gros-Oeuvre-Pro-Setup-${version}-${arch}.${ext}",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "GROS ŒUVRE PRO",
+      "uninstallDisplayName": "GROS ŒUVRE PRO",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true
+    }
+  }
+}
