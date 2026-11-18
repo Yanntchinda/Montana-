@@ -132,21 +132,13 @@ html[data-theme="light"] .sidebar{box-shadow:6px 0 24px -18px rgba(15,23,42,.5)}
 .sw input:checked + .track::after{transform:translateX(13px);background:#1c1503}
 .sw input:focus-visible + .track{outline:2px solid #fbbf24;outline-offset:2px}
 
-.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:9px;padding-top:12px;border-top:1px solid rgba(148,163,184,.16)}
-.save-state{display:flex;align-items:center;gap:7px;font-size:10.8px;color:#7f96ba;padding:0 4px}
-.save-state i{color:#34d399}
-.save-state.dirty i{color:#fbbf24}
-.side-actions{display:flex;gap:6px}
-.side-actions button{
-  flex:1;padding:7px 4px;border-radius:9px;border:1px solid rgba(148,163,184,.22);
-  background:rgba(148,163,184,.09);color:#c8d6ec;font-size:11px;cursor:pointer;transition:.16s;font-weight:500
-}
-.side-actions button:hover{background:rgba(245,158,11,.2);border-color:rgba(245,158,11,.5);color:#fff}
+.save-state{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);padding:0 4px}
+.save-state i{color:#059669}.save-state.dirty i{color:#d97706}
 
 /* -------- zone principale -------- */
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
 .topbar{
-  position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:14px;
+  position:sticky;top:0;z-index:30;display:flex;align-items:center;flex-wrap:wrap;gap:12px;
   padding:13px 26px;background:color-mix(in srgb,var(--surface) 88%,transparent);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--border)
 }
@@ -154,7 +146,9 @@ html[data-theme="light"] .sidebar{box-shadow:6px 0 24px -18px rgba(15,23,42,.5)}
 .top-title{min-width:0;flex:1}
 .top-title h2{font-size:16.5px}
 .top-title p{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top-actions{display:flex;align-items:center;gap:8px}
+.barre-outils-projet{display:flex;align-items:center;flex-wrap:wrap;gap:8px;flex:0 0 100%;min-width:0}
+.barre-outils-projet .save-state{margin-left:auto}
+@media(max-width:560px){.barre-outils-projet .save-state{margin-left:0;width:100%}}
 
 /* ============================================================
    COMPOSANTS
@@ -487,7 +481,6 @@ tr.dv-sec td.code-sec{text-align:center;width:56px}
 }
 @media (max-width:560px){
   .signatures{grid-template-columns:1fr}
-  .top-actions .lbl{display:none}
   .btn{padding:8px 10px}
 }
 
@@ -600,14 +593,9 @@ html[data-theme="dark"] .accueil-hint{color:#c8d6ec}
 }
 
 
-body.sans-projet .sidebar,body.sans-projet .top-actions,body.sans-projet .burger{display:none !important}
+body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet .burger{display:none !important}
 /* Navigation latérale du projet */
 .sidebar .nav{flex:1 1 auto;min-height:0}
-.systeme-menu{margin-top:auto;flex:0 0 auto;color:#dbe6f7}
-.systeme-menu summary{cursor:pointer;list-style:none;padding:9px 11px;border:1px solid rgba(148,163,184,.3);border-radius:10px;font-weight:700;font-size:12px}
-.systeme-menu summary::-webkit-details-marker{display:none}
-.systeme-menu .side-foot{max-height:240px;overflow-y:auto;margin-top:6px;padding-top:9px}
-.systeme-menu .side-actions button{padding:9px;text-align:left}
 .projet-page{width:min(900px,100%);margin:clamp(20px,5vw,70px) auto;padding:clamp(24px,4vw,44px);border-radius:18px;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow)}
 .projet-page .projet-label{color:var(--brand);font-size:11px;font-weight:800;letter-spacing:.15em}.projet-page h1{font-size:clamp(25px,4vw,34px);margin:9px 0}.projet-page p{color:var(--muted)}
 
@@ -864,21 +852,6 @@ body.sans-projet .sidebar,body.sans-projet .top-actions,body.sans-projet .burger
       </button>
     </nav>
 
-    <details class="systeme-menu"><summary><i class="fa-solid fa-gear"></i> Système</summary>
-    <div class="side-foot">
-      <div class="save-state" id="save-state"><i class="fa-solid fa-circle-check"></i><span>Sauvegardé automatiquement</span></div>
-      <div class="side-actions">
-        <button onclick="telechargerDevis()" title="Télécharger le devis en PDF"><i class="fa-solid fa-file-arrow-down"></i> Télécharger le devis</button>
-      </div>
-      <div class="side-actions"><button onclick="exporterProjet()" title="Enregistrer le projet dans un fichier"><i class="fa-solid fa-floppy-disk"></i> Exporter le projet</button></div>
-      <div class="side-actions"><button onclick="retourAccueil()"><i class="fa-solid fa-folder-open"></i> Changer de projet</button></div>
-      <div class="side-actions"><button onclick="aller('devis'); this.closest('details').open = false"><i class="fa-solid fa-sliders"></i> Paramètres du devis</button></div>
-      <div class="side-actions"><button onclick="basculerTheme()"><i class="fa-solid fa-circle-half-stroke"></i> Changer le thème</button></div>
-      <div class="side-actions">
-        <button onclick="demanderReset()" title="Tout réinitialiser"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</button>
-      </div>
-    </div>
-    </details>
   </aside>
   <div class="scrim" onclick="document.body.classList.remove('nav-open')"></div>
 
@@ -890,9 +863,14 @@ body.sans-projet .sidebar,body.sans-projet .top-actions,body.sans-projet .burger
         <h2 id="top-titre">Tableau de bord</h2>
         <p id="top-sub">Vue d'ensemble des quantités et du devis</p>
       </div>
-      <div class="top-actions">
-        <button class="btn btn-icon btn-ghost" id="btn-theme" onclick="basculerTheme()" title="Basculer clair / sombre"><i class="fa-solid fa-moon"></i></button>
-        <button class="btn btn-primary" onclick="telechargerDevis()" title="Télécharger le devis en PDF"><i class="fa-solid fa-file-arrow-down"></i><span class="lbl">Télécharger le devis</span></button>
+      <div class="barre-outils-projet no-print" aria-label="Commandes du projet">
+        <button class="btn btn-primary" onclick="telechargerDevis()"><i class="fa-solid fa-file-arrow-down"></i> Télécharger le devis</button>
+        <button class="btn" onclick="exporterProjet()"><i class="fa-solid fa-floppy-disk"></i> Exporter le projet</button>
+        <button class="btn" onclick="retourAccueil()"><i class="fa-solid fa-folder-open"></i> Changer de projet</button>
+        <button class="btn" onclick="aller('devis')"><i class="fa-solid fa-sliders"></i> Paramètres du devis</button>
+        <button class="btn" id="btn-theme" onclick="basculerTheme()" title="Changer le thème"><i class="fa-solid fa-moon"></i></button>
+        <button class="btn btn-danger" onclick="demanderReset()"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</button>
+        <div class="save-state" id="save-state"><i class="fa-solid fa-circle-check"></i><span>Sauvegardé automatiquement</span></div>
       </div>
     </div>
 
@@ -4634,7 +4612,7 @@ function accederApp() {
   document.body.classList.remove('sans-projet');
   $('login-screen').classList.add('login-hidden');
   document.querySelector('.sidebar').inert = false;
-  document.querySelector('.top-actions').inert = false;
+  document.querySelector('.barre-outils-projet').inert = false;
   document.body.style.overflow = '';
   appliquerTout();
   aller('projet', { silent: true });
@@ -4647,8 +4625,7 @@ function retourAccueil() {
   projetOuvert = false;
   document.body.classList.add('sans-projet');
   document.querySelector('.sidebar').inert = true;
-  document.querySelector('.top-actions').inert = true;
-  const menu = document.querySelector('.systeme-menu'); if (menu) menu.open = false;
+  document.querySelector('.barre-outils-projet').inert = true;
   etagesOuverts = {}; appliquerBlocs();
   afficherAccueilProjet(true);
   aller('dashboard', { silent: true });
@@ -4858,7 +4835,7 @@ function appliquerTout() {
   // le body est verrouillé tant que l'écran de connexion est affiché
   document.body.style.overflow = 'hidden';
   document.querySelector('.sidebar').inert = true;
-  document.querySelector('.top-actions').inert = true;
+  document.querySelector('.barre-outils-projet').inert = true;
 
   let ouverture = null;
   try {

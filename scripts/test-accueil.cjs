@@ -34,7 +34,7 @@ vm.createContext(ctx); vm.runInContext(source, ctx);
   assert.match(html, /body\.sans-projet \.sidebar/);
   assert.match(html, /id="panel-projet"/);
   assert.match(html, /aller\('projet', \{ silent: true \}\)/);
-  assert.match(html, /class="systeme-menu"/);
+  assert.match(html, /class="barre-outils-projet no-print"/);
   assert.doesNotMatch(accueil, /dash-beton|dash-repart|dash-modules|dash-mat/);
   for (const label of ['Nouveau projet', 'Continuer le projet enregistré', 'Ouvrir un fichier projet', 'Exporter le projet enregistré']) assert.ok(accueil.includes(label));
   assert.doesNotMatch(accueil, /dash-construction-slider|login-slide/);
