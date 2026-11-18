@@ -604,6 +604,16 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
 .accueil-page{width:min(900px,100%);margin:clamp(20px,5vw,70px) auto;padding:clamp(22px,4vw,42px);background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow)}
 .accueil-page-head{margin-bottom:24px}.accueil-page-head span{font-size:11px;letter-spacing:.15em;font-weight:800;color:var(--brand)}
 .accueil-page-head h1{font-size:clamp(24px,4vw,32px);margin:7px 0}.accueil-page-head p{color:var(--muted)}
+/* Progression indéterminée : aucune durée ni pourcentage inventés. */
+.chargement-projet[hidden]{display:none !important}
+.chargement-projet{position:fixed;inset:0;z-index:12000;display:grid;place-items:center;padding:20px;background:rgba(7,13,24,.7)}
+.chargement-carte{width:min(420px,100%);padding:26px;border:1px solid var(--border);border-radius:16px;background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.chargement-carte h2{font-size:17px;margin-bottom:8px}.chargement-carte p{color:var(--muted);font-size:13px;margin-bottom:16px}
+.chargement-piste{height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+.chargement-piste::after{content:"";display:block;width:38%;height:100%;border-radius:99px;background:linear-gradient(90deg,#d97706,#fbbf24);animation:chargement-defile 1.1s ease-in-out infinite alternate}
+@keyframes chargement-defile{from{transform:translateX(-35%)}to{transform:translateX(200%)}}
+@media(prefers-reduced-motion:reduce){.chargement-piste::after{animation:none;transform:translateX(80%)}}
+.accueil-retour{min-height:1.4em;margin-top:12px;color:var(--muted);font-size:12px}
 .accueil-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .accueil-action{display:flex;align-items:center;gap:16px;text-align:left;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--surface-2);color:var(--text);cursor:pointer}
 .accueil-action i{width:42px;height:42px;display:grid;place-items:center;flex:none;border-radius:11px;background:var(--brand-soft);color:var(--brand);font-size:18px}
@@ -663,6 +673,9 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
 </style>
 </head>
 <body class="sans-projet">
+  <div class="chargement-projet" id="chargement-projet" hidden role="status" aria-live="polite" aria-busy="true">
+    <div class="chargement-carte"><h2 id="chargement-titre">Chargement</h2><p id="chargement-message">Préparation en cours…</p><div class="chargement-piste" role="progressbar" aria-label="Chargement en cours"></div></div>
+  </div>
   <!-- Connexion : les actions de projet restent sur la page d'accueil -->
   <div class="login-screen" id="login-screen">
     <div class="login-slides" aria-hidden="true"><div class="login-slide"></div><div class="login-slide"></div><div class="login-slide"></div></div>
@@ -882,11 +895,12 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
           <div class="accueil-page-head"><span>GROS ŒUVRE PRO</span><h1>Accueil des projets</h1><p>Choisissez une action pour commencer.</p></div>
           <div class="accueil-actions">
             <button class="accueil-action principal" onclick="nouveauProjet()"><i class="fa-solid fa-file-circle-plus"></i><span><b>Nouveau projet</b><small>Créer un nouveau chantier</small></span></button>
-            <button class="accueil-action" id="btn-projet-recent" onclick="accederApp()"><i class="fa-solid fa-clock-rotate-left"></i><span><b>Continuer le projet enregistré</b><small>Reprendre votre travail</small></span></button>
-            <button class="accueil-action" onclick="$('fichier-projet').click()"><i class="fa-solid fa-folder-open"></i><span><b>Ouvrir un fichier projet</b><small>Importer un projet depuis un fichier</small></span></button>
-            <input type="file" id="fichier-projet" accept=".json,application/json" hidden onchange="importerProjet(this)">
-            <button class="accueil-action" id="btn-export-accueil" onclick="exporterProjet()"><i class="fa-solid fa-file-arrow-down"></i><span><b>Exporter le projet enregistré</b><small>Conserver ou transférer votre projet</small></span></button>
+            <button class="accueil-action" id="btn-projet-recent" onclick="continuerDepuisAccueil()"><i class="fa-solid fa-clock-rotate-left"></i><span><b>Continuer le projet enregistré</b><small>Reprendre votre travail</small></span></button>
+            <button class="accueil-action" onclick="choisirFichierProjet()"><i class="fa-solid fa-folder-open"></i><span><b>Ouvrir un fichier projet</b><small>Importer un projet depuis un fichier</small></span></button>
+            <input type="file" id="fichier-projet" accept=".json,application/json" hidden onchange="importerProjet(this)" oncancel="annulerChoixProjet()">
+            <button class="accueil-action" id="btn-export-accueil" onclick="exporterDepuisAccueil()"><i class="fa-solid fa-file-arrow-down"></i><span><b>Exporter le projet enregistré</b><small>Conserver ou transférer votre projet</small></span></button>
           </div>
+          <p class="accueil-retour" id="accueil-retour" role="status" aria-live="polite"></p>
           <p class="accueil-hint">Les 10 derniers projets sont conservés sur cet appareil. Exportez vos projets pour en garder une copie indépendante.</p>
           <div class="recents"><h2>Projets récents</h2><div class="recents-list" id="liste-projets-recents"></div></div>
         </div>
@@ -4480,6 +4494,40 @@ function afficherAccueilProjet(restaure) {
   $('btn-export-accueil').disabled = !raw;
   rendreProjetsRecents();
 }
+let chargementEnCours = false;
+function afficherChargement(titre, message) {
+  const bloc = $('chargement-projet');
+  if (bloc) { $('chargement-titre').textContent = titre; $('chargement-message').textContent = message; bloc.hidden = false; }
+  chargementEnCours = true;
+}
+function messageChargement(message) { const el = $('chargement-message'); if (el) el.textContent = message; }
+function terminerChargement() { const bloc = $('chargement-projet'); if (bloc) bloc.hidden = true; chargementEnCours = false; }
+function laisserAfficherChargement() { return new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0))); }
+function messageAccueil(message) { const el = $('accueil-retour'); if (el) el.textContent = message; }
+function choisirFichierProjet() {
+  if (chargementEnCours) return;
+  messageAccueil('Sélectionnez un fichier projet JSON dans la fenêtre qui s’ouvre.');
+  $('fichier-projet').click();
+}
+function annulerChoixProjet() { messageAccueil('Sélection du fichier annulée.'); }
+async function continuerDepuisAccueil() {
+  if (chargementEnCours) return;
+  afficherChargement('Continuer le projet enregistré', 'Ouverture de votre espace de travail…');
+  await laisserAfficherChargement();
+  try { accederApp(); }
+  catch (e) { alert('Impossible d’ouvrir le projet enregistré.'); }
+  finally { terminerChargement(); }
+}
+async function exporterDepuisAccueil() {
+  if (chargementEnCours) return;
+  afficherChargement('Exporter le projet enregistré', 'Préparation du fichier projet…');
+  await laisserAfficherChargement();
+  try {
+    if (exporterProjet()) messageAccueil('Le téléchargement du fichier projet a été demandé.');
+    else messageAccueil('Le fichier projet n’a pas pu être exporté.');
+  } catch (e) { messageAccueil('Le fichier projet n’a pas pu être exporté.'); alert('Impossible de préparer le fichier projet.'); }
+  finally { terminerChargement(); }
+}
 function lireProjetsRecents() {
   try {
     const liste = JSON.parse(localStorage.getItem(CLE_RECENTS) || '[]');
@@ -4558,8 +4606,13 @@ function confirmerRemplacement() {
   try { existe = !!localStorage.getItem(CLE); } catch (e) { alert('Stockage indisponible.'); return false; }
   return !existe || window.confirm('Ouvrir un autre projet ? Le projet actuel sera conservé dans les projets récents sur cet appareil. Exportez-le pour garder une copie indépendante.');
 }
-function nouveauProjet() {
-  if (!confirmerRemplacement() || !archiverAvantRemplacement()) return;
+async function nouveauProjet() {
+  if (chargementEnCours || !confirmerRemplacement()) return;
+  afficherChargement('Nouveau projet', 'Sauvegarde du projet précédent…');
+  await laisserAfficherChargement();
+  if (!archiverAvantRemplacement()) { terminerChargement(); return; }
+  messageChargement('Création du nouveau projet…');
+  await laisserAfficherChargement();
   try {
     sessionStorage.setItem('go-ouverture-projet', JSON.stringify({ type: 'nouveau', entreprise: $('login-entreprise').value.trim(), projet: $('login-projet').value.trim() }));
     reinitialisationEnCours = true;
@@ -4570,30 +4623,43 @@ function nouveauProjet() {
   } catch (e) {
     reinitialisationEnCours = false;
     try { sessionStorage.removeItem('go-ouverture-projet'); } catch (ignored) {}
+    terminerChargement();
     alert('Impossible de créer le projet : stockage indisponible.');
   }
 }
 function exporterProjet() {
-  if (projetOuvert && !sauver(false)) return;
+  if (projetOuvert && !sauver(false)) return false;
   let raw;
   try { raw = localStorage.getItem(CLE); } catch (e) {}
-  if (!raw) { alert('Aucun projet enregistré à exporter.'); return; }
+  if (!raw) { alert('Aucun projet enregistré à exporter.'); return false; }
   const url = URL.createObjectURL(new Blob([raw], { type: 'application/json' }));
   const a = document.createElement('a');
   a.href = url; a.download = 'gros-oeuvre-projet.json';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return true;
 }
 async function importerProjet(input) {
   const fichier = input.files && input.files[0];
   input.value = '';
-  if (!fichier) return;
+  if (!fichier) { annulerChoixProjet(); return; }
+  if (chargementEnCours) return;
+  messageAccueil('');
+  afficherChargement('Ouvrir un fichier projet', 'Lecture du fichier sélectionné…');
+  await laisserAfficherChargement();
   try {
     const texte = await fichier.text();
+    messageChargement('Vérification du fichier projet…');
+    await laisserAfficherChargement();
     const d = JSON.parse(texte);
     const listes = ['murs', 'poteaux', 'amorces', 'poutres', 'chenages', 'mainsOeuvre', 'dalles', 'corps', 'semelles', 'longrines', 'devis'];
     if (!d || d.v !== 2 || !d.champs || typeof d.champs !== 'object' || listes.some(k => !Array.isArray(d[k])) || d.devis.some(s => !s || !Array.isArray(s.lignes))) throw new Error('format');
-    if (!confirmerRemplacement() || !archiverAvantRemplacement()) return;
+    if (!confirmerRemplacement()) { terminerChargement(); messageAccueil('Ouverture annulée.'); return; }
+    messageChargement('Sauvegarde du projet précédent…');
+    await laisserAfficherChargement();
+    if (!archiverAvantRemplacement()) { terminerChargement(); return; }
+    messageChargement('Ouverture du projet…');
+    await laisserAfficherChargement();
     const ancien = localStorage.getItem(CLE);
     sessionStorage.setItem('go-import-sauvegarde', JSON.stringify({ ancien }));
     sessionStorage.setItem('go-ouverture-projet', JSON.stringify({ type: 'import' }));
@@ -4604,6 +4670,8 @@ async function importerProjet(input) {
     location.reload();
   } catch (e) {
     try { sessionStorage.removeItem('go-ouverture-projet'); sessionStorage.removeItem('go-import-sauvegarde'); } catch (ignored) {}
+    terminerChargement();
+    messageAccueil('Le fichier n’a pas été ouvert.');
     alert('Impossible d’ouvrir ce fichier. Choisissez un fichier projet JSON valide de GROS ŒUVRE PRO.');
   }
 }
@@ -4825,7 +4893,7 @@ function appliquerTout() {
   appliquerBlocs();
 }
 
-(function init() {
+(async function init() {
   try {
     const t = localStorage.getItem('go-theme');
     if (t === 'dark') { document.documentElement.dataset.theme = 'dark'; }
@@ -4842,6 +4910,10 @@ function appliquerTout() {
     ouverture = JSON.parse(sessionStorage.getItem('go-ouverture-projet') || 'null');
     sessionStorage.removeItem('go-ouverture-projet');
   } catch (e) {}
+  if (ouverture && (ouverture.type === 'nouveau' || ouverture.type === 'import')) {
+    afficherChargement(ouverture.type === 'nouveau' ? 'Nouveau projet' : 'Ouvrir un fichier projet', 'Préparation de l’espace de travail…');
+    await laisserAfficherChargement();
+  }
   const restaure = charger();
   if (ouverture && ouverture.type === 'import') {
     try {
@@ -4856,7 +4928,7 @@ function appliquerTout() {
         return;
       }
       sessionStorage.removeItem('go-import-sauvegarde');
-    } catch (e) { alert('Impossible de restaurer le projet précédent.'); return; }
+    } catch (e) { terminerChargement(); alert('Impossible de restaurer le projet précédent.'); return; }
   }
   if (!restaure) {
     ajouterLongrine(); ajouterMur(); ajouterPoteau(); ajouterAmorce(); ajouterPoutre(); ajouterChenage(); ajouterDalle(); ajouterCorps(); ajouterPanneauLatteCorps(); ajouterSemelle(); ajouterPalierEscalier(); ajouterVoletEscalier(); initialiserLignesMainDoeuvre();
@@ -4877,7 +4949,11 @@ function appliquerTout() {
   } else if (ouverture && ouverture.type === 'import' && !restaure) {
     alert('Le fichier projet ne peut pas être chargé. Il reste disponible pour export.');
   }
-})();
+  terminerChargement();
+})().catch(() => {
+  terminerChargement();
+  alert('Impossible de préparer l’espace de travail. Le projet enregistré est conservé.');
+});
 </script>
 </body>
 </html>
