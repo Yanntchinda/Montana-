@@ -599,6 +599,15 @@ html[data-theme="dark"] .login-foot{color:#6f819f}
 html[data-theme="dark"] .login-foot b{color:#e8eefb}
 
 .login-hidden{display:none !important}
+.login-screen{overflow-y:auto;padding:28px 0}
+.login-glass{max-height:none}
+.accueil-recent{margin:8px 30px 12px;padding:12px 14px;border:1px solid #cbd5e1;border-radius:11px;background:rgba(255,255,255,.82);color:#334155;font-size:12px;overflow-wrap:anywhere}
+html[data-theme="dark"] .accueil-recent{background:#0b1424;border-color:#2b3d5c;color:#c8d6ec}
+.accueil-recent strong{display:block;font-size:13px}
+.accueil-hint{font-size:11.5px;color:#475569;line-height:1.45;text-align:center}
+html[data-theme="dark"] .accueil-hint{color:#c8d6ec}
+.btn-secondary:disabled{opacity:.5;cursor:not-allowed}
+@media(max-height:720px){.login-screen{place-items:start center}.login-head{padding-top:18px}.login-foot{padding:8px 30px 14px}}
 
 /* petit badge chantier en fond de la carte login */
 .login-deco{
@@ -664,21 +673,26 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
       <div class="login-head">
         <div class="login-ico"><i class="fa-solid fa-hard-hat"></i></div>
         <h1>GROS ŒUVRE PRO</h1>
-        <p>Identifiez votre chantier pour ouvrir le calculateur de quantitatifs</p>
+        <p>Bienvenue · Créez ou ouvrez un projet pour commencer</p>
       </div>
+      <div class="accueil-recent" id="accueil-recent" aria-live="polite"></div>
       <div class="login-body">
         <div class="login-field">
-          <input id="login-entreprise" type="text" placeholder=" " oninput="marquerModifie()">
-          <label>Entreprise / Maître d'ouvrage</label>
+          <input id="login-entreprise" type="text" placeholder=" ">
+          <label for="login-entreprise">Entreprise / Maître d'ouvrage (facultatif)</label>
         </div>
         <div class="login-field">
-          <input id="login-projet" type="text" placeholder=" " oninput="marquerModifie()">
-          <label>Nom du chantier / projet</label>
+          <input id="login-projet" type="text" placeholder=" ">
+          <label for="login-projet">Nom du nouveau projet (facultatif)</label>
         </div>
       </div>
       <div class="login-actions">
-        <button class="btn-login" onclick="accederApp()"><i class="fa-solid fa-sign-in"></i>&nbsp; Accéder au calculateur</button>
-        <button class="btn-secondary" onclick="accederApp(true)"><i class="fa-solid fa-eye"></i>&nbsp; Entrer en démonstration</button>
+        <button class="btn-login" onclick="nouveauProjet()"><i class="fa-solid fa-file-circle-plus"></i>&nbsp; Nouveau projet</button>
+        <button class="btn-secondary" id="btn-projet-recent" onclick="accederApp()"><i class="fa-solid fa-clock-rotate-left"></i>&nbsp; Continuer le projet enregistré</button>
+        <button class="btn-secondary" onclick="$('fichier-projet').click()"><i class="fa-solid fa-folder-open"></i>&nbsp; Ouvrir un fichier projet</button>
+        <input type="file" id="fichier-projet" accept=".json,application/json" hidden onchange="importerProjet(this)">
+        <button class="btn-secondary" id="btn-export-accueil" onclick="exporterProjet()"><i class="fa-solid fa-file-arrow-down"></i>&nbsp; Exporter le projet enregistré</button>
+        <p class="accueil-hint">Un projet est conservé sur cet appareil. Exportez-le en fichier pour le garder ou le transférer avant d’en ouvrir un autre.</p>
       </div>
       <div class="login-foot"><b>GROS ŒUVRE PRO</b>&nbsp;·&nbsp;Quantitatifs de construction</div>
     </div>
@@ -862,6 +876,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
       <div class="side-actions">
         <button onclick="telechargerDevis()" title="Télécharger le devis en PDF"><i class="fa-solid fa-file-arrow-down"></i> Télécharger le devis</button>
       </div>
+      <div class="side-actions"><button onclick="exporterProjet()" title="Enregistrer le projet dans un fichier"><i class="fa-solid fa-floppy-disk"></i> Exporter le projet</button></div>
       <div class="side-actions">
         <button onclick="demanderReset()" title="Tout réinitialiser"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</button>
       </div>
@@ -4502,6 +4517,7 @@ const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dal-etais-m2', 
   'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-dalle', 'sel-corps', 'sel-semelle', 'sel-escalier'];
 let saveTimer = null;
 let reinitialisationEnCours = false;
+let projetOuvert = false;
 
 function marquerModifie() {
   const s = $('save-state');
@@ -4513,7 +4529,7 @@ function marquerModifie() {
 }
 function sauver(silencieux = true) {
   // Pendant une remise à zéro, aucune sauvegarde différée ou beforeunload ne doit restaurer l’ancien projet.
-  if (reinitialisationEnCours) return;
+  if (reinitialisationEnCours || !projetOuvert) return;
   try {
     const champs = {};
     CHAMPS.forEach(id => { const el = $(id); if (el) champs[id] = el.type === 'checkbox' ? el.checked : el.value; });
@@ -4528,20 +4544,85 @@ function sauver(silencieux = true) {
 /* ============================================================
    CONNEXION — ouverture de l'app par clic
    ============================================================ */
-function accederApp(demo = false) {
-  const ent = $('login-entreprise').value.trim();
-  const proj = $('login-projet').value.trim();
-  if (!demo && ent) $('dv-ent').value = ent;
-  if (!demo && proj) $('dv-projet').value = proj;
-  syncEntete();
-  syncProjet();
+function afficherAccueilProjet(restaure) {
+  const recent = $('accueil-recent');
+  $('btn-projet-recent').disabled = !restaure;
+  let raw = null;
+  try { raw = localStorage.getItem(CLE); } catch (e) {}
+  $('btn-export-accueil').disabled = !raw;
+  if (restaure) {
+    recent.textContent = '';
+    const titre = document.createElement('strong');
+    titre.textContent = $('dv-projet').value.trim() || 'Projet sans nom';
+    recent.appendChild(titre);
+    recent.appendChild(document.createTextNode('Dernier projet enregistré sur cet appareil'));
+  } else {
+    recent.textContent = raw ? 'Le projet enregistré ne peut pas être lu. Exportez-le avant de continuer.' : 'Aucun projet enregistré sur cet appareil.';
+  }
+}
+function confirmerRemplacement() {
+  let existe = false;
+  try { existe = !!localStorage.getItem(CLE); } catch (e) { alert('Stockage indisponible.'); return false; }
+  return !existe || window.confirm('Cette action remplacera le projet enregistré sur cet appareil. Exportez-le d’abord si vous souhaitez le conserver. Continuer ?');
+}
+function nouveauProjet() {
+  if (!confirmerRemplacement()) return;
+  try {
+    const infos = { entreprise: $('login-entreprise').value.trim(), projet: $('login-projet').value.trim() };
+    sessionStorage.setItem('go-ouverture-projet', JSON.stringify({ type: 'nouveau', ...infos }));
+    reinitialisationEnCours = true;
+    clearTimeout(saveTimer);
+    localStorage.removeItem(CLE);
+    location.hash = '';
+    location.reload();
+  } catch (e) {
+    reinitialisationEnCours = false;
+    try { sessionStorage.removeItem('go-ouverture-projet'); } catch (ignored) {}
+    alert('Impossible de créer le projet : stockage indisponible.');
+  }
+}
+function exporterProjet() {
+  if (projetOuvert) sauver();
+  let raw;
+  try { raw = localStorage.getItem(CLE); } catch (e) {}
+  if (!raw) { alert('Aucun projet enregistré à exporter.'); return; }
+  const url = URL.createObjectURL(new Blob([raw], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = 'gros-oeuvre-projet.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+async function importerProjet(input) {
+  const fichier = input.files && input.files[0];
+  input.value = '';
+  if (!fichier) return;
+  try {
+    const texte = await fichier.text();
+    const d = JSON.parse(texte);
+    const listes = ['murs', 'poteaux', 'amorces', 'poutres', 'chenages', 'mainsOeuvre', 'dalles', 'corps', 'semelles', 'longrines', 'devis'];
+    if (!d || d.v !== 2 || !d.champs || typeof d.champs !== 'object' || listes.some(k => !Array.isArray(d[k])) || d.devis.some(s => !s || !Array.isArray(s.lignes))) throw new Error('format');
+    if (!confirmerRemplacement()) return;
+    const ancien = localStorage.getItem(CLE);
+    sessionStorage.setItem('go-import-sauvegarde', JSON.stringify({ ancien }));
+    sessionStorage.setItem('go-ouverture-projet', JSON.stringify({ type: 'import' }));
+    localStorage.setItem(CLE, texte);
+    reinitialisationEnCours = true;
+    clearTimeout(saveTimer);
+    location.hash = '';
+    location.reload();
+  } catch (e) {
+    try { sessionStorage.removeItem('go-ouverture-projet'); sessionStorage.removeItem('go-import-sauvegarde'); } catch (ignored) {}
+    alert('Impossible d’ouvrir ce fichier. Choisissez un fichier projet JSON valide de GROS ŒUVRE PRO.');
+  }
+}
+function accederApp() {
+  projetOuvert = true;
   $('login-screen').classList.add('login-hidden');
   document.body.style.overflow = '';
   appliquerTout();
   const h = location.hash.replace('#', '');
   aller(h && ONGLETS[h] ? h : 'dashboard', { silent: true });
-  if (demo) toast('Mode démonstration — chantier exemple', 'info');
-  else toast('Chantier ouvert — bienvenue', 'ok', 'fa-hard-hat');
+  toast('Chantier ouvert — bienvenue', 'ok', 'fa-hard-hat');
   sauver();
 }
 function charger() {
@@ -4747,7 +4828,27 @@ function appliquerTout() {
   // le body est verrouillé tant que l'écran de connexion est affiché
   document.body.style.overflow = 'hidden';
 
+  let ouverture = null;
+  try {
+    ouverture = JSON.parse(sessionStorage.getItem('go-ouverture-projet') || 'null');
+    sessionStorage.removeItem('go-ouverture-projet');
+  } catch (e) {}
   const restaure = charger();
+  if (ouverture && ouverture.type === 'import') {
+    try {
+      const sauvegarde = JSON.parse(sessionStorage.getItem('go-import-sauvegarde') || 'null');
+      if (!restaure && sauvegarde) {
+        if (sauvegarde.ancien === null) localStorage.removeItem(CLE);
+        else localStorage.setItem(CLE, sauvegarde.ancien);
+        sessionStorage.removeItem('go-import-sauvegarde');
+        reinitialisationEnCours = true;
+        alert('Le fichier projet ne peut pas être chargé. Le projet précédent a été conservé.');
+        location.reload();
+        return;
+      }
+      sessionStorage.removeItem('go-import-sauvegarde');
+    } catch (e) { alert('Impossible de restaurer le projet précédent.'); return; }
+  }
   if (!restaure) {
     ajouterLongrine(); ajouterMur(); ajouterPoteau(); ajouterAmorce(); ajouterPoutre(); ajouterChenage(); ajouterDalle(); ajouterCorps(); ajouterPanneauLatteCorps(); ajouterSemelle(); ajouterPalierEscalier(); ajouterVoletEscalier(); initialiserLignesMainDoeuvre();
     $('dv-date').value = new Date().toLocaleDateString('fr-FR');
@@ -4757,7 +4858,16 @@ function appliquerTout() {
   // préparation silencieuse : on ne rend pas encore l'interface, l'utilisateur doit cliquer sur "Connexion"
   syncEntete();
   $('dv-date').value = $('dv-date').value || new Date().toLocaleDateString('fr-FR');
-  sauver();
+  afficherAccueilProjet(restaure);
+  if (ouverture && (ouverture.type === 'nouveau' || (ouverture.type === 'import' && restaure))) {
+    if (ouverture.type === 'nouveau') {
+      $('dv-ent').value = ouverture.entreprise || '';
+      $('dv-projet').value = ouverture.projet || '';
+    }
+    accederApp();
+  } else if (ouverture && ouverture.type === 'import' && !restaure) {
+    alert('Le fichier projet ne peut pas être chargé. Il reste disponible pour export.');
+  }
 })();
 </script>
 </body>

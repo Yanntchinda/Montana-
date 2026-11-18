@@ -4,6 +4,8 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 
 ## Fonctionnalités
 
+- Écran d’accueil au démarrage : nouveau projet, reprise du projet enregistré et ouverture d’un fichier projet JSON. Le projet actif est sauvegardé sur cet appareil ; utilisez **Exporter le projet** pour le conserver avant d’en ouvrir un autre ou pour le transférer.
+
 - Murs et parpaings, avec plusieurs portes et fenêtres de dimensions différentes sur un même mur.
 - Longrines avec volume de béton, fers longitudinaux, cadres et épingles en barres de 12 m.
 - Poteaux et poutres avec fers longitudinaux, cadres et épingles; chapeaux de poutres et armatures HA/RL calculés en barres de 12 m.
