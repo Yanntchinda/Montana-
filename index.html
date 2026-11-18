@@ -709,7 +709,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
       <!-- Fondation -->
       <div class="nav-group" id="navgrp-fondation">
         <div class="nav-group-head" onclick="basculerBloc('fondation')">
-          <i class="fa-solid fa-layer-group"></i><span>Fondation</span><span class="nav-group-count">4</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
+          <i class="fa-solid fa-layer-group"></i><span>Fondation</span><span class="nav-group-count">5</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
         </div>
         <div class="nav-group-body">
           <button class="nav-item" data-tab="semelle" onclick="aller('semelle')">
@@ -732,13 +732,17 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
             <span class="ni-txt"><b>Murs &amp; parpaings</b><span class="ni-val" id="nav-v-mur">0 m²</span></span>
             <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-mur" checked onchange="majVisibilite()"><span class="track"></span></label>
           </button>
+          <button class="nav-item" data-tab="crepissage" onclick="aller('crepissage')">
+            <i class="fa-solid fa-paint-roller ni"></i>
+            <span class="ni-txt"><b>Crépissage</b><span class="ni-val" id="nav-v-crepissage">0 m²</span></span>
+          </button>
         </div>
       </div>
 
       <!-- RDC -->
       <div class="nav-group" id="navgrp-rdc">
         <div class="nav-group-head" onclick="basculerBloc('rdc')">
-          <i class="fa-solid fa-building"></i><span>RDC</span><span class="nav-group-count">5</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
+          <i class="fa-solid fa-building"></i><span>RDC</span><span class="nav-group-count">8</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
         </div>
         <div class="nav-group-body">
           <button class="nav-item" data-tab="poutre" onclick="aller('poutre')">
@@ -765,13 +769,27 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
             <span class="ni-txt"><b>Dalle corps creux</b><span class="ni-val" id="nav-v-corps">0 hourdis</span></span>
             <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-corps" checked onchange="majVisibilite()"><span class="track"></span></label>
           </button>
+          <button class="nav-item" data-tab="chenage" onclick="aller('chenage')">
+            <i class="fa-solid fa-link ni"></i>
+            <span class="ni-txt"><b>Chenage</b><span class="ni-val" id="nav-v-chenage">0 m³</span></span>
+            <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-chenage" checked onchange="majVisibilite()"><span class="track"></span></label>
+          </button>
+          <button class="nav-item" data-tab="escalier" onclick="aller('escalier')">
+            <i class="fa-solid fa-stairs ni"></i>
+            <span class="ni-txt"><b>Escalier</b><span class="ni-val" id="nav-v-escalier">0 m³ · 0 barres</span></span>
+            <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-escalier" checked onchange="majVisibilite()"><span class="track"></span></label>
+          </button>
+          <button class="nav-item" data-tab="crepissage" onclick="aller('crepissage')">
+            <i class="fa-solid fa-paint-roller ni"></i>
+            <span class="ni-txt"><b>Crépissage</b><span class="ni-val ni-val-dup" data-dup="crepissage">0 m²</span></span>
+          </button>
         </div>
       </div>
 
       <!-- Étage 1 -->
       <div class="nav-group" id="navgrp-etage1">
         <div class="nav-group-head" onclick="basculerBloc('etage1')">
-          <i class="fa-solid fa-building"></i><span>Étage 1</span><span class="nav-group-count">5</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
+          <i class="fa-solid fa-building"></i><span>Étage 1</span><span class="nav-group-count">8</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
         </div>
         <div class="nav-group-body">
           <button class="nav-item" data-tab="poutre" onclick="aller('poutre')">
@@ -794,6 +812,18 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
             <i class="fa-solid fa-table-cells ni"></i>
             <span class="ni-txt"><b>Dalle corps creux</b><span class="ni-val ni-val-dup" data-dup="corps">0 hourdis</span></span>
           </button>
+          <button class="nav-item" data-tab="chenage" onclick="aller('chenage')">
+            <i class="fa-solid fa-link ni"></i>
+            <span class="ni-txt"><b>Chenage</b><span class="ni-val ni-val-dup" data-dup="chenage">0 m³</span></span>
+          </button>
+          <button class="nav-item" data-tab="escalier" onclick="aller('escalier')">
+            <i class="fa-solid fa-stairs ni"></i>
+            <span class="ni-txt"><b>Escalier</b><span class="ni-val ni-val-dup" data-dup="escalier">0 m³ · 0 barres</span></span>
+          </button>
+          <button class="nav-item" data-tab="crepissage" onclick="aller('crepissage')">
+            <i class="fa-solid fa-paint-roller ni"></i>
+            <span class="ni-txt"><b>Crépissage</b><span class="ni-val ni-val-dup" data-dup="crepissage">0 m²</span></span>
+          </button>
         </div>
       </div>
 
@@ -813,25 +843,6 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
       </div>
 
       <div class="nav-label">Autres modules</div>
-      <button class="nav-item" data-tab="chenage" onclick="aller('chenage')">
-        <i class="fa-solid fa-link ni"></i>
-        <span class="ni-txt"><b>Chenage</b><span class="ni-val" id="nav-v-chenage">0 m³</span></span>
-        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-chenage" checked onchange="majVisibilite()"><span class="track"></span></label>
-      </button>
-      <button class="nav-item" data-tab="escalier" onclick="aller('escalier')">
-        <i class="fa-solid fa-stairs ni"></i>
-        <span class="ni-txt"><b>Escalier</b><span class="ni-val" id="nav-v-escalier">0 m³ · 0 barres</span></span>
-        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-escalier" checked onchange="majVisibilite()"><span class="track"></span></label>
-      </button>
-      <button class="nav-item" data-tab="crepissage" onclick="aller('crepissage')">
-        <i class="fa-solid fa-paint-roller ni"></i>
-        <span class="ni-txt"><b>Crépissage</b><span class="ni-val" id="nav-v-crepissage">0 m²</span></span>
-      </button>
-      <button class="nav-item" data-tab="solivage" onclick="aller('solivage')">
-        <i class="fa-solid fa-grip-lines ni"></i>
-        <span class="ni-txt"><b>Solivage</b><span class="ni-val" id="nav-v-solivage">0</span></span>
-        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-solivage" checked onchange="majVisibilite()"><span class="track"></span></label>
-      </button>
       <button class="nav-item" data-tab="maindoeuvre" onclick="aller('maindoeuvre')">
         <i class="fa-solid fa-hard-hat ni"></i>
         <span class="ni-txt"><b>Mains d’œuvre</b><span class="ni-val" id="nav-v-maindoeuvre">0</span></span>
@@ -1050,38 +1061,6 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
         </div>
       </section>
 
-      <!-- ============ ONGLET : MAIN-D’ŒUVRE ============ -->
-      <section class="panel" id="bloc-solivage">
-        <div class="card">
-          <div class="card-head">
-            <div class="ch-txt">
-              <h3><i class="fa-solid fa-grip-lines"></i> Solivage</h3>
-              <div class="ch-sub">Nombre de lattes selon la longueur, la largeur et l’espacement du panneau</div>
-            </div>
-            <div class="ch-act">
-              <label class="incl"><span class="sw"><input type="checkbox" class="dup-sel" data-for="sel-solivage" checked onchange="dupSwitch(this)"><span class="track"></span></span> Inclus au devis</label>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="subcard">
-              <div class="subcard-title"><i class="fa-solid fa-ruler"></i> Panneau à soliver</div>
-              <div class="grid g4">
-                <div class="field"><label for="sol-lg">Longueur du panneau (m)</label><input class="inp" id="sol-lg" type="number" min="0" step="0.01" placeholder="0,00" oninput="calculer()"></div>
-                <div class="field"><label for="sol-la">Largeur du panneau (m)</label><input class="inp" id="sol-la" type="number" min="0" step="0.01" placeholder="0,00" oninput="calculer()"></div>
-                <div class="field"><label for="sol-esp">Espacement des lattes (m)</label><input class="inp" id="sol-esp" type="number" min="0" step="0.01" placeholder="0,30" oninput="calculer()"></div>
-                <div class="field"><label for="sol-pu">Prix unitaire de la latte</label><input class="inp" id="sol-pu" type="number" min="0" step="0.01" placeholder="0" oninput="calculer()"></div>
-              </div>
-            </div>
-            <div class="tiles" style="margin-top:16px">
-              <div class="tile"><div class="t-lab"><i class="fa-solid fa-grip-lines"></i> Nombre de lattes</div><div class="t-val"><span id="sv-lattes">0</span></div></div>
-              <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-ruler"></i> Linéaire total des lattes</div><div class="t-val"><span id="sv-lin">0</span><small>m</small></div></div>
-            </div>
-            <div class="note" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><div><b>Nombre de lattes = [ ((longueur ÷ espacement) + 1) × largeur + ((largeur ÷ espacement) + 1) × longueur ] ÷ 4,8</b>, arrondi au supérieur (lattes de 4,80 m). Après validation, la ligne « Lattes de solivage » (quantité × prix unitaire) rejoint la section SOLIVAGE du devis et s’ajoute au total HT.</div></div>
-            <div id="validation-module-solivage"></div>
-          </div>
-        </div>
-      </section>
-
       <section class="panel" id="bloc-maindoeuvre">
         <div class="card">
           <div class="card-head">
@@ -1110,7 +1089,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
               <div class="tile"><div class="t-lab"><i class="fa-solid fa-coins"></i> Total main-d’œuvre</div><div class="t-val"><span id="mo-total">0</span></div></div>
               <div class="tile flat"><div class="t-lab"><i class="fa-solid fa-list-ol"></i> Lignes saisies</div><div class="t-val"><span id="mo-nb">0</span></div></div>
             </div>
-            <div class="note" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><div><b>Montant = quantité × prix unitaire.</b> Les désignations sont pré-remplies et les <b>quantités sont mises à jour automatiquement</b> depuis les modules (parpaings : quantité du devis validé des murs ; poteaux et amorce : hauteur totale ; poutres, longrines, chenage : longueur totale ; semelles : nombre ; crépissage, dalles, solivage : surfaces m²). Seul le prix unitaire reste à saisir. Après validation, les lignes sont envoyées dans la section MAIN-D’ŒUVRE du devis et s’ajoutent au total HT.</div></div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-circle-info"></i><div><b>Montant = quantité × prix unitaire.</b> Les désignations sont pré-remplies et les <b>quantités sont mises à jour automatiquement</b> depuis les modules (parpaings : quantité du devis validé des murs ; poteaux et amorce : hauteur totale ; poutres, longrines, chenage : longueur totale ; semelles : nombre ; crépissage, dalles : surfaces m²). Seul le prix unitaire reste à saisir. Après validation, les lignes sont envoyées dans la section MAIN-D’ŒUVRE du devis et s’ajoutent au total HT.</div></div>
             <div id="validation-module-maindoeuvre"></div>
           </div>
         </div>
@@ -1702,7 +1681,7 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
 <div class="modal-bg" id="modal-reset">
   <div class="modal">
     <header><i class="fa-solid fa-triangle-exclamation"></i><b>Réinitialiser le projet ?</b></header>
-    <div class="m-body">Toutes les saisies (murs, poteaux, amorces, poutres, chenage, dalles, corps creux, semelles, escalier, crépissage, solivage, main-d’œuvre, devis et paramètres) seront effacées et remplacées par un projet vierge. Cette action est irréversible.</div>
+    <div class="m-body">Toutes les saisies (murs, poteaux, amorces, poutres, chenage, dalles, corps creux, semelles, escalier, crépissage, main-d’œuvre, devis et paramètres) seront effacées et remplacées par un projet vierge. Cette action est irréversible.</div>
     <footer>
       <button class="btn" onclick="fermerModal()">Annuler</button>
       <button class="btn btn-solid-danger" onclick="reinitialiser()"><i class="fa-solid fa-trash-can"></i> Tout effacer et repartir à zéro</button>
@@ -1745,7 +1724,6 @@ const ONGLETS = {
   semelle:   { titre: 'Semelles', sub: 'Volume de béton et armatures des nappes 1 et 2 (Lit 1 et Lit 2)' },
   escalier:  { titre: 'Escalier', sub: 'Palier (béton & fer) et Volet (marches & paillasse)' },
   crepissage:{ titre: 'Crépissage', sub: 'Surface des murs sur deux faces et surface des dalles' },
-  solivage:  { titre: 'Solivage', sub: 'Nombre de lattes selon l’espacement du panneau' },
   maindoeuvre:{ titre: 'Mains d’œuvre', sub: 'Désignation, quantités, prix unitaires et montants' },
   devis:     { titre: 'Devis quantitatif', sub: 'Document livrable, imprimable en A4' }
 };
@@ -1793,10 +1771,10 @@ let uid = 1;
 let murs = [], poteaux = [], amorces = [], poutres = [], chenages = [], mainsOeuvre = [], dalles = [], corps = [], corpsLattes = [], semelles = [], longrines = [], escalierPaliers = [], escalierVolets = [], crepMurs = [], crepDalles = [];
 let crepValidation = null;
 const MODULES_VALIDABLES = {
-  longrine: 'Longrines', mur: 'Murs & parpaings', poteau: 'Poteaux', amorce: 'Amorce', poutre: 'Poutres', chenage: 'Chenage', solivage: 'Solivage', maindoeuvre: 'Mains d’œuvre', dalle: 'Dalle pleine', corps: 'Dalle corps creux', semelle: 'Semelles', escalier: 'Escalier'
+  longrine: 'Longrines', mur: 'Murs & parpaings', poteau: 'Poteaux', amorce: 'Amorce', poutre: 'Poutres', chenage: 'Chenage', maindoeuvre: 'Mains d’œuvre', dalle: 'Dalle pleine', corps: 'Dalle corps creux', semelle: 'Semelles', escalier: 'Escalier'
 };
-let calculsModules = { longrine: {}, mur: {}, poteau: {}, amorce: {}, poutre: {}, chenage: {}, maindoeuvre: {}, solivage: {}, dalle: {}, corps: {}, semelle: {}, escalier: {} };
-let validationsModules = { longrine: null, mur: null, poteau: null, amorce: null, poutre: null, chenage: null, maindoeuvre: null, solivage: null, dalle: null, corps: null, semelle: null, escalier: null };
+let calculsModules = { longrine: {}, mur: {}, poteau: {}, amorce: {}, poutre: {}, chenage: {}, maindoeuvre: {}, dalle: {}, corps: {}, semelle: {}, escalier: {} };
+let validationsModules = { longrine: null, mur: null, poteau: null, amorce: null, poutre: null, chenage: null, maindoeuvre: null, dalle: null, corps: null, semelle: null, escalier: null };
 let T = { longVol: 0, longFerML: 0, longFer: 0, longCadreML: 0, longCadre: 0, longEpingleML: 0, longEpingle: 0, sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, potCadreML: 0, potCadre: 0, potEpingleML: 0, potEpingle: 0, amSec: 0, amLat: 0, amVol: 0, amFer: 0, amCadreML: 0, amCadre: 0, amEpingleML: 0, amEpingle: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, pouCadreML: 0, pouCadre: 0, pouEpingleML: 0, pouEpingle: 0, cheCof: 0, cheSur: 0, cheVol: 0, cheFer: 0, cheChap: 0, cheCadreML: 0, cheCadre: 0, cheEpingleML: 0, cheEpingle: 0, dalSurf: 0, dalVol: 0, dalFer: 0, dalCavML: 0, dalCav: 0, dalLatteML: 0, dalLatte: 0, dalPlancheExact: 0, dalPlanche: 0, dalEtaisExact: 0, dalEtais: 0, semVol: 0, semFer1: 0, semFer2: 0, semFer: 0, escPalVol: 0, escMarVol: 0, escPaiVol: 0, escVol: 0, escFerML: 0, escFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0, ccLatteML: 0, ccLatte: 0, ccEtaisExact: 0, ccEtais: 0 };
 
 const copierCalcul = valeur => JSON.parse(JSON.stringify(valeur || {}));
@@ -1831,15 +1809,10 @@ function rendreValidationsModules() {
 }
 function validerModuleDevis(cle) {
   if (!(cle in MODULES_VALIDABLES)) return;
-  if (cle === 'solivage' && !(calculsModules.solivage && calculsModules.solivage.lattes > 0)) {
-    toast('Renseignez la longueur, la largeur et l’espacement des lattes pour calculer le nombre de lattes', 'err', 'fa-triangle-exclamation');
-    return;
-  }
   validationsModules[cle] = { donnees: copierCalcul(calculsModules[cle]), date: new Date().toISOString() };
   calculer();
   if (cle === 'semelle') { syncSemellesDevis(); rendreDevis(); }
   if (cle === 'maindoeuvre') { syncMainDoeuvreDevis({ rafraichir: true }); rendreDevis(); }
-  if (cle === 'solivage') { syncSolivageDevis({ rafraichir: true }); rendreDevis(); }
   sauver(false);
   toast(`${MODULES_VALIDABLES[cle]} validé et enregistré dans le devis`, 'ok', 'fa-file-circle-check');
 }
@@ -1850,7 +1823,6 @@ function retirerModuleDevis(cle) {
   calculer();
   if (cle === 'semelle') { syncSemellesDevis(); rendreDevis(); }
   if (cle === 'maindoeuvre') { syncMainDoeuvreDevis(); rendreDevis(); }
-  if (cle === 'solivage') { syncSolivageDevis(); rendreDevis(); }
   sauver(false);
   toast(`${MODULES_VALIDABLES[cle]} retiré du devis`, 'ok');
 }
@@ -2011,22 +1983,10 @@ function basculerNappe2VoletEscalier(voletId, actif) {
   o.avecNappe2 = !!actif;
   rendre();
 }
-function solivageCalc() {
-  const L = num($('sol-lg') ? $('sol-lg').value : '');
-  const W = num($('sol-la') ? $('sol-la').value : '');
-  const e = num($('sol-esp') ? $('sol-esp').value : '');
-  let mlSensLong = 0, mlSensLarge = 0, lattes = 0;
-  if (L > 0 && W > 0 && e > 0) {
-    mlSensLong = (L / e + 1) * W;
-    mlSensLarge = (W / e + 1) * L;
-    lattes = Math.ceil((mlSensLong + mlSensLarge) / 4.8);
-  }
-  return { L, W, e, mlSensLong, mlSensLarge, lattes };
-}
 const ITEMS_MAIN_DOEUVRE = [
   ['Parpaing', 'u'], ['Poteaux', 'ml'], ['Poutres', 'ml'], ['Longrines', 'ml'], ['Chenage', 'ml'],
   ['Semelle', 'u'], ['Crépissage', 'm²'], ['Amorce', 'ml'], ['Dalle pleine', 'm²'],
-  ['Dalle à corps creux', 'm²'], ['Solivage', 'm²']
+  ['Dalle à corps creux', 'm²']
 ];
 function nouvelleLigneMainDoeuvre(designation = '', unite = '') { return { id: uid++, designation, unite, qte: '', pu: '0' }; }
 function ajouterLigneMainDoeuvre(designation = '', unite = '') { mainsOeuvre.push(nouvelleLigneMainDoeuvre(designation, unite)); rendre(); }
@@ -3552,8 +3512,7 @@ function calculer() {
     'Crépissage': Math.max(0, crepTotal),
     'Amorce': amorces.reduce((s, o) => s + Math.max(0, num(o.H)) * Math.max(0, num(o.n)), 0),
     'Dalle pleine': Math.max(0, tDS),
-    'Dalle à corps creux': Math.max(0, tCS),
-    'Solivage': (svM => Math.max(0, svM.L) * Math.max(0, svM.W))(solivageCalc())
+    'Dalle à corps creux': Math.max(0, tCS)
   };
   mainsOeuvre.forEach(o => {
     const brut = qtesAutoMds[o.designation];
@@ -3690,14 +3649,6 @@ function calculer() {
     ? `<i class="fa-solid fa-stairs"></i><div><b>Armatures escalier (paliers + volets) :</b> ${profilsFerEscalier.map(([profil, ml]) => `${libelleFer(profil)} : ${fmt(ml / 12)} barre(s) exacte(s), <b>${Math.ceil(ml / 12 - 1e-9)}</b> à commander`).join(' · ')}</div>`
     : '<i class="fa-solid fa-stairs"></i><div>Aucune armature d’escalier calculée.</div>';
 
-  // --- Solivage : nombre de lattes du panneau ---
-  const sv = solivageCalc();
-  const svPu = num($('sol-pu') ? $('sol-pu').value : '');
-  const svLattesCell = $('sv-lattes');
-  if (svLattesCell) svLattesCell.textContent = String(sv.lattes);
-  const svLinCell = $('sv-lin');
-  if (svLinCell) svLinCell.textContent = fmt(sv.mlSensLong + sv.mlSensLarge);
-
   T = { longVol: tLongVol, longFerML: tLongFerML, longFer: tLongFerCommande, longCadreML: tLongCadreML, longCadre: tLongCadreCommande, longEpingleML: tLongEpingleML, longEpingle: tLongEpingleCommande, sMur, nbPP: nb, ppArr: ppArrondi, potSec: tSec, potLat: tLat, potVol: tVol, potFer: tFerCommande, potCadreML: tCadreML, potCadre: tCadreCommande, potEpingleML: tEpingleML, potEpingle: tEpingleCommande,
         amSec: tAmSec, amLat: tAmLat, amVol: tAmVol, amFer: tAmFerCommande, amCadreML: tAmCadreML, amCadre: tAmCadreCommande, amEpingleML: tAmEpingleML, amEpingle: tAmEpingleCommande,
         pouCof: tCof, pouSur: tSur, pouVol: tV, pouFer: tPouFerCommande, pouChap: tChapCommande, pouCadreML: tPouCadreML, pouCadre: tPouCadreCommande, pouEpingleML: tPouEpingleML, pouEpingle: tPouEpingleCommande,
@@ -3761,8 +3712,7 @@ function calculer() {
     corps: { surface: tCS, hourdis: tCH, nervures: tCG, latteMetres: tCCLatteML, lattes: tCCLatteCommande, etaisParM2: ccEtaisM2, etaisExact: tCCEtaisExact, etais: tCCEtaisCommande },
     semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande },
     escalier: { volumePalier: tEscPalVol, volumeMarches: tEscMarVol, volumePaillasse: tEscPaiVol, volume: tEscVol, ferMetres: tEscFerML, barres: tEscFerCommande, fers: fersEscalierCommande },
-    maindoeuvre: { lignes: mainsOeuvre.map(o => ({ designation: o.designation, unite: o.unite, qte: o.qte, pu: o.pu })), total: totalMo },
-    solivage: { longueur: sv.L, largeur: sv.W, espace: sv.e, lattes: sv.lattes, pu: svPu }
+    maindoeuvre: { lignes: mainsOeuvre.map(o => ({ designation: o.designation, unite: o.unite, qte: o.qte, pu: o.pu })), total: totalMo }
   };
   const valideActif = cle => $('sel-' + cle).checked ? validationsModules[cle]?.donnees : null;
   const longrineValidee = valideActif('longrine'), murValide = valideActif('mur'), poteauValide = valideActif('poteau');
@@ -3835,7 +3785,7 @@ const SEMELLES_DEVIS = [
 ];
 function ordonnerEtNumeroterDevis() {
   const fixes = devis.filter(s => !s.auto);
-  const dynamiques = ['crepissage', 'semelles', 'maindoeuvre', 'solivage'].map(auto => devis.find(s => s.auto === auto)).filter(Boolean);
+  const dynamiques = ['crepissage', 'semelles', 'maindoeuvre'].map(auto => devis.find(s => s.auto === auto)).filter(Boolean);
   devis = [...fixes, ...dynamiques];
   const romains = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
   devis.forEach((section, index) => { section.n = romains[index] || String(index + 1); });
@@ -3904,25 +3854,6 @@ function syncMainDoeuvreDevis(opts = {}) {
     section.lignes = lignes
       .filter(l => String(l.designation || '').trim())
       .map(l => ({ id: dvId++, des: String(l.designation), unite: String(l.unite || ''), qte: l.qte ?? '', pu: String(l.pu ?? '0'), total: null, auto: null }));
-  }
-  ordonnerEtNumeroterDevis();
-}
-function syncSolivageDevis(opts = {}) {
-  const actif = !!validationsModules.solivage && !!$('sel-solivage')?.checked;
-  let section = devis.find(s => s.auto === 'solivage');
-  if (!actif) {
-    if (section) { devis = devis.filter(s => s !== section); ordonnerEtNumeroterDevis(); }
-    return;
-  }
-  if (!section) {
-    section = { n: '', titre: 'SOLIVAGE', auto: 'solivage', lignes: [] };
-    devis.push(section);
-  }
-  if (opts.rafraichir || !section.lignes.length) {
-    const d = validationsModules.solivage.donnees || {};
-    section.lignes = d.lattes > 0 ? [{
-      id: dvId++, des: 'Lattes de solivage', unite: 'u', qte: num(d.lattes), pu: String(num(d.pu) || 0), total: null, auto: null
-    }] : [];
   }
   ordonnerEtNumeroterDevis();
 }
@@ -4295,14 +4226,13 @@ function syncProjet() { sauver(); }
    ============================================================ */
 function majVisibilite() {
   syncSwitches();
-  ['longrine', 'mur', 'poteau', 'amorce', 'poutre', 'chenage', 'solivage', 'maindoeuvre', 'dalle', 'corps', 'semelle', 'escalier'].forEach(k => {
+  ['longrine', 'mur', 'poteau', 'amorce', 'poutre', 'chenage', 'maindoeuvre', 'dalle', 'corps', 'semelle', 'escalier'].forEach(k => {
     const on = $('sel-' + k).checked;
     document.querySelectorAll(`.nav-item[data-tab="${k}"]`).forEach(nav => nav.classList.toggle('off', !on));
     const panel = $('bloc-' + k);
     if (panel) panel.classList.toggle('module-off', !on);
   });
   syncMainDoeuvreDevis();
-  syncSolivageDevis();
   calculer();
 }
 
@@ -4314,18 +4244,21 @@ function majVisibilite() {
    que le RDC. Toiture ne contient pour l'instant aucun module.
    ============================================================ */
 const ETAGES_BASE = [
-  { id: 'fondation', nom: 'Fondation', ico: 'fa-layer-group', modules: ['semelle', 'amorce', 'longrine', 'mur'] },
-  { id: 'rdc', nom: 'RDC', ico: 'fa-building', modules: ['poutre', 'poteau', 'mur', 'dalle', 'corps'] },
-  { id: 'etage1', nom: 'Étage 1', ico: 'fa-building', modules: ['poutre', 'poteau', 'mur', 'dalle', 'corps'] },
+  { id: 'fondation', nom: 'Fondation', ico: 'fa-layer-group', modules: ['semelle', 'amorce', 'longrine', 'mur', 'crepissage'] },
+  { id: 'rdc', nom: 'RDC', ico: 'fa-building', modules: ['poutre', 'poteau', 'mur', 'dalle', 'corps', 'chenage', 'escalier', 'crepissage'] },
+  { id: 'etage1', nom: 'Étage 1', ico: 'fa-building', modules: ['poutre', 'poteau', 'mur', 'dalle', 'corps', 'chenage', 'escalier', 'crepissage'] },
   { id: 'toiture', nom: 'Toiture', ico: 'fa-house-chimney', modules: [] }
 ];
-const MODULES_ETAGE = ['poutre', 'poteau', 'mur', 'dalle', 'corps'];
+const MODULES_ETAGE = ['poutre', 'poteau', 'mur', 'dalle', 'corps', 'chenage', 'escalier', 'crepissage'];
 const META_NAV = {
   poutre: { ico: 'fa-grip-lines', label: 'Poutres' },
   poteau: { ico: 'fa-grip-lines-vertical', label: 'Poteaux' },
   mur: { ico: 'fa-border-all', label: 'Murs & parpaings' },
   dalle: { ico: 'fa-square', label: 'Dalle pleine' },
-  corps: { ico: 'fa-table-cells', label: 'Dalle corps creux' }
+  corps: { ico: 'fa-table-cells', label: 'Dalle corps creux' },
+  chenage: { ico: 'fa-link', label: 'Chenage' },
+  escalier: { ico: 'fa-stairs', label: 'Escalier' },
+  crepissage: { ico: 'fa-paint-roller', label: 'Crépissage' }
 };
 let etagesCustom = [];
 let etagesOuverts = { fondation: true, rdc: true, etage1: true, toiture: true, autres: true };
@@ -4405,9 +4338,12 @@ function syncDupNav(k) {
 function ligneModuleDash(m) {
   const sel = $('sel-' + m.k);
   const on = sel ? sel.checked : true;
+  const statut = m.k === 'crepissage'
+    ? (crepValidation ? (crepissageValideAJour() ? 'validé' : 'à revalider') : 'non validé')
+    : (validationsModules[m.k] ? (calculModuleValideAJour(m.k) ? 'validé' : 'à revalider') : 'non validé');
   return `<div class="list-row list-row-click ${on ? '' : 'disabled'}" onclick="aller('${m.k}')" title="Ouvrir ${m.label}">
     <span class="lr-ico"><i class="fa-solid ${m.ico}"></i></span>
-    <span class="lr-txt"><b>${m.label}</b><span>${m.detail} · ${validationsModules[m.k] ? (calculModuleValideAJour(m.k) ? 'validé' : 'à revalider') : 'non validé'} · ${on ? 'inclus au devis' : 'exclu du devis'}</span></span>
+    <span class="lr-txt"><b>${m.label}</b><span>${m.detail} · ${statut} · ${on ? 'inclus au devis' : 'exclu du devis'}</span></span>
     <span class="lr-val">${m.val}</span>
   </div>`;
 }
@@ -4429,7 +4365,7 @@ function rendreDashEtages(modsParCle) {
       <div class="etage-body">${corps}</div>
     </div>`;
   }).join('');
-  const autres = ['chenage', 'escalier', 'maindoeuvre', 'solivage'].map(k => modsParCle[k]).filter(Boolean);
+  const autres = ['maindoeuvre'].map(k => modsParCle[k]).filter(Boolean);
   html += `<div class="etage-bloc ${etageOuvert('autres') ? '' : 'ferme'}" id="dashbloc-autres">
     <div class="etage-head" onclick="basculerBloc('autres')">
       <span class="etage-ico"><i class="fa-solid fa-boxes-stacked"></i></span>
@@ -4486,12 +4422,9 @@ function updateDashboard() {
   $('nav-v-semelle').textContent = fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres';
   $('nav-v-escalier').textContent = fmt(T.escVol) + ' m³ · ' + fmt(T.escFer) + ' barres';
   $('nav-v-crepissage').textContent = fmt(T.crepTotal) + ' m² · ' + fmt(T.crepVolume) + ' m³ · ' + fmt(T.crepCiment) + ' sacs · ' + fmt(T.crepSable) + ' m³ sable';
-  const svNav = solivageCalc();
-  const svNavPu = num($('sol-pu') ? $('sol-pu').value : '');
-  $('nav-v-solivage').textContent = svNav.lattes + ' lattes · ' + fmtM(svNav.lattes * svNavPu) + ' ' + dev;
   $('nav-v-maindoeuvre').textContent = mainsOeuvre.length + ' ligne(s) · ' + fmtM(totalMo) + ' ' + dev;
   // les modules présents dans plusieurs blocs (RDC, Étages…) affichent la même valeur partout
-  ['mur', 'poutre', 'poteau', 'dalle', 'corps'].forEach(syncDupNav);
+  ['mur', 'poutre', 'poteau', 'dalle', 'corps', 'chenage', 'escalier', 'crepissage'].forEach(syncDupNav);
   const aciersActifs = aciersDevisActifs();
   const nbArt = devis.reduce((a, s) => a + s.lignes.filter(l => !ligneDevisMasquee(l, aciersActifs)).length, 0);
   $('nav-v-devis').textContent = nbArt + ' article' + (nbArt > 1 ? 's' : '') + ' · ' + fmtM(totTTC) + ' ' + dev;
@@ -4521,8 +4454,6 @@ function updateDashboard() {
     : `<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun volume de béton pour l'instant. Saisissez des dimensions dans les modules Longrines, Poteaux, Amorce, Poutres, Chenage, Dalles, Semelles ou Escalier.</div></div>`;
 
   // état des modules
-  const svMods = solivageCalc();
-  const svModsPu = num($('sol-pu') ? $('sol-pu').value : '');
   const mods = [
     { k: 'longrine', ico: 'fa-grip-lines', label: 'Longrines', detail: longrines.length + ' type(s) saisi(s)', val: fmt(T.longVol) + ' m³ · ' + fmt(T.longFer + T.longCadre + T.longEpingle) + ' barres' },
     { k: 'mur', ico: 'fa-border-all', label: 'Murs & parpaings', detail: murs.length + ' mur(s) saisi(s)', val: fmt(T.sMur) + ' m²' },
@@ -4534,8 +4465,8 @@ function updateDashboard() {
     { k: 'corps', ico: 'fa-table-cells', label: 'Dalle à corps creux', detail: corps.length + ' panneau(x) saisi(s)', val: fmt(T.ccHour) + ' hourdis' },
     { k: 'semelle', ico: 'fa-layer-group', label: 'Semelles', detail: semelles.length + ' semelle(s) saisie(s)', val: fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres' },
     { k: 'escalier', ico: 'fa-stairs', label: 'Escalier', detail: escalierPaliers.length + ' palier(s) · ' + escalierVolets.length + ' volet(s)', val: fmt(T.escVol) + ' m³ · ' + fmt(T.escFer) + ' barres' },
-    { k: 'maindoeuvre', ico: 'fa-hard-hat', label: 'Mains d’œuvre', detail: mainsOeuvre.length + ' ligne(s)', val: fmtM(totalMo) + ' ' + dev },
-    { k: 'solivage', ico: 'fa-grip-lines', label: 'Solivage', detail: svMods.lattes + ' lattes', val: fmtM(svMods.lattes * svModsPu) + ' ' + dev }
+    { k: 'crepissage', ico: 'fa-paint-roller', label: 'Crépissage', detail: crepMurs.length + ' mur(s) · ' + crepDalles.length + ' dalle(s)', val: fmt(T.crepTotal) + ' m²' },
+    { k: 'maindoeuvre', ico: 'fa-hard-hat', label: 'Mains d’œuvre', detail: mainsOeuvre.length + ' ligne(s)', val: fmtM(totalMo) + ' ' + dev }
   ];
   const modsParCle = {};
   mods.forEach(m => { modsParCle[m.k] = m; });
@@ -4568,8 +4499,7 @@ function basculerTheme() {
 const CLE = 'gros-oeuvre-projet-v2';
 const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dal-etais-m2', 'cc-etais-m2', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
   'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
-  'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-solivage', 'sel-dalle', 'sel-corps', 'sel-semelle', 'sel-escalier',
-  'sol-lg', 'sol-la', 'sol-esp', 'sol-pu'];
+  'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-dalle', 'sel-corps', 'sel-semelle', 'sel-escalier'];
 let saveTimer = null;
 let reinitialisationEnCours = false;
 
@@ -4638,7 +4568,7 @@ function charger() {
       epingleNuance: 'HA', epingleNb: '', epingleL: '', ...o,
       ferH: o.ferH ?? o.H ?? '3'
     }));
-    mainsOeuvre = (d.mainsOeuvre || []).map(o => ({ designation: '', unite: '', qte: '', pu: '0', ...o }));
+    mainsOeuvre = (d.mainsOeuvre || []).filter(o => String(o.designation || '').trim().toLowerCase() !== 'solivage').map(o => ({ designation: '', unite: '', qte: '', pu: '0', ...o }));
     poutres = (d.poutres || []).map(o => ({
       ferNuance: 'HA', ferDiam: '12', ferL: o.L ?? '', ferNb: '4',
       chapNuance: 'HA', chapDiam: '12', chapL: '', chapNb: '2',
@@ -4748,12 +4678,17 @@ function charger() {
     Object.keys(MODULES_VALIDABLES).forEach(cle => { validationsModules[cle] = validationsSauvees[cle] || null; });
     etagesCustom = Array.isArray(d.etagesCustom) ? d.etagesCustom.filter(e => e && e.id && e.nom) : [];
     etagesOuverts = (d.etagesOuverts && typeof d.etagesOuverts === 'object') ? d.etagesOuverts : { fondation: true, rdc: true, etage1: true, toiture: true, autres: true };
+    const moSauvee = validationsModules.maindoeuvre?.donnees;
+    if (Array.isArray(moSauvee?.lignes)) {
+      moSauvee.lignes = moSauvee.lignes.filter(l => String(l.designation || '').trim().toLowerCase() !== 'solivage');
+      moSauvee.total = moSauvee.lignes.reduce((total, l) => total + num(l.qte) * num(l.pu), 0);
+    }
     const longrineSauvee = validationsModules.longrine?.donnees;
     if (longrineSauvee?.fers) longrineSauvee.fers = normaliserFersLongrines(longrineSauvee.fers);
     const semelleSauvee = validationsModules.semelle?.donnees;
     if (semelleSauvee && semelleSauvee.barres == null) semelleSauvee.barres = Object.values(semelleSauvee.fers || {}).reduce((total, qte) => total + num(qte), 0);
-    if (Array.isArray(d.devis) && d.devis.length) devis = d.devis.map(section => ({
-      ...section, lignes: (section.lignes || []).map(l => ({ ...l, total: l.total ?? null }))
+    if (Array.isArray(d.devis) && d.devis.length) devis = d.devis.filter(section => section.auto !== 'solivage').map(section => ({
+      ...section, lignes: (section.lignes || []).filter(l => section.auto !== 'maindoeuvre' || String(l.des || '').trim().toLowerCase() !== 'solivage').map(l => ({ ...l, total: l.total ?? null }))
     }));
     migrerFersDevis();
     uid = Math.max(uid, d.uid || 1, ...[murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, escalierPaliers, escalierVolets, crepMurs, crepDalles].flat().map(o => o.id + 1), ...dalles.flatMap(o => [...(o.panneaux || []), ...(o.lattePanneaux || [])]).map(p => (p.id || 0) + 1), 1);
@@ -4771,7 +4706,6 @@ function charger() {
       if (el.type === 'checkbox') el.checked = !!d.champs[id]; else el.value = d.champs[id];
     });
     syncMainDoeuvreDevis();
-    syncSolivageDevis();
     return true;
   } catch (e) { return false; }
 }
