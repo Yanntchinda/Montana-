@@ -7,7 +7,7 @@ const source = html.slice(html.indexOf('function afficherAccueilProjet('), html.
 const storage = () => { const m = new Map(); return { getItem: k => m.has(k) ? m.get(k) : null, setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k) }; };
 const localStorage = storage(), sessionStorage = storage();
 let confirmed = false, reloads = 0, errors = [];
-const nodes = { 'login-entreprise': {value:'Entreprise'}, 'login-projet': {value:'Maison'} };
+const nodes = {};
 const ctx = { localStorage, sessionStorage, CLE:'project', $: id => nodes[id], window:{confirm:()=>confirmed}, alert: msg=>errors.push(msg), location:{hash:'',reload:()=>reloads++}, clearTimeout(){}, saveTimer:null, reinitialisationEnCours:false, projetOuvert:false, URL:{}, Blob, document:{}, setTimeout(){} };
 vm.createContext(ctx); vm.runInContext(source, ctx);
 (async () => {
@@ -24,7 +24,12 @@ vm.createContext(ctx); vm.runInContext(source, ctx);
   assert.equal(JSON.parse(sessionStorage.getItem('go-ouverture-projet')).type,'import');
   localStorage.setItem('project','{"old":true}'); ctx.nouveauProjet();
   assert.equal(localStorage.getItem('project'),null);
-  assert.deepEqual(JSON.parse(sessionStorage.getItem('go-ouverture-projet')),{type:'nouveau',entreprise:'Entreprise',projet:'Maison'});
+  assert.deepEqual(JSON.parse(sessionStorage.getItem('go-ouverture-projet')),{type:'nouveau'});
+  const login = html.slice(html.indexOf('<div class="login-screen" id="login-screen">'), html.indexOf('<!-- Accueil des projets -->'));
+  assert.doesNotMatch(login, /nouveauProjet|importerProjet|exporterProjet|accederApp/);
+  const accueil = html.slice(html.indexOf('<!-- Accueil des projets -->'), html.indexOf('<div class="app">'));
+  for (const label of ['Nouveau projet', 'Continuer le projet enregistré', 'Ouvrir un fichier projet', 'Exporter le projet enregistré']) assert.ok(accueil.includes(label));
+  assert.doesNotMatch(html, /dash-construction-slider|login-slide/);
   assert.match(html,/if \(reinitialisationEnCours \|\| !projetOuvert\) return/);
   console.log('✓ accueil : annulation, import, export de sécurité et nouveau projet');
 })().catch(e => { console.error(e); process.exitCode=1; });
