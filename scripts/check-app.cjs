@@ -40,6 +40,10 @@ assert(html.includes('./assets/fontawesome/css/solid.min.css'), 'Le jeu d’icô
 assert(!/<(?:script|link)[^>]+https?:\/\//i.test(html), 'Une ressource réseau externe est encore chargée par index.html.');
 assert(html.includes('Content-Security-Policy'), 'La politique de sécurité CSP est absente.');
 
+// Le devis peut dépasser une page : ses conteneurs ne doivent pas être indivisibles.
+assert(/body\.print-devis\s+#doc-devis,\s*body\.print-devis\s+#doc-devis\s+\.tbl-wrap\s*\{[^}]*break-inside\s*:\s*auto\s*!important[^}]*overflow\s*:\s*visible\s*!important/s.test(html), 'La pagination du devis doit autoriser les coupures et afficher tout le tableau.');
+assert(/body\.print-devis\s+#doc-devis\s+thead\s*\{\s*display\s*:\s*table-header-group/.test(html), 'L’en-tête du devis doit se répéter sur les pages suivantes.');
+
 execFileSync(process.execPath, ['--check', path.join(root, 'electron/main.cjs')], { stdio: 'inherit' });
 
 console.log('✓ HTML et JavaScript valides');

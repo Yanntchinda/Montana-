@@ -641,10 +641,20 @@ html[data-theme="dark"] .accueil-hint{color:#c8d6ec}
   .res,.tile .t-val,.kpi .k-val{color:#000 !important}
   thead th{background:#eef2f7 !important;color:#334155 !important}
   tbody tr:hover td{background:transparent !important}
-  /* mode "devis seul" */
-  body.print-devis #bloc-devis{display:block !important}
-  body.print-devis .doc{border:none}
-  body.print-devis .doc-head{background:#fff !important;border-bottom:2px solid #000}
+  /* Le document et son tableau doivent pouvoir se répartir sur plusieurs pages.
+     Les garder ensemble peut repousser tout le devis après une page blanche. */
+  body.print-devis, body.print-devis .app, body.print-devis .main, body.print-devis .content{
+    min-height:0 !important;height:auto !important;overflow:visible !important
+  }
+  body.print-devis .login-screen{display:none !important}
+  body.print-devis #bloc-devis{display:block !important;animation:none !important;transform:none !important}
+  body.print-devis #doc-devis, body.print-devis #doc-devis .tbl-wrap{
+    break-inside:auto !important;page-break-inside:auto !important;overflow:visible !important
+  }
+  body.print-devis #doc-devis{border:none;border-radius:0}
+  body.print-devis #doc-devis thead{display:table-header-group}
+  body.print-devis #doc-devis tr{break-inside:avoid;page-break-inside:avoid}
+  body.print-devis .doc-head{background:#fff !important;border-bottom:2px solid #000;break-inside:avoid;page-break-inside:avoid}
   body.print-devis .doc-logo .dl-ico{background:#000 !important;color:#fff !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body.print-devis .doc-title .inp{color:#000 !important}
   body.print-devis tr.dv-sec td{background:#e5e7eb !important;color:#000 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
