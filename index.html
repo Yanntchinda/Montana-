@@ -603,6 +603,9 @@ html[data-theme="dark"] .accueil-hint{color:#c8d6ec}
 }
 
 
+body.sans-projet .sidebar,body.sans-projet .top-actions,body.sans-projet .burger{display:none !important}
+.recents{margin-top:32px;border-top:1px solid var(--border);padding-top:22px}
+.recents h2{font-size:17px;margin-bottom:12px}.recents-list{display:grid;gap:8px}.recent-projet{display:flex;align-items:center;gap:12px;width:100%;padding:13px;text-align:left;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);color:var(--text);cursor:pointer}.recent-projet:hover{border-color:var(--brand-2)}.recent-projet i{color:var(--brand)}.recent-projet span{flex:1;min-width:0}.recent-projet b,.recent-projet small{display:block;overflow-wrap:anywhere}.recent-projet small,.recents-vide{color:var(--muted);font-size:12px}
 .accueil-page{width:min(900px,100%);margin:clamp(20px,5vw,70px) auto;padding:clamp(22px,4vw,42px);background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow)}
 .accueil-page-head{margin-bottom:24px}.accueil-page-head span{font-size:11px;letter-spacing:.15em;font-weight:800;color:var(--brand)}
 .accueil-page-head h1{font-size:clamp(24px,4vw,32px);margin:7px 0}.accueil-page-head p{color:var(--muted)}
@@ -664,7 +667,7 @@ html[data-theme="dark"] .accueil-hint{color:#c8d6ec}
 }
 </style>
 </head>
-<body>
+<body class="sans-projet">
   <!-- Connexion : les actions de projet restent sur la page d'accueil -->
   <div class="login-screen" id="login-screen">
     <div class="login-slides" aria-hidden="true"><div class="login-slide"></div><div class="login-slide"></div><div class="login-slide"></div></div>
@@ -900,7 +903,8 @@ html[data-theme="dark"] .accueil-hint{color:#c8d6ec}
             <input type="file" id="fichier-projet" accept=".json,application/json" hidden onchange="importerProjet(this)">
             <button class="accueil-action" id="btn-export-accueil" onclick="exporterProjet()"><i class="fa-solid fa-file-arrow-down"></i><span><b>Exporter le projet enregistré</b><small>Conserver ou transférer votre projet</small></span></button>
           </div>
-          <p class="accueil-hint">Un seul projet est conservé sur cet appareil. Exportez-le avant d’en ouvrir un autre pour le garder.</p>
+          <p class="accueil-hint">Les 10 derniers projets sont conservés sur cet appareil. Exportez vos projets pour en garder une copie indépendante.</p>
+          <div class="recents"><h2>Projets récents</h2><div class="recents-list" id="liste-projets-recents"></div></div>
         </div>
       </section>
 
@@ -1670,6 +1674,7 @@ let ongletActif = 'dashboard';
 function aller(tab, opts = {}) {
   if (!ONGLETS[tab]) tab = 'dashboard';
   if (!projetOuvert && tab !== 'dashboard') { toast('Créez ou ouvrez d’abord un projet', 'info'); return; }
+  if (tab === 'dashboard' && projetOuvert) { sauver(); afficherAccueilProjet(true); }
   // un module désactivé se réactive quand on ouvre son onglet
   const sel = $('sel-' + tab);
   if (sel && !sel.checked && !opts.silent) { sel.checked = true; majVisibilite(); toast('Module réactivé — validez ses calculs pour mettre à jour le devis', 'ok'); }
@@ -4373,6 +4378,10 @@ function basculerTheme() {
    PERSISTANCE (localStorage) + EXPORT / IMPORT
    ============================================================ */
 const CLE = 'gros-oeuvre-projet-v2';
+const CLE_RECENTS = 'gros-oeuvre-projets-recents-v1';
+const MAX_RECENTS = 10;
+const nouvelIdProjet = () => (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2));
+let projetId = nouvelIdProjet();
 const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dal-etais-m2', 'cc-etais-m2', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
   'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
   'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-dalle', 'sel-corps', 'sel-semelle', 'sel-escalier'];
@@ -4394,12 +4403,14 @@ function sauver(silencieux = true) {
   try {
     const champs = {};
     CHAMPS.forEach(id => { const el = $(id); if (el) champs[id] = el.type === 'checkbox' ? el.checked : el.value; });
-    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, escalierPaliers, escalierVolets, moduleSemellesInitialise: true, moduleLongrinesInitialise: true, moduleChenagesInitialise: true, moduleAmorcesInitialise: true, moduleMainDoeuvreInitialise: true, moduleEscalierInitialise: true, crepMurs, crepDalles, crepValidation, validationsModules, etagesCustom, etagesOuverts, champs, devis };
+    const data = { v: 2, projetId, maj: new Date().toISOString(), uid, murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, escalierPaliers, escalierVolets, moduleSemellesInitialise: true, moduleLongrinesInitialise: true, moduleChenagesInitialise: true, moduleAmorcesInitialise: true, moduleMainDoeuvreInitialise: true, moduleEscalierInitialise: true, crepMurs, crepDalles, crepValidation, validationsModules, etagesCustom, etagesOuverts, champs, devis };
     localStorage.setItem(CLE, JSON.stringify(data));
+    enregistrerRecent(data);
     const s = $('save-state');
     s.classList.remove('dirty');
     s.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>Sauvegardé à ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>`;
-  } catch (e) { if (!silencieux) toast('Sauvegarde impossible (stockage indisponible)', 'err'); }
+    return true;
+  } catch (e) { if (!silencieux) toast('Sauvegarde impossible (stockage indisponible)', 'err'); return false; }
 }
 
 /* ============================================================
@@ -4426,14 +4437,88 @@ function afficherAccueilProjet(restaure) {
   } else {
     recent.textContent = raw ? 'Le projet enregistré ne peut pas être lu. Exportez-le avant de continuer.' : 'Aucun projet enregistré sur cet appareil.';
   }
+  rendreProjetsRecents();
+}
+function lireProjetsRecents() {
+  try {
+    const liste = JSON.parse(localStorage.getItem(CLE_RECENTS) || '[]');
+    return Array.isArray(liste) ? liste.filter(p => p && p.v === 2 && typeof p.projetId === 'string') : [];
+  } catch (e) { return []; }
+}
+function enregistrerRecent(data) {
+  try {
+    const liste = [data, ...lireProjetsRecents().filter(p => p.projetId !== data.projetId)].slice(0, MAX_RECENTS);
+    localStorage.setItem(CLE_RECENTS, JSON.stringify(liste));
+    return true;
+  } catch (e) { return false; }
+}
+function archiverAvantRemplacement() {
+  try {
+    if (projetOuvert && !sauver(false)) throw new Error('Sauvegarde impossible');
+    const raw = localStorage.getItem(CLE);
+    if (!raw) return true;
+    const data = JSON.parse(raw);
+    if (!data || data.v !== 2) throw new Error('Projet illisible');
+    data.projetId = data.projetId || projetId;
+    if (!enregistrerRecent(data)) throw new Error('Stockage insuffisant');
+    return true;
+  } catch (e) {
+    alert('Impossible de conserver le projet actuel dans les récents. Exportez-le et libérez de l’espace avant de le remplacer.');
+    return false;
+  }
+}
+function rendreProjetsRecents() {
+  const cible = $('liste-projets-recents');
+  if (!cible) return;
+  const liste = lireProjetsRecents();
+  try {
+    const courant = JSON.parse(localStorage.getItem(CLE) || 'null');
+    if (courant && courant.v === 2) {
+      courant.projetId = courant.projetId || projetId;
+      if (!liste.some(p => p.projetId === courant.projetId)) liste.unshift(courant);
+    }
+  } catch (e) {}
+  cible.textContent = '';
+  if (!liste.length) { const vide = document.createElement('p'); vide.className = 'recents-vide'; vide.textContent = 'Aucun projet récent.'; cible.appendChild(vide); return; }
+  liste.slice(0, MAX_RECENTS).forEach(p => {
+    const bouton = document.createElement('button');
+    bouton.type = 'button'; bouton.className = 'recent-projet';
+    const ico = document.createElement('i'); ico.className = 'fa-solid fa-folder-open'; ico.setAttribute('aria-hidden', 'true');
+    const texte = document.createElement('span');
+    const nom = document.createElement('b'); nom.textContent = String(p.champs?.['dv-projet'] || '').trim() || 'Projet sans nom';
+    const date = document.createElement('small');
+    const instant = new Date(p.maj);
+    date.textContent = Number.isNaN(instant.getTime()) ? 'Projet enregistré' : 'Modifié le ' + instant.toLocaleString('fr-FR');
+    texte.append(nom, date); bouton.append(ico, texte);
+    bouton.addEventListener('click', () => ouvrirProjetRecent(p.projetId));
+    cible.appendChild(bouton);
+  });
+}
+function ouvrirProjetRecent(id) {
+  let courant = null;
+  try { courant = JSON.parse(localStorage.getItem(CLE) || 'null'); } catch (e) {}
+  if (courant && (courant.projetId || projetId) === id) { accederApp(); return; }
+  const data = lireProjetsRecents().find(p => p.projetId === id);
+  if (!data) { alert('Ce projet récent est introuvable.'); return; }
+  if (!confirmerRemplacement() || !archiverAvantRemplacement()) return;
+  try {
+    const ancien = localStorage.getItem(CLE);
+    sessionStorage.setItem('go-import-sauvegarde', JSON.stringify({ ancien }));
+    sessionStorage.setItem('go-ouverture-projet', JSON.stringify({ type: 'import' }));
+    localStorage.setItem(CLE, JSON.stringify(data));
+    reinitialisationEnCours = true; clearTimeout(saveTimer); location.hash = ''; location.reload();
+  } catch (e) {
+    try { sessionStorage.removeItem('go-ouverture-projet'); sessionStorage.removeItem('go-import-sauvegarde'); } catch (ignored) {}
+    alert('Impossible d’ouvrir ce projet récent.');
+  }
 }
 function confirmerRemplacement() {
   let existe = false;
   try { existe = !!localStorage.getItem(CLE); } catch (e) { alert('Stockage indisponible.'); return false; }
-  return !existe || window.confirm('Cette action remplacera le projet enregistré sur cet appareil. Exportez-le d’abord si vous souhaitez le conserver. Continuer ?');
+  return !existe || window.confirm('Ouvrir un autre projet ? Le projet actuel sera conservé dans les projets récents sur cet appareil. Exportez-le pour garder une copie indépendante.');
 }
 function nouveauProjet() {
-  if (!confirmerRemplacement()) return;
+  if (!confirmerRemplacement() || !archiverAvantRemplacement()) return;
   try {
     sessionStorage.setItem('go-ouverture-projet', JSON.stringify({ type: 'nouveau', entreprise: $('login-entreprise').value.trim(), projet: $('login-projet').value.trim() }));
     reinitialisationEnCours = true;
@@ -4448,7 +4533,7 @@ function nouveauProjet() {
   }
 }
 function exporterProjet() {
-  if (projetOuvert) sauver();
+  if (projetOuvert && !sauver(false)) return;
   let raw;
   try { raw = localStorage.getItem(CLE); } catch (e) {}
   if (!raw) { alert('Aucun projet enregistré à exporter.'); return; }
@@ -4467,7 +4552,7 @@ async function importerProjet(input) {
     const d = JSON.parse(texte);
     const listes = ['murs', 'poteaux', 'amorces', 'poutres', 'chenages', 'mainsOeuvre', 'dalles', 'corps', 'semelles', 'longrines', 'devis'];
     if (!d || d.v !== 2 || !d.champs || typeof d.champs !== 'object' || listes.some(k => !Array.isArray(d[k])) || d.devis.some(s => !s || !Array.isArray(s.lignes))) throw new Error('format');
-    if (!confirmerRemplacement()) return;
+    if (!confirmerRemplacement() || !archiverAvantRemplacement()) return;
     const ancien = localStorage.getItem(CLE);
     sessionStorage.setItem('go-import-sauvegarde', JSON.stringify({ ancien }));
     sessionStorage.setItem('go-ouverture-projet', JSON.stringify({ type: 'import' }));
@@ -4483,6 +4568,7 @@ async function importerProjet(input) {
 }
 function accederApp() {
   projetOuvert = true;
+  document.body.classList.remove('sans-projet');
   $('login-screen').classList.add('login-hidden');
   document.querySelector('.sidebar').inert = false;
   document.querySelector('.top-actions').inert = false;
@@ -4501,6 +4587,7 @@ function charger() {
   try {
     const d = JSON.parse(raw);
     if (!d || d.v !== 2) return false;
+    projetId = typeof d.projetId === 'string' && d.projetId ? d.projetId : nouvelIdProjet();
     murs = (d.murs || []).map(o => ({
       ...o,
       portes: normaliserOuverturesMur(o, 'portes', 'porte'),
