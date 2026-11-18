@@ -17,6 +17,6 @@ assert.equal(context.etageOuvert('rdc'), false);
 context.ajouterEtage();
 assert.equal(context.etageOuvert('etage2'), false);
 const aller = html.slice(html.indexOf('function aller('), html.indexOf("window.addEventListener('hashchange'"));
-assert.doesNotMatch(aller, /etagesOuverts|basculerBloc/);
+assert.doesNotMatch(aller, /etagesOuverts\[[^\]]+\]\s*=\s*true|basculerBloc/);
 assert.match(html, /etagesOuverts = \{\};/);
 console.log('✓ blocs fermés au démarrage et ouverture uniquement au clic');

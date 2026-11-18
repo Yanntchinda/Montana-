@@ -4,7 +4,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 
 ## Fonctionnalités
 
-- Après l’écran de connexion au fond animé, accueil sans diaporama : nouveau projet, reprise du projet enregistré et ouverture d’un fichier projet JSON. La barre latérale et les actions de devis apparaissent après ouverture d’un projet. Les 10 derniers projets sont conservés sur cet appareil et accessibles depuis la liste des projets récents ; utilisez **Exporter le projet** pour garder une copie indépendante ou le transférer.
+- Après l’écran de connexion au fond animé, accueil sans diaporama : nouveau projet, reprise du projet enregistré et ouverture d’un fichier projet JSON. La navigation horizontale et les actions de devis apparaissent après ouverture d’un projet ; l’espace « GROS ŒUVRE PRO » est distinct de l’accueil. Les 10 derniers projets sont conservés sur cet appareil et accessibles depuis la liste des projets récents ; utilisez **Exporter le projet** pour garder une copie indépendante ou le transférer.
 
 - Murs et parpaings, avec plusieurs portes et fenêtres de dimensions différentes sur un même mur.
 - Longrines avec volume de béton, fers longitudinaux, cadres et épingles en barres de 12 m.
@@ -16,7 +16,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 - Semelles avec deux nappes d'armatures (Nappe 1 et Nappe 2), chacune composée de deux lits indépendants (Lit 1 sens longueur L et Lit 2 sens largeur l).
 - Escalier avec deux sous-modules : **Palier** (volume béton et **Fer** Nappe 1 et Nappe 2 avec Lit 1 sens longueur L et Lit 2 sens largeur l) et **Volet** (**Marches** : ((giron × hauteur) ÷ 2) × emmarchement × nombre de marches total ; **Paillasse** : longueur × emmarchement × épaisseur × nombre de volets ; **Fer** : Nappe 1 et Nappe 2 avec Lit 1 sens longueur L et Lit 2 sens largeur l), raccordé au tableau de bord et au devis.
 - Crépissage.
-- Barre latérale classée par blocs dépliants : **Fondation** (Semelles, Amorce, Longrines, Murs & parpaings, Crépissage), **RDC** et **Étages** (Poutres, Poteaux, Murs & parpaings, Dalle pleine, Dalle corps creux, Chenage, Escalier, Crépissage), **Toiture** (grand titre seul) et **Autres modules** (Mains d’œuvre). Les entrées d’un même module dans différents blocs ouvrent les mêmes calculs partagés. Le bouton **« Ajouter un étage »** crée des étages avec les mêmes sous-modules que le RDC ; la liste des étages est sauvegardée. Les blocs sont fermés au démarrage et s’ouvrent uniquement au clic.
+- Navigation horizontale classée par blocs dépliants : **Fondation** (Semelles, Amorce, Longrines, Murs & parpaings, Crépissage), **RDC** et **Étages** (Poutres, Poteaux, Murs & parpaings, Dalle pleine, Dalle corps creux, Chenage, Escalier, Crépissage), **Toiture** (grand titre seul) et **Autres modules** (Mains d’œuvre). Les entrées d’un même module dans différents blocs ouvrent les mêmes calculs partagés. Le bouton **« Ajouter un étage »** crée des étages avec les mêmes sous-modules que le RDC ; la liste des étages est sauvegardée. Les blocs sont fermés au démarrage et s’ouvrent uniquement au clic.
 - Validation explicite de chaque module avant envoi au devis.
 - Devis avec quantités, prix unitaires, prix totaux, TVA et export PDF.
 - Sauvegarde automatique et fonctionnement hors connexion.
