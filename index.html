@@ -731,7 +731,7 @@ html[data-theme="dark"] .accueil-hint{color:#c8d6ec}
       <div class="nav-label">Blocs du bâtiment</div>
 
       <!-- Fondation -->
-      <div class="nav-group" id="navgrp-fondation">
+      <div class="nav-group ferme" id="navgrp-fondation">
         <div class="nav-group-head" onclick="basculerBloc('fondation')">
           <i class="fa-solid fa-layer-group"></i><span>Fondation</span><span class="nav-group-count">5</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
         </div>
@@ -764,7 +764,7 @@ html[data-theme="dark"] .accueil-hint{color:#c8d6ec}
       </div>
 
       <!-- RDC -->
-      <div class="nav-group" id="navgrp-rdc">
+      <div class="nav-group ferme" id="navgrp-rdc">
         <div class="nav-group-head" onclick="basculerBloc('rdc')">
           <i class="fa-solid fa-building"></i><span>RDC</span><span class="nav-group-count">8</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
         </div>
@@ -811,7 +811,7 @@ html[data-theme="dark"] .accueil-hint{color:#c8d6ec}
       </div>
 
       <!-- Étage 1 -->
-      <div class="nav-group" id="navgrp-etage1">
+      <div class="nav-group ferme" id="navgrp-etage1">
         <div class="nav-group-head" onclick="basculerBloc('etage1')">
           <i class="fa-solid fa-building"></i><span>Étage 1</span><span class="nav-group-count">8</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
         </div>
@@ -857,7 +857,7 @@ html[data-theme="dark"] .accueil-hint{color:#c8d6ec}
       <button class="nav-add-etage" onclick="ajouterEtage()"><i class="fa-solid fa-plus"></i> Ajouter un étage</button>
 
       <!-- Toiture : grand titre seul, sous-modules à venir -->
-      <div class="nav-group" id="navgrp-toiture">
+      <div class="nav-group ferme" id="navgrp-toiture">
         <div class="nav-group-head" onclick="basculerBloc('toiture')">
           <i class="fa-solid fa-house-chimney"></i><span>Toiture</span><span class="nav-group-count">0</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
         </div>
@@ -1756,11 +1756,6 @@ let ongletActif = 'dashboard';
 
 function aller(tab, opts = {}) {
   if (!ONGLETS[tab]) tab = 'dashboard';
-  // déplie le(s) bloc(s) contenant ce module (Fondation, RDC, Étages…)
-  try {
-    listeEtages().forEach(e => { if (e.modules.includes(tab)) etagesOuverts[e.id] = true; });
-    appliquerBlocs();
-  } catch (e) {}
   // un module désactivé se réactive quand on ouvre son onglet
   const sel = $('sel-' + tab);
   if (sel && !sel.checked && !opts.silent) { sel.checked = true; majVisibilite(); toast('Module réactivé — validez ses calculs pour mettre à jour le devis', 'ok'); }
@@ -4286,12 +4281,12 @@ const META_NAV = {
   crepissage: { ico: 'fa-paint-roller', label: 'Crépissage' }
 };
 let etagesCustom = [];
-let etagesOuverts = { fondation: true, rdc: true, etage1: true, toiture: true, autres: true };
+let etagesOuverts = {};
 function listeEtages() {
   const custom = etagesCustom.map(e => ({ id: e.id, nom: e.nom, ico: 'fa-building', modules: [...MODULES_ETAGE], custom: true }));
   return [...ETAGES_BASE.slice(0, 3), ...custom, ETAGES_BASE[3]];
 }
-function etageOuvert(id) { return etagesOuverts[id] !== false; }
+function etageOuvert(id) { return etagesOuverts[id] === true; }
 function basculerBloc(id) {
   etagesOuverts[id] = etageOuvert(id) ? false : true;
   appliquerBlocs();
@@ -4336,7 +4331,7 @@ function ajouterEtage() {
   const n = Math.max(...nums) + 1;
   const id = 'etage' + n;
   etagesCustom.push({ id, nom: 'Étage ' + n });
-  etagesOuverts[id] = true;
+  etagesOuverts[id] = false;
   rendreEtagesNav();
   appliquerBlocs();
   updateDashboard();
@@ -4768,7 +4763,8 @@ function charger() {
     const validationsSauvees = d.validationsModules || {};
     Object.keys(MODULES_VALIDABLES).forEach(cle => { validationsModules[cle] = validationsSauvees[cle] || null; });
     etagesCustom = Array.isArray(d.etagesCustom) ? d.etagesCustom.filter(e => e && e.id && e.nom) : [];
-    etagesOuverts = (d.etagesOuverts && typeof d.etagesOuverts === 'object') ? d.etagesOuverts : { fondation: true, rdc: true, etage1: true, toiture: true, autres: true };
+    // Au démarrage, tous les blocs restent fermés jusqu'au clic de l'utilisateur.
+    etagesOuverts = {};
     const moSauvee = validationsModules.maindoeuvre?.donnees;
     if (Array.isArray(moSauvee?.lignes)) {
       moSauvee.lignes = moSauvee.lignes.filter(l => String(l.designation || '').trim().toLowerCase() !== 'solivage');
