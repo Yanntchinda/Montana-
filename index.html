@@ -729,17 +729,13 @@ body:not(.sans-projet) .topbar{position:relative;top:auto}
   <aside class="sidebar no-print">
     <div class="brand">
       <div class="brand-ico"><i class="fa-solid fa-helmet-safety"></i></div>
-      <div class="brand-txt">
-        <strong>GROS ŒUVRE PRO</strong>
-        <span>Montana</span>
-      </div>
     </div>
 
     <nav class="nav" id="nav">
       <div class="nav-label">Pilotage</div>
       <button class="nav-item active" data-tab="projet" onclick="aller('projet')">
         <i class="fa-solid fa-gauge-high ni"></i>
-        <span class="ni-txt"><b>GROS ŒUVRE PRO</b><span class="ni-val" id="nav-v-dash">Projet</span></span>
+        <span class="ni-txt"><b>Projet</b><span class="ni-val" id="nav-v-dash">Projet</span></span>
       </button>
 
       <div class="nav-label">Blocs du bâtiment</div>
@@ -923,7 +919,6 @@ body:not(.sans-projet) .topbar{position:relative;top:auto}
       </div>
       <div class="top-actions">
         <button class="btn btn-icon btn-ghost" id="btn-theme" onclick="basculerTheme()" title="Basculer clair / sombre"><i class="fa-solid fa-moon"></i></button>
-        <button class="btn" onclick="imprimerRapport()"><i class="fa-solid fa-table-list"></i><span class="lbl">Synthèse</span></button>
         <button class="btn btn-primary" onclick="telechargerDevis()" title="Télécharger le devis en PDF"><i class="fa-solid fa-file-arrow-down"></i><span class="lbl">Télécharger le devis</span></button>
       </div>
     </div>
@@ -1653,7 +1648,6 @@ body:not(.sans-projet) .topbar{position:relative;top:auto}
         </div>
 
         <div class="no-print" style="display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end">
-          <button class="btn" onclick="imprimerRapport()"><i class="fa-solid fa-table-list"></i> Imprimer la synthèse complète</button>
           <button class="btn btn-primary" onclick="telechargerDevis()"><i class="fa-solid fa-file-arrow-down"></i> Télécharger le devis (PDF)</button>
         </div>
       </section>
