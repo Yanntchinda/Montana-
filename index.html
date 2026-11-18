@@ -601,37 +601,13 @@ html[data-theme="dark"] .accueil-hint{color:#c8d6ec}
 
 
 body.sans-projet .sidebar,body.sans-projet .top-actions,body.sans-projet .burger{display:none !important}
-/* Navigation horizontale du projet : menus ouverts uniquement au clic. */
-body:not(.sans-projet) .app{display:flex;flex-direction:column;min-width:0}
-body:not(.sans-projet) .sidebar{position:relative;inset:auto;width:100%;height:auto;flex:none;transform:none;display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 18px;z-index:50}
-body:not(.sans-projet) .brand{border:0;padding:0 12px 0 0}
-body:not(.sans-projet) .brand-ico{width:34px;height:34px;flex-basis:34px}
-body:not(.sans-projet) .brand-txt span{display:none}
-body:not(.sans-projet) .nav{overflow:visible;display:flex;flex:1;flex-direction:row;align-items:center;flex-wrap:wrap;gap:6px;padding:0;margin:0}
-body:not(.sans-projet) .nav-label{display:none}
-body:not(.sans-projet) .nav > .nav-item,body:not(.sans-projet) .nav-add-etage{width:auto;margin:0;white-space:nowrap}
-body:not(.sans-projet) .nav > .nav-item .ni-val{display:none}
-body:not(.sans-projet) .nav-item.active::before{display:none}
-body:not(.sans-projet) #nav-etages-custom{display:contents}
-body:not(.sans-projet) .nav-group{position:relative;margin:0}
-body:not(.sans-projet) .nav-group-head{white-space:nowrap}
-body:not(.sans-projet) .nav-group-body{position:absolute;top:100%;left:0;z-index:60;width:min(330px,90vw);max-height:min(65vh,550px);overflow-y:auto;overflow-x:hidden;margin:4px 0 0;padding:8px;border:1px solid rgba(148,163,184,.25);border-radius:12px;background:#102743;box-shadow:0 14px 30px rgba(0,0,0,.28)}
-body:not(.sans-projet) .nav-group-body.menu-droite{left:auto;right:0}
-body:not(.sans-projet) .systeme-menu{position:relative;flex:none;color:#dbe6f7}
-body:not(.sans-projet) .systeme-menu summary{cursor:pointer;list-style:none;padding:9px 12px;border:1px solid rgba(148,163,184,.3);border-radius:10px;font-weight:700;font-size:12px}
-body:not(.sans-projet) .systeme-menu summary::-webkit-details-marker{display:none}
-body:not(.sans-projet) .side-foot{position:absolute;right:0;top:100%;z-index:61;width:250px;margin:4px 0 0;padding:12px;border:1px solid rgba(148,163,184,.25);border-radius:12px;background:#102743;box-shadow:0 14px 30px rgba(0,0,0,.28)}
-body:not(.sans-projet) .side-actions button{padding:9px;text-align:left}
-body:not(.sans-projet) .burger,body:not(.sans-projet) .scrim{display:none !important}
-body:not(.sans-projet) .topbar{position:relative;top:auto}
-@media(max-width:700px){
- body:not(.sans-projet) .sidebar{padding:10px;align-items:flex-start}
- body:not(.sans-projet) .brand{width:100%;padding:0 0 4px}
- body:not(.sans-projet) .nav{flex-basis:100%}
- body:not(.sans-projet) .nav-group:not(.ferme){width:100%}
- body:not(.sans-projet) .nav-group-body,body:not(.sans-projet) .nav-group-body.menu-droite{position:static;width:100%;max-height:50vh;margin:5px 0}
- body:not(.sans-projet) .systeme-menu{margin-left:auto}
-}
+/* Navigation latérale du projet */
+.sidebar .nav{flex:1 1 auto;min-height:0}
+.systeme-menu{margin-top:auto;flex:0 0 auto;color:#dbe6f7}
+.systeme-menu summary{cursor:pointer;list-style:none;padding:9px 11px;border:1px solid rgba(148,163,184,.3);border-radius:10px;font-weight:700;font-size:12px}
+.systeme-menu summary::-webkit-details-marker{display:none}
+.systeme-menu .side-foot{max-height:240px;overflow-y:auto;margin-top:6px;padding-top:9px}
+.systeme-menu .side-actions button{padding:9px;text-align:left}
 .projet-page{width:min(900px,100%);margin:clamp(20px,5vw,70px) auto;padding:clamp(24px,4vw,44px);border-radius:18px;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow)}
 .projet-page .projet-label{color:var(--brand);font-size:11px;font-weight:800;letter-spacing:.15em}.projet-page h1{font-size:clamp(25px,4vw,34px);margin:9px 0}.projet-page p{color:var(--muted)}
 
@@ -4314,8 +4290,6 @@ function appliquerBlocs() {
     if (nav) {
       nav.classList.toggle('ferme', !ouvert);
       const head = nav.querySelector('.nav-group-head'); if (head) head.setAttribute('aria-expanded', String(ouvert));
-      const body = nav.querySelector('.nav-group-body');
-      if (body) { body.classList.remove('menu-droite'); if (ouvert && body.getBoundingClientRect().right > window.innerWidth) body.classList.add('menu-droite'); }
     }
     const dash = $('dashbloc-' + e.id);
     if (dash) dash.classList.toggle('ferme', !ouvert);
