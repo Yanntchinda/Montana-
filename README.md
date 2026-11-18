@@ -4,7 +4,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 
 ## Fonctionnalités
 
-- Après l’écran de connexion, accueil sans diaporama : nouveau projet, reprise du projet enregistré et ouverture d’un fichier projet JSON. Le projet actif est sauvegardé sur cet appareil ; utilisez **Exporter le projet** pour le conserver avant d’en ouvrir un autre ou pour le transférer.
+- Après l’écran de connexion au fond animé, accueil sans diaporama : nouveau projet, reprise du projet enregistré et ouverture d’un fichier projet JSON. Le projet actif est sauvegardé sur cet appareil ; utilisez **Exporter le projet** pour le conserver avant d’en ouvrir un autre ou pour le transférer.
 
 - Murs et parpaings, avec plusieurs portes et fenêtres de dimensions différentes sur un même mur.
 - Longrines avec volume de béton, fers longitudinaux, cadres et épingles en barres de 12 m.
