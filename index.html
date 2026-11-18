@@ -508,6 +508,16 @@ tr.dv-sec td.code-sec{text-align:center;width:56px}
 .accueil-recent{margin:0 0 16px;padding:12px;border-radius:10px;background:var(--surface-2);color:var(--muted);overflow-wrap:anywhere}
 .accueil-recent strong{display:block;color:var(--text)}
 .accueil-hint{margin:16px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
+.accueil-page{width:min(900px,100%);margin:clamp(20px,5vw,70px) auto;padding:clamp(22px,4vw,42px);background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow)}
+.accueil-page-head{margin-bottom:24px}.accueil-page-head span{font-size:11px;letter-spacing:.15em;font-weight:800;color:var(--brand)}
+.accueil-page-head h1{font-size:clamp(24px,4vw,32px);margin:7px 0}.accueil-page-head p{color:var(--muted)}
+.accueil-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.accueil-action{display:flex;align-items:center;gap:16px;text-align:left;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--surface-2);color:var(--text);cursor:pointer}
+.accueil-action i{width:42px;height:42px;display:grid;place-items:center;flex:none;border-radius:11px;background:var(--brand-soft);color:var(--brand);font-size:18px}
+.accueil-action b,.accueil-action small{display:block}.accueil-action b{font-size:14px}.accueil-action small{color:var(--muted);margin-top:4px}
+.accueil-action:hover{border-color:var(--brand-2)}.accueil-action:disabled{opacity:.5;cursor:not-allowed}.accueil-action.principal{border-color:var(--brand-border);background:var(--brand-soft)}
+@media(max-width:600px){.accueil-actions{grid-template-columns:1fr}}
+
 
 /* ============================================================
    IMPRESSION
@@ -572,22 +582,6 @@ tr.dv-sec td.code-sec{text-align:center;width:56px}
     </div>
   </div>
 
-  <!-- Accueil des projets -->
-  <main class="login-screen login-hidden" id="accueil-projets">
-    <div class="login-glass">
-      <div class="login-head"><h1>Accueil</h1><p>Choisissez une action pour commencer</p></div>
-      <div class="accueil-recent" id="accueil-recent" aria-live="polite"></div>
-      <div class="login-actions">
-        <button class="btn-login" onclick="nouveauProjet()"><i class="fa-solid fa-file-circle-plus"></i>&nbsp; Nouveau projet</button>
-        <button class="btn-secondary" id="btn-projet-recent" onclick="accederApp()"><i class="fa-solid fa-clock-rotate-left"></i>&nbsp; Continuer le projet enregistré</button>
-        <button class="btn-secondary" onclick="$('fichier-projet').click()"><i class="fa-solid fa-folder-open"></i>&nbsp; Ouvrir un fichier projet</button>
-        <input type="file" id="fichier-projet" accept=".json,application/json" hidden onchange="importerProjet(this)">
-        <button class="btn-secondary" id="btn-export-accueil" onclick="exporterProjet()"><i class="fa-solid fa-file-arrow-down"></i>&nbsp; Exporter le projet enregistré</button>
-      </div>
-      <p class="accueil-hint">Un seul projet est conservé sur cet appareil. Exportez-le avant d’en ouvrir un autre pour le garder.</p>
-    </div>
-  </main>
-
   <div class="app">
 
   <!-- ==================== SIDEBAR / ONGLETS ==================== -->
@@ -604,7 +598,7 @@ tr.dv-sec td.code-sec{text-align:center;width:56px}
       <div class="nav-label">Pilotage</div>
       <button class="nav-item active" data-tab="dashboard" onclick="aller('dashboard')">
         <i class="fa-solid fa-gauge-high ni"></i>
-        <span class="ni-txt"><b>Tableau de bord</b><span class="ni-val" id="nav-v-dash">Synthèse du projet</span></span>
+        <span class="ni-txt"><b>Accueil</b><span class="ni-val" id="nav-v-dash">Projets</span></span>
       </button>
 
       <div class="nav-label">Blocs du bâtiment</div>
@@ -792,71 +786,17 @@ tr.dv-sec td.code-sec{text-align:center;width:56px}
 
       <!-- ============ ONGLET : TABLEAU DE BORD ============ -->
       <section class="panel active" id="panel-dashboard">
-        <div class="kpis">
-          <button class="kpi k-beton" onclick="aller('poteau')">
-            <div class="k-top"><span class="k-ico"><i class="fa-solid fa-cube"></i></span><span class="k-tag">Béton</span></div>
-            <div class="k-val"><span id="dash-beton">0</span><small>m³</small></div>
-            <div class="k-lab">Longrines + poteaux + amorces + poutres + chenage + dalles + semelles + divers</div>
-          </button>
-          <button class="kpi k-mur" onclick="aller('mur')">
-            <div class="k-top"><span class="k-ico"><i class="fa-solid fa-border-all"></i></span><span class="k-tag">Maçonnerie</span></div>
-            <div class="k-val"><span id="dash-parpaings">0</span><small>u</small></div>
-            <div class="k-lab">Parpaings à commander</div>
-          </button>
-          <button class="kpi k-coff" onclick="aller('poutre')">
-            <div class="k-top"><span class="k-ico"><i class="fa-solid fa-ruler-combined"></i></span><span class="k-tag">Coffrage</span></div>
-            <div class="k-val"><span id="dash-coffrage">0</span><small>m²</small></div>
-            <div class="k-lab">Poteaux + amorces + poutres + chenage (faces à coffrer)</div>
-          </button>
-          <button class="kpi k-acier" onclick="aller('corps')">
-            <div class="k-top"><span class="k-ico"><i class="fa-solid fa-table-cells"></i></span><span class="k-tag">Corps creux</span></div>
-            <div class="k-val"><span id="dash-hourdis">0</span><small>u</small></div>
-            <div class="k-lab">Hourdis · <span id="dash-nervures">0</span> ml de nervures</div>
-          </button>
-          <button class="kpi k-money" onclick="aller('devis')">
-            <div class="k-top"><span class="k-ico"><i class="fa-solid fa-sack-dollar"></i></span><span class="k-tag">Devis</span></div>
-            <div class="k-val"><span id="dash-ht">0</span></div>
-            <div class="k-lab">Total HT · TVA <span id="dash-tva">0</span></div>
-          </button>
-        </div>
-
-        <div class="dash-2">
-          <div class="card">
-            <div class="card-head">
-              <div class="ch-txt">
-                <h3><i class="fa-solid fa-layer-group"></i> Répartition des volumes de béton</h3>
-                <div class="ch-sub">Part de chaque élément structurel dans le béton total</div>
-              </div>
-              <span class="btn btn-sm btn-ghost" style="pointer-events:none"><b class="res" id="dash-beton-tot">0</b>&nbsp;m³</span>
-            </div>
-            <div class="card-body tight" id="dash-repart">
-              <div class="note"><i class="fa-solid fa-circle-info"></i><div>Ajoutez des poteaux, amorces, poutres, chenages ou dalles pour voir la répartition.</div></div>
-            </div>
+        <div class="accueil-page">
+          <div class="accueil-page-head"><span>GROS ŒUVRE PRO</span><h1>Accueil des projets</h1><p>Choisissez une action pour commencer.</p></div>
+          <div class="accueil-recent" id="accueil-recent" aria-live="polite"></div>
+          <div class="accueil-actions">
+            <button class="accueil-action principal" onclick="nouveauProjet()"><i class="fa-solid fa-file-circle-plus"></i><span><b>Nouveau projet</b><small>Créer un nouveau chantier</small></span></button>
+            <button class="accueil-action" id="btn-projet-recent" onclick="accederApp()"><i class="fa-solid fa-clock-rotate-left"></i><span><b>Continuer le projet enregistré</b><small>Reprendre votre travail</small></span></button>
+            <button class="accueil-action" onclick="$('fichier-projet').click()"><i class="fa-solid fa-folder-open"></i><span><b>Ouvrir un fichier projet</b><small>Importer un projet depuis un fichier</small></span></button>
+            <input type="file" id="fichier-projet" accept=".json,application/json" hidden onchange="importerProjet(this)">
+            <button class="accueil-action" id="btn-export-accueil" onclick="exporterProjet()"><i class="fa-solid fa-file-arrow-down"></i><span><b>Exporter le projet enregistré</b><small>Conserver ou transférer votre projet</small></span></button>
           </div>
-
-          <div class="card">
-            <div class="card-head">
-              <div class="ch-txt">
-                <h3><i class="fa-solid fa-list-check"></i> État des modules par bloc</h3>
-                <div class="ch-sub">Fondation, RDC, étages et Toiture — cliquez sur un bloc pour le déplier, puis sur un module pour l’ouvrir</div>
-              </div>
-              <button class="btn btn-sm btn-primary" onclick="ajouterEtage()"><i class="fa-solid fa-plus"></i> Ajouter un étage</button>
-            </div>
-            <div class="card-body tight" id="dash-modules"></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-head">
-            <div class="ch-txt">
-              <h3><i class="fa-solid fa-boxes-stacked"></i> Matériaux déduits du dosage</h3>
-              <div class="ch-sub">Calculés à partir du volume de béton et des dosages saisis dans l'onglet Devis</div>
-            </div>
-            <button class="btn btn-sm" onclick="aller('devis')"><i class="fa-solid fa-sliders"></i> Régler les dosages</button>
-          </div>
-          <div class="card-body">
-            <div class="tiles" id="dash-mat"></div>
-          </div>
+          <p class="accueil-hint">Un seul projet est conservé sur cet appareil. Exportez-le avant d’en ouvrir un autre pour le garder.</p>
         </div>
       </section>
 
@@ -1606,7 +1546,7 @@ function toast(msg, type = 'info', ico) {
    ONGLETS
    ============================================================ */
 const ONGLETS = {
-  dashboard: { titre: 'Tableau de bord', sub: "Vue d'ensemble des quantités et du devis" },
+  dashboard: { titre: 'Accueil', sub: 'Gestion des projets' },
   longrine:  { titre: 'Longrines', sub: 'Volume de béton et fers avec crochets' },
   mur:       { titre: 'Murs & parpaings', sub: 'Surface des murs et nombre de parpaings à commander' },
   poteau:    { titre: 'Poteaux', sub: 'Sections, coffrage et volumes de béton' },
@@ -1625,6 +1565,7 @@ let ongletActif = 'dashboard';
 
 function aller(tab, opts = {}) {
   if (!ONGLETS[tab]) tab = 'dashboard';
+  if (!projetOuvert && tab !== 'dashboard') { toast('Créez ou ouvrez d’abord un projet', 'info'); return; }
   // un module désactivé se réactive quand on ouvre son onglet
   const sel = $('sel-' + tab);
   if (sel && !sel.checked && !opts.silent) { sel.checked = true; majVisibilite(); toast('Module réactivé — validez ses calculs pour mettre à jour le devis', 'ok'); }
@@ -4086,6 +4027,7 @@ function majPrix() {
   sauver();
 }
 function telechargerDevis() {
+  if (!projetOuvert) { toast('Créez ou ouvrez d’abord un projet', 'info'); return; }
   // Depuis la sidebar ou la barre supérieure, le devis peut être masqué :
   // on ouvre d'abord son onglet et on force son rendu avant de lancer le PDF.
   if (ongletActif !== 'devis') aller('devis', { silent: true });
@@ -4098,7 +4040,7 @@ function telechargerDevis() {
   }));
 }
 function imprimerDevis() { telechargerDevis(); }
-function imprimerRapport() { document.body.classList.add('print-report'); window.print(); }
+function imprimerRapport() { if (!projetOuvert) return; document.body.classList.add('print-report'); window.print(); }
 window.addEventListener('afterprint', () => document.body.classList.remove('print-devis', 'print-report'));
 
 /* entête du document : synchronisation affichée */
@@ -4275,17 +4217,7 @@ function tuile(icone, label, valeur, unite) {
     <div class="t-val">${valeur}${unite ? `<small>${unite}</small>` : ''}</div></div>`;
 }
 function updateDashboard() {
-  if (!$('dash-beton')) return;
   const dev = ($('dv-devise').value || '').trim();
-  const beton = G.beton;
-  $('dash-beton').innerText = fmt(beton);
-  $('dash-beton-tot').innerText = fmt(beton);
-  $('dash-parpaings').innerText = fmt(G.parpaings);
-  $('dash-coffrage').innerText = fmt(($('sel-poteau').checked ? T.potLat : 0) + ($('sel-amorce').checked ? T.amLat : 0) + ($('sel-poutre').checked ? T.pouCof : 0) + ($('sel-chenage').checked ? T.cheCof : 0));
-  $('dash-hourdis').innerText = fmt(G.hourdis);
-  $('dash-nervures').innerText = fmt(G.nervures);
-  $('dash-ht').innerText = fmtM(totHT);
-  $('dash-tva').innerText = fmtM(totTTC - totHT);
   $('crep-mur-net').innerText = fmt(T.crepMurNet);
   $('crep-mur-double').innerText = fmt(T.crepMur);
   $('crep-dalle').innerText = fmt(T.crepDalle);
@@ -4318,58 +4250,9 @@ function updateDashboard() {
   const nbArt = devis.reduce((a, s) => a + s.lignes.filter(l => !ligneDevisMasquee(l, aciersActifs)).length, 0);
   $('nav-v-devis').textContent = nbArt + ' article' + (nbArt > 1 ? 's' : '') + ' · ' + fmtM(totTTC) + ' ' + dev;
   $('nav-badge-devis').textContent = totHT > 0 ? fmtM(totTTC) : '—';
-  $('nav-v-dash').textContent = beton > 0 ? fmt(beton) + ' m³ de béton' : 'Synthèse du projet';
+  $('nav-v-dash').textContent = 'Projets';
 
-  // répartition du béton
-  const parts = [
-    { k: 'longrine', label: 'Longrines', ico: 'fa-grip-lines', v: $('sel-longrine').checked ? T.longVol : 0 },
-    { k: 'poteau', label: 'Poteaux', ico: 'fa-grip-lines-vertical', v: $('sel-poteau').checked ? T.potVol : 0 },
-    { k: 'amorce', label: 'Amorces', ico: 'fa-ruler-vertical', v: $('sel-amorce').checked ? T.amVol : 0 },
-    { k: 'poutre', label: 'Poutres', ico: 'fa-grip-lines', v: $('sel-poutre').checked ? T.pouVol : 0 },
-    { k: 'chenage', label: 'Chenages', ico: 'fa-link', v: $('sel-chenage').checked ? T.cheVol : 0 },
-    { k: 'dalle', label: 'Dalles pleines', ico: 'fa-square', v: $('sel-dalle').checked ? T.dalVol : 0 },
-    { k: 'semelle', label: 'Semelles', ico: 'fa-layer-group', v: $('sel-semelle').checked ? T.semVol : 0 },
-    { k: 'escalier', label: 'Escalier', ico: 'fa-stairs', v: $('sel-escalier').checked ? T.escVol : 0 },
-    { k: 'autre', label: 'Autre béton', ico: 'fa-plus', v: num($('dos-autre').value) }
-  ];
-  const tot = parts.reduce((a, p) => a + p.v, 0);
-  $('dash-repart').innerHTML = tot > 0 ? parts.filter(p => p.v > 0).map(p => `
-    <div class="list-row">
-      <span class="lr-ico"><i class="fa-solid ${p.ico}"></i></span>
-      <span class="lr-txt"><b>${p.label}</b>
-        <span class="bar"><i style="width:${Math.max(2, (p.v / tot) * 100).toFixed(1)}%"></i></span></span>
-      <span class="lr-val">${fmt(p.v)} m³ · ${((p.v / tot) * 100).toFixed(1)} %</span>
-    </div>`).join('')
-    : `<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun volume de béton pour l'instant. Saisissez des dimensions dans les modules Longrines, Poteaux, Amorce, Poutres, Chenage, Dalles, Semelles ou Escalier.</div></div>`;
 
-  // état des modules
-  const mods = [
-    { k: 'longrine', ico: 'fa-grip-lines', label: 'Longrines', detail: longrines.length + ' type(s) saisi(s)', val: fmt(T.longVol) + ' m³ · ' + fmt(T.longFer + T.longCadre + T.longEpingle) + ' barres' },
-    { k: 'mur', ico: 'fa-border-all', label: 'Murs & parpaings', detail: murs.length + ' mur(s) saisi(s)', val: fmt(T.sMur) + ' m²' },
-    { k: 'poteau', ico: 'fa-grip-lines-vertical', label: 'Poteaux', detail: poteaux.length + ' poteau(x) saisi(s)', val: fmt(T.potVol) + ' m³' },
-    { k: 'amorce', ico: 'fa-ruler-vertical', label: 'Amorce', detail: amorces.length + ' amorce(s) saisie(s)', val: fmt(T.amVol) + ' m³' },
-    { k: 'poutre', ico: 'fa-grip-lines', label: 'Poutres', detail: poutres.length + ' poutre(s) saisie(s)', val: fmt(T.pouVol) + ' m³' },
-    { k: 'chenage', ico: 'fa-link', label: 'Chenage', detail: chenages.length + ' chenage(s) saisi(s)', val: fmt(T.cheVol) + ' m³' },
-    { k: 'dalle', ico: 'fa-square', label: 'Dalles pleines', detail: dalles.length + ' dalle(s) · ' + dalles.reduce((a, o) => a + (Array.isArray(o.panneaux) ? o.panneaux.length : 1), 0) + ' panneau(x)', val: fmt(T.dalSurf) + ' m²' },
-    { k: 'corps', ico: 'fa-table-cells', label: 'Dalle à corps creux', detail: corps.length + ' panneau(x) saisi(s)', val: fmt(T.ccHour) + ' hourdis' },
-    { k: 'semelle', ico: 'fa-layer-group', label: 'Semelles', detail: semelles.length + ' semelle(s) saisie(s)', val: fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres' },
-    { k: 'escalier', ico: 'fa-stairs', label: 'Escalier', detail: escalierPaliers.length + ' palier(s) · ' + escalierVolets.length + ' volet(s)', val: fmt(T.escVol) + ' m³ · ' + fmt(T.escFer) + ' barres' },
-    { k: 'crepissage', ico: 'fa-paint-roller', label: 'Crépissage', detail: crepMurs.length + ' mur(s) · ' + crepDalles.length + ' dalle(s)', val: fmt(T.crepTotal) + ' m²' },
-    { k: 'maindoeuvre', ico: 'fa-hard-hat', label: 'Mains d’œuvre', detail: mainsOeuvre.length + ' ligne(s)', val: fmtM(totalMo) + ' ' + dev }
-  ];
-  const modsParCle = {};
-  mods.forEach(m => { modsParCle[m.k] = m; });
-  rendreDashEtages(modsParCle);
-
-  // matériaux
-  const c = Math.ceil(beton * num($('dos-c').value) - 1e-9);
-  $('dash-mat').innerHTML =
-    tuile('fa-cube', 'Béton', fmt(beton), 'm³') +
-    tuile('fa-industry', 'Ciment', fmt(c), 'sacs') +
-    tuile('fa-mountain', 'Sable', fmt(beton * num($('dos-s').value)), 'm³') +
-    tuile('fa-gem', 'Gravier', fmt(beton * num($('dos-g').value)), 'm³') +
-    tuile('fa-cubes', 'Parpaings', fmt(G.parpaings), 'u') +
-    tuile('fa-table-cells', 'Hourdis', fmt(G.hourdis), 'u');
 }
 
 /* ============================================================
@@ -4420,7 +4303,9 @@ function sauver(silencieux = true) {
    ============================================================ */
 function ouvrirAccueil() {
   $('login-screen').classList.add('login-hidden');
-  $('accueil-projets').classList.remove('login-hidden');
+  document.body.style.overflow = '';
+  appliquerTout();
+  aller('dashboard', { silent: true });
 }
 function afficherAccueilProjet(restaure) {
   const recent = $('accueil-recent');
@@ -4495,13 +4380,15 @@ async function importerProjet(input) {
 function accederApp() {
   projetOuvert = true;
   $('login-screen').classList.add('login-hidden');
-  $('accueil-projets').classList.add('login-hidden');
+  document.querySelector('.sidebar').inert = false;
+  document.querySelector('.top-actions').inert = false;
   document.body.style.overflow = '';
   appliquerTout();
   const h = location.hash.replace('#', '');
   aller(h && ONGLETS[h] ? h : 'dashboard', { silent: true });
   toast('Chantier ouvert — bienvenue', 'ok', 'fa-hard-hat');
   sauver();
+  afficherAccueilProjet(true);
 }
 function charger() {
   let raw = null;
@@ -4706,6 +4593,8 @@ function appliquerTout() {
 
   // le body est verrouillé tant que l'écran de connexion est affiché
   document.body.style.overflow = 'hidden';
+  document.querySelector('.sidebar').inert = true;
+  document.querySelector('.top-actions').inert = true;
 
   let ouverture = null;
   try {
