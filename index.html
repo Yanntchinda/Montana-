@@ -94,6 +94,35 @@ html[data-theme="light"] .sidebar{box-shadow:6px 0 24px -18px rgba(15,23,42,.5)}
   font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:99px;
   background:rgba(148,163,184,.18);color:#c8d6ec
 }
+/* groupes dépliants de la barre latérale (blocs : Fondation, RDC, Étages, Toiture) */
+.nav-group{margin:2px 0}
+.nav-group-head{
+  display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  padding:8px 11px;border:1px solid rgba(148,163,184,.18);border-radius:11px;
+  background:rgba(148,163,184,.08);color:#dbe6f7;cursor:pointer;
+  font-size:12.5px;font-weight:700;letter-spacing:.02em;transition:.16s;user-select:none
+}
+.nav-group-head:hover{background:rgba(148,163,184,.16)}
+.nav-group-head>i:first-child{width:18px;text-align:center;font-size:13px;color:#fbbf24;flex:0 0 18px}
+.nav-group-head>span{flex:1;min-width:0}
+.nav-group-count{font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:99px;background:rgba(148,163,184,.2);color:#c8d6ec;flex:0 0 auto}
+.nav-group-chev{font-size:10px;color:#7f96ba;transition:transform .18s;flex:0 0 auto}
+.nav-group.ferme .nav-group-chev{transform:rotate(-90deg)}
+.nav-group-body{display:flex;flex-direction:column;gap:3px;padding:5px 0 3px 8px;border-left:2px solid rgba(148,163,184,.14);margin:4px 0 4px 10px}
+.nav-group.ferme .nav-group-body{display:none}
+.nav-group-body .nav-item{padding:7px 9px;font-size:12.5px}
+.nav-empty{font-size:11.5px;color:#7f96ba;padding:8px 10px;line-height:1.5;font-style:italic}
+.nav-del-etage{
+  flex:0 0 auto;width:24px;height:24px;border-radius:7px;border:1px solid rgba(248,113,113,.35);
+  background:rgba(248,113,113,.1);color:#fca5a5;cursor:pointer;font-size:10px;display:grid;place-items:center;transition:.16s
+}
+.nav-del-etage:hover{background:rgba(248,113,113,.25);color:#fff}
+.nav-add-etage{
+  display:flex;align-items:center;gap:9px;width:100%;padding:8px 11px;margin:4px 0;
+  border:1px dashed rgba(245,158,11,.5);border-radius:11px;background:rgba(245,158,11,.08);
+  color:#fcd34d;cursor:pointer;font-size:12.5px;font-weight:600;transition:.16s
+}
+.nav-add-etage:hover{background:rgba(245,158,11,.18);color:#fff}
 /* mini interrupteur "inclus au devis" */
 .sw{position:relative;display:inline-block;width:30px;height:17px;flex:0 0 30px}
 .sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
@@ -375,6 +404,25 @@ html[data-theme="dark"] .kpi.k-money .k-val{color:#6ee7b7}
 .list-row .lr-txt span{display:block;font-size:10.8px;color:var(--faint)}
 .list-row .lr-val{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--brand);white-space:nowrap}
 .list-row.disabled{opacity:.45}
+.list-row-click{cursor:pointer;border-radius:8px;padding-left:6px;padding-right:6px}
+.list-row-click:hover{background:var(--surface-3)}
+/* accordéon des blocs dans le tableau de bord (Fondation, RDC, Étages, Toiture) */
+.etage-bloc{border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;background:var(--surface-2)}
+.etage-bloc:last-child{margin-bottom:0}
+.etage-head{
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  padding:12px 14px;background:transparent;border:none;cursor:pointer;
+  font-size:13.5px;font-weight:700;color:var(--text);transition:.16s;user-select:none
+}
+.etage-head:hover{background:var(--surface-3)}
+.etage-head .etage-ico{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface-3);color:var(--brand-2);font-size:13px;flex:0 0 30px}
+.etage-head .etage-nom{flex:1;min-width:0}
+.etage-head .etage-count{font-family:var(--mono);font-size:10.5px;color:var(--muted);background:var(--surface-3);padding:2px 8px;border-radius:99px;white-space:nowrap}
+.etage-head .etage-chev{font-size:11px;color:var(--muted);transition:transform .18s;flex:0 0 auto}
+.etage-bloc.ferme .etage-chev{transform:rotate(-90deg)}
+.etage-body{padding:2px 14px 12px}
+.etage-bloc.ferme .etage-body{display:none}
+.etage-del{flex:0 0 auto}
 .bar{height:5px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin-top:6px}
 .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#fbbf24,#d97706)}
 
@@ -655,52 +703,120 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
         <i class="fa-solid fa-gauge-high ni"></i>
         <span class="ni-txt"><b>Tableau de bord</b><span class="ni-val" id="nav-v-dash">Synthèse du projet</span></span>
       </button>
-      <button class="nav-item" data-tab="longrine" onclick="aller('longrine')">
-        <i class="fa-solid fa-grip-lines ni"></i>
-        <span class="ni-txt"><b>Longrines</b><span class="ni-val" id="nav-v-longrine">0 m³ · 0 barres</span></span>
-        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-longrine" checked onchange="majVisibilite()"><span class="track"></span></label>
-      </button>
 
-      <div class="nav-label">Modules de calcul</div>
-      <button class="nav-item" data-tab="mur" onclick="aller('mur')">
-        <i class="fa-solid fa-border-all ni"></i>
-        <span class="ni-txt"><b>Murs &amp; parpaings</b><span class="ni-val" id="nav-v-mur">0 m²</span></span>
-        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-mur" checked onchange="majVisibilite()"><span class="track"></span></label>
-      </button>
-      <button class="nav-item" data-tab="poteau" onclick="aller('poteau')">
-        <i class="fa-solid fa-grip-lines-vertical ni"></i>
-        <span class="ni-txt"><b>Poteaux</b><span class="ni-val" id="nav-v-poteau">0 m³</span></span>
-        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-poteau" checked onchange="majVisibilite()"><span class="track"></span></label>
-      </button>
-      <button class="nav-item" data-tab="amorce" onclick="aller('amorce')">
-        <i class="fa-solid fa-ruler-vertical ni"></i>
-        <span class="ni-txt"><b>Amorce</b><span class="ni-val" id="nav-v-amorce">0 m³</span></span>
-        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-amorce" checked onchange="majVisibilite()"><span class="track"></span></label>
-      </button>
-      <button class="nav-item" data-tab="poutre" onclick="aller('poutre')">
-        <i class="fa-solid fa-grip-lines ni"></i>
-        <span class="ni-txt"><b>Poutres</b><span class="ni-val" id="nav-v-poutre">0 m³</span></span>
-        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-poutre" checked onchange="majVisibilite()"><span class="track"></span></label>
-      </button>
+      <div class="nav-label">Blocs du bâtiment</div>
+
+      <!-- Fondation -->
+      <div class="nav-group" id="navgrp-fondation">
+        <div class="nav-group-head" onclick="basculerBloc('fondation')">
+          <i class="fa-solid fa-layer-group"></i><span>Fondation</span><span class="nav-group-count">4</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
+        </div>
+        <div class="nav-group-body">
+          <button class="nav-item" data-tab="semelle" onclick="aller('semelle')">
+            <i class="fa-solid fa-layer-group ni"></i>
+            <span class="ni-txt"><b>Semelles</b><span class="ni-val" id="nav-v-semelle">0 m³ · 0 barres</span></span>
+            <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-semelle" checked onchange="majVisibilite()"><span class="track"></span></label>
+          </button>
+          <button class="nav-item" data-tab="amorce" onclick="aller('amorce')">
+            <i class="fa-solid fa-ruler-vertical ni"></i>
+            <span class="ni-txt"><b>Amorce</b><span class="ni-val" id="nav-v-amorce">0 m³</span></span>
+            <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-amorce" checked onchange="majVisibilite()"><span class="track"></span></label>
+          </button>
+          <button class="nav-item" data-tab="longrine" onclick="aller('longrine')">
+            <i class="fa-solid fa-grip-lines ni"></i>
+            <span class="ni-txt"><b>Longrines</b><span class="ni-val" id="nav-v-longrine">0 m³ · 0 barres</span></span>
+            <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-longrine" checked onchange="majVisibilite()"><span class="track"></span></label>
+          </button>
+          <button class="nav-item" data-tab="mur" onclick="aller('mur')">
+            <i class="fa-solid fa-border-all ni"></i>
+            <span class="ni-txt"><b>Murs &amp; parpaings</b><span class="ni-val" id="nav-v-mur">0 m²</span></span>
+            <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-mur" checked onchange="majVisibilite()"><span class="track"></span></label>
+          </button>
+        </div>
+      </div>
+
+      <!-- RDC -->
+      <div class="nav-group" id="navgrp-rdc">
+        <div class="nav-group-head" onclick="basculerBloc('rdc')">
+          <i class="fa-solid fa-building"></i><span>RDC</span><span class="nav-group-count">5</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
+        </div>
+        <div class="nav-group-body">
+          <button class="nav-item" data-tab="poutre" onclick="aller('poutre')">
+            <i class="fa-solid fa-grip-lines ni"></i>
+            <span class="ni-txt"><b>Poutres</b><span class="ni-val" id="nav-v-poutre">0 m³</span></span>
+            <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-poutre" checked onchange="majVisibilite()"><span class="track"></span></label>
+          </button>
+          <button class="nav-item" data-tab="poteau" onclick="aller('poteau')">
+            <i class="fa-solid fa-grip-lines-vertical ni"></i>
+            <span class="ni-txt"><b>Poteaux</b><span class="ni-val" id="nav-v-poteau">0 m³</span></span>
+            <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-poteau" checked onchange="majVisibilite()"><span class="track"></span></label>
+          </button>
+          <button class="nav-item" data-tab="mur" onclick="aller('mur')">
+            <i class="fa-solid fa-border-all ni"></i>
+            <span class="ni-txt"><b>Murs &amp; parpaings</b><span class="ni-val ni-val-dup" data-dup="mur">0 m²</span></span>
+          </button>
+          <button class="nav-item" data-tab="dalle" onclick="aller('dalle')">
+            <i class="fa-solid fa-square ni"></i>
+            <span class="ni-txt"><b>Dalle pleine</b><span class="ni-val" id="nav-v-dalle">0 m³</span></span>
+            <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-dalle" checked onchange="majVisibilite()"><span class="track"></span></label>
+          </button>
+          <button class="nav-item" data-tab="corps" onclick="aller('corps')">
+            <i class="fa-solid fa-table-cells ni"></i>
+            <span class="ni-txt"><b>Dalle corps creux</b><span class="ni-val" id="nav-v-corps">0 hourdis</span></span>
+            <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-corps" checked onchange="majVisibilite()"><span class="track"></span></label>
+          </button>
+        </div>
+      </div>
+
+      <!-- Étage 1 -->
+      <div class="nav-group" id="navgrp-etage1">
+        <div class="nav-group-head" onclick="basculerBloc('etage1')">
+          <i class="fa-solid fa-building"></i><span>Étage 1</span><span class="nav-group-count">5</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
+        </div>
+        <div class="nav-group-body">
+          <button class="nav-item" data-tab="poutre" onclick="aller('poutre')">
+            <i class="fa-solid fa-grip-lines ni"></i>
+            <span class="ni-txt"><b>Poutres</b><span class="ni-val ni-val-dup" data-dup="poutre">0 m³</span></span>
+          </button>
+          <button class="nav-item" data-tab="poteau" onclick="aller('poteau')">
+            <i class="fa-solid fa-grip-lines-vertical ni"></i>
+            <span class="ni-txt"><b>Poteaux</b><span class="ni-val ni-val-dup" data-dup="poteau">0 m³</span></span>
+          </button>
+          <button class="nav-item" data-tab="mur" onclick="aller('mur')">
+            <i class="fa-solid fa-border-all ni"></i>
+            <span class="ni-txt"><b>Murs &amp; parpaings</b><span class="ni-val ni-val-dup" data-dup="mur">0 m²</span></span>
+          </button>
+          <button class="nav-item" data-tab="dalle" onclick="aller('dalle')">
+            <i class="fa-solid fa-square ni"></i>
+            <span class="ni-txt"><b>Dalle pleine</b><span class="ni-val ni-val-dup" data-dup="dalle">0 m³</span></span>
+          </button>
+          <button class="nav-item" data-tab="corps" onclick="aller('corps')">
+            <i class="fa-solid fa-table-cells ni"></i>
+            <span class="ni-txt"><b>Dalle corps creux</b><span class="ni-val ni-val-dup" data-dup="corps">0 hourdis</span></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Étages ajoutés par l'utilisateur (rendus en JavaScript) -->
+      <div id="nav-etages-custom"></div>
+
+      <button class="nav-add-etage" onclick="ajouterEtage()"><i class="fa-solid fa-plus"></i> Ajouter un étage</button>
+
+      <!-- Toiture : grand titre seul, sous-modules à venir -->
+      <div class="nav-group" id="navgrp-toiture">
+        <div class="nav-group-head" onclick="basculerBloc('toiture')">
+          <i class="fa-solid fa-house-chimney"></i><span>Toiture</span><span class="nav-group-count">0</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
+        </div>
+        <div class="nav-group-body">
+          <div class="nav-empty">Aucun sous-module pour le moment — les éléments de Toiture seront ajoutés ici.</div>
+        </div>
+      </div>
+
+      <div class="nav-label">Autres modules</div>
       <button class="nav-item" data-tab="chenage" onclick="aller('chenage')">
         <i class="fa-solid fa-link ni"></i>
         <span class="ni-txt"><b>Chenage</b><span class="ni-val" id="nav-v-chenage">0 m³</span></span>
         <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-chenage" checked onchange="majVisibilite()"><span class="track"></span></label>
-      </button>
-      <button class="nav-item" data-tab="dalle" onclick="aller('dalle')">
-        <i class="fa-solid fa-square ni"></i>
-        <span class="ni-txt"><b>Dalle pleine</b><span class="ni-val" id="nav-v-dalle">0 m³</span></span>
-        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-dalle" checked onchange="majVisibilite()"><span class="track"></span></label>
-      </button>
-      <button class="nav-item" data-tab="corps" onclick="aller('corps')">
-        <i class="fa-solid fa-table-cells ni"></i>
-        <span class="ni-txt"><b>Dalle corps creux</b><span class="ni-val" id="nav-v-corps">0 hourdis</span></span>
-        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-corps" checked onchange="majVisibilite()"><span class="track"></span></label>
-      </button>
-      <button class="nav-item" data-tab="semelle" onclick="aller('semelle')">
-        <i class="fa-solid fa-layer-group ni"></i>
-        <span class="ni-txt"><b>Semelles</b><span class="ni-val" id="nav-v-semelle">0 m³ · 0 barres</span></span>
-        <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-semelle" checked onchange="majVisibilite()"><span class="track"></span></label>
       </button>
       <button class="nav-item" data-tab="escalier" onclick="aller('escalier')">
         <i class="fa-solid fa-stairs ni"></i>
@@ -716,7 +832,6 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
         <span class="ni-txt"><b>Solivage</b><span class="ni-val" id="nav-v-solivage">0</span></span>
         <label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-solivage" checked onchange="majVisibilite()"><span class="track"></span></label>
       </button>
-
       <button class="nav-item" data-tab="maindoeuvre" onclick="aller('maindoeuvre')">
         <i class="fa-solid fa-hard-hat ni"></i>
         <span class="ni-txt"><b>Mains d’œuvre</b><span class="ni-val" id="nav-v-maindoeuvre">0</span></span>
@@ -817,9 +932,10 @@ html[data-theme="dark"] .login-foot b{color:#e8eefb}
           <div class="card">
             <div class="card-head">
               <div class="ch-txt">
-                <h3><i class="fa-solid fa-list-check"></i> État des modules</h3>
-                <div class="ch-sub">Éléments saisis et inclusion dans le devis</div>
+                <h3><i class="fa-solid fa-list-check"></i> État des modules par bloc</h3>
+                <div class="ch-sub">Fondation, RDC, étages et Toiture — cliquez sur un bloc pour le déplier, puis sur un module pour l’ouvrir</div>
               </div>
+              <button class="btn btn-sm btn-primary" onclick="ajouterEtage()"><i class="fa-solid fa-plus"></i> Ajouter un étage</button>
             </div>
             <div class="card-body tight" id="dash-modules"></div>
           </div>
@@ -1637,6 +1753,11 @@ let ongletActif = 'dashboard';
 
 function aller(tab, opts = {}) {
   if (!ONGLETS[tab]) tab = 'dashboard';
+  // déplie le(s) bloc(s) contenant ce module (Fondation, RDC, Étages…)
+  try {
+    listeEtages().forEach(e => { if (e.modules.includes(tab)) etagesOuverts[e.id] = true; });
+    appliquerBlocs();
+  } catch (e) {}
   // un module désactivé se réactive quand on ouvre son onglet
   const sel = $('sel-' + tab);
   if (sel && !sel.checked && !opts.silent) { sel.checked = true; majVisibilite(); toast('Module réactivé — validez ses calculs pour mettre à jour le devis', 'ok'); }
@@ -4176,14 +4297,149 @@ function majVisibilite() {
   syncSwitches();
   ['longrine', 'mur', 'poteau', 'amorce', 'poutre', 'chenage', 'solivage', 'maindoeuvre', 'dalle', 'corps', 'semelle', 'escalier'].forEach(k => {
     const on = $('sel-' + k).checked;
-    const nav = document.querySelector(`.nav-item[data-tab="${k}"]`);
-    if (nav) nav.classList.toggle('off', !on);
+    document.querySelectorAll(`.nav-item[data-tab="${k}"]`).forEach(nav => nav.classList.toggle('off', !on));
     const panel = $('bloc-' + k);
     if (panel) panel.classList.toggle('module-off', !on);
   });
   syncMainDoeuvreDevis();
   syncSolivageDevis();
   calculer();
+}
+
+/* ============================================================
+   BLOCS / ÉTAGES (Fondation, RDC, Étages, Toiture)
+   Les blocs classent les modules : chaque bloc pointe vers les
+   mêmes modules de calcul (données partagées). On peut ajouter
+   autant d'étages que nécessaire, avec les mêmes sous-modules
+   que le RDC. Toiture ne contient pour l'instant aucun module.
+   ============================================================ */
+const ETAGES_BASE = [
+  { id: 'fondation', nom: 'Fondation', ico: 'fa-layer-group', modules: ['semelle', 'amorce', 'longrine', 'mur'] },
+  { id: 'rdc', nom: 'RDC', ico: 'fa-building', modules: ['poutre', 'poteau', 'mur', 'dalle', 'corps'] },
+  { id: 'etage1', nom: 'Étage 1', ico: 'fa-building', modules: ['poutre', 'poteau', 'mur', 'dalle', 'corps'] },
+  { id: 'toiture', nom: 'Toiture', ico: 'fa-house-chimney', modules: [] }
+];
+const MODULES_ETAGE = ['poutre', 'poteau', 'mur', 'dalle', 'corps'];
+const META_NAV = {
+  poutre: { ico: 'fa-grip-lines', label: 'Poutres' },
+  poteau: { ico: 'fa-grip-lines-vertical', label: 'Poteaux' },
+  mur: { ico: 'fa-border-all', label: 'Murs & parpaings' },
+  dalle: { ico: 'fa-square', label: 'Dalle pleine' },
+  corps: { ico: 'fa-table-cells', label: 'Dalle corps creux' }
+};
+let etagesCustom = [];
+let etagesOuverts = { fondation: true, rdc: true, etage1: true, toiture: true, autres: true };
+function listeEtages() {
+  const custom = etagesCustom.map(e => ({ id: e.id, nom: e.nom, ico: 'fa-building', modules: [...MODULES_ETAGE], custom: true }));
+  return [...ETAGES_BASE.slice(0, 3), ...custom, ETAGES_BASE[3]];
+}
+function etageOuvert(id) { return etagesOuverts[id] !== false; }
+function basculerBloc(id) {
+  etagesOuverts[id] = etageOuvert(id) ? false : true;
+  appliquerBlocs();
+  sauver();
+}
+function appliquerBlocs() {
+  listeEtages().forEach(e => {
+    const ouvert = etageOuvert(e.id);
+    const nav = $('navgrp-' + e.id);
+    if (nav) nav.classList.toggle('ferme', !ouvert);
+    const dash = $('dashbloc-' + e.id);
+    if (dash) dash.classList.toggle('ferme', !ouvert);
+  });
+  const dashA = $('dashbloc-autres');
+  if (dashA) dashA.classList.toggle('ferme', !etageOuvert('autres'));
+}
+function navItemDup(k) {
+  const meta = META_NAV[k];
+  if (!meta) return '';
+  return `<button class="nav-item" data-tab="${k}" onclick="aller('${k}')">
+    <i class="fa-solid ${meta.ico} ni"></i>
+    <span class="ni-txt"><b>${meta.label}</b><span class="ni-val ni-val-dup" data-dup="${k}">—</span></span>
+  </button>`;
+}
+function rendreEtagesNav() {
+  const cible = $('nav-etages-custom');
+  if (!cible) return;
+  cible.innerHTML = etagesCustom.map(e => `<div class="nav-group ${etageOuvert(e.id) ? '' : 'ferme'}" id="navgrp-${e.id}">
+    <div class="nav-group-head" onclick="basculerBloc('${e.id}')">
+      <i class="fa-solid fa-building"></i><span>${e.nom}</span><span class="nav-group-count">${MODULES_ETAGE.length}</span>
+      <button class="nav-del-etage" title="Supprimer cet étage" onclick="event.stopPropagation();supprimerEtage('${e.id}')"><i class="fa-solid fa-trash-can"></i></button>
+      <i class="fa-solid fa-chevron-down nav-group-chev"></i>
+    </div>
+    <div class="nav-group-body">${MODULES_ETAGE.map(navItemDup).join('')}</div>
+  </div>`).join('');
+}
+function ajouterEtage() {
+  const nums = [1, ...etagesCustom.map(e => {
+    const m = String(e.nom).match(/(\d+)\s*$/);
+    return m ? parseInt(m[1], 10) : 0;
+  })];
+  const n = Math.max(...nums) + 1;
+  const id = 'etage' + n;
+  etagesCustom.push({ id, nom: 'Étage ' + n });
+  etagesOuverts[id] = true;
+  rendreEtagesNav();
+  appliquerBlocs();
+  updateDashboard();
+  sauver();
+  toast('Étage ' + n + ' ajouté — mêmes sous-modules que le RDC', 'ok', 'fa-building');
+}
+function supprimerEtage(id) {
+  const e = etagesCustom.find(x => x.id === id);
+  if (!e) return;
+  if (!window.confirm(`Supprimer le bloc « ${e.nom} » ? Les calculs des modules ne sont pas effacés, seul le bloc disparaît.`)) return;
+  etagesCustom = etagesCustom.filter(x => x.id !== id);
+  delete etagesOuverts[id];
+  rendreEtagesNav();
+  appliquerBlocs();
+  updateDashboard();
+  sauver();
+  toast(e.nom + ' supprimé', 'ok');
+}
+function syncDupNav(k) {
+  const src = $('nav-v-' + k);
+  if (!src) return;
+  document.querySelectorAll(`.ni-val-dup[data-dup="${k}"]`).forEach(el => { el.textContent = src.textContent; });
+}
+function ligneModuleDash(m) {
+  const sel = $('sel-' + m.k);
+  const on = sel ? sel.checked : true;
+  return `<div class="list-row list-row-click ${on ? '' : 'disabled'}" onclick="aller('${m.k}')" title="Ouvrir ${m.label}">
+    <span class="lr-ico"><i class="fa-solid ${m.ico}"></i></span>
+    <span class="lr-txt"><b>${m.label}</b><span>${m.detail} · ${validationsModules[m.k] ? (calculModuleValideAJour(m.k) ? 'validé' : 'à revalider') : 'non validé'} · ${on ? 'inclus au devis' : 'exclu du devis'}</span></span>
+    <span class="lr-val">${m.val}</span>
+  </div>`;
+}
+function rendreDashEtages(modsParCle) {
+  const cible = $('dash-modules');
+  if (!cible) return;
+  let html = listeEtages().map(e => {
+    const corps = e.modules.length === 0
+      ? `<div class="note" style="margin-top:4px"><i class="fa-solid fa-circle-info"></i><div>Aucun sous-module pour le moment. Les éléments de Toiture seront ajoutés ici.</div></div>`
+      : e.modules.map(k => modsParCle[k] ? ligneModuleDash(modsParCle[k]) : '').join('');
+    return `<div class="etage-bloc ${etageOuvert(e.id) ? '' : 'ferme'}" id="dashbloc-${e.id}">
+      <div class="etage-head" onclick="basculerBloc('${e.id}')">
+        <span class="etage-ico"><i class="fa-solid ${e.ico}"></i></span>
+        <span class="etage-nom">${e.nom}</span>
+        <span class="etage-count">${e.modules.length} module${e.modules.length > 1 ? 's' : ''}</span>
+        ${e.custom ? `<button class="btn btn-sm btn-danger etage-del" title="Supprimer cet étage" onclick="event.stopPropagation();supprimerEtage('${e.id}')"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+        <i class="fa-solid fa-chevron-down etage-chev"></i>
+      </div>
+      <div class="etage-body">${corps}</div>
+    </div>`;
+  }).join('');
+  const autres = ['chenage', 'escalier', 'maindoeuvre', 'solivage'].map(k => modsParCle[k]).filter(Boolean);
+  html += `<div class="etage-bloc ${etageOuvert('autres') ? '' : 'ferme'}" id="dashbloc-autres">
+    <div class="etage-head" onclick="basculerBloc('autres')">
+      <span class="etage-ico"><i class="fa-solid fa-boxes-stacked"></i></span>
+      <span class="etage-nom">Autres modules</span>
+      <span class="etage-count">${autres.length} module${autres.length > 1 ? 's' : ''}</span>
+      <i class="fa-solid fa-chevron-down etage-chev"></i>
+    </div>
+    <div class="etage-body">${autres.map(ligneModuleDash).join('')}</div>
+  </div>`;
+  cible.innerHTML = html;
 }
 
 /* ============================================================
@@ -4234,6 +4490,8 @@ function updateDashboard() {
   const svNavPu = num($('sol-pu') ? $('sol-pu').value : '');
   $('nav-v-solivage').textContent = svNav.lattes + ' lattes · ' + fmtM(svNav.lattes * svNavPu) + ' ' + dev;
   $('nav-v-maindoeuvre').textContent = mainsOeuvre.length + ' ligne(s) · ' + fmtM(totalMo) + ' ' + dev;
+  // les modules présents dans plusieurs blocs (RDC, Étages…) affichent la même valeur partout
+  ['mur', 'poutre', 'poteau', 'dalle', 'corps'].forEach(syncDupNav);
   const aciersActifs = aciersDevisActifs();
   const nbArt = devis.reduce((a, s) => a + s.lignes.filter(l => !ligneDevisMasquee(l, aciersActifs)).length, 0);
   $('nav-v-devis').textContent = nbArt + ' article' + (nbArt > 1 ? 's' : '') + ' · ' + fmtM(totTTC) + ' ' + dev;
@@ -4279,14 +4537,9 @@ function updateDashboard() {
     { k: 'maindoeuvre', ico: 'fa-hard-hat', label: 'Mains d’œuvre', detail: mainsOeuvre.length + ' ligne(s)', val: fmtM(totalMo) + ' ' + dev },
     { k: 'solivage', ico: 'fa-grip-lines', label: 'Solivage', detail: svMods.lattes + ' lattes', val: fmtM(svMods.lattes * svModsPu) + ' ' + dev }
   ];
-  $('dash-modules').innerHTML = mods.map(m => {
-    const on = $('sel-' + m.k).checked;
-    return `<div class="list-row ${on ? '' : 'disabled'}">
-      <span class="lr-ico"><i class="fa-solid ${m.ico}"></i></span>
-      <span class="lr-txt"><b>${m.label}</b><span>${m.detail} · ${validationsModules[m.k] ? (calculModuleValideAJour(m.k) ? 'validé' : 'à revalider') : 'non validé'} · ${on ? 'inclus au devis' : 'exclu du devis'}</span></span>
-      <span class="lr-val">${m.val}</span>
-    </div>`;
-  }).join('');
+  const modsParCle = {};
+  mods.forEach(m => { modsParCle[m.k] = m; });
+  rendreDashEtages(modsParCle);
 
   // matériaux
   const c = Math.ceil(beton * num($('dos-c').value) - 1e-9);
@@ -4334,7 +4587,7 @@ function sauver(silencieux = true) {
   try {
     const champs = {};
     CHAMPS.forEach(id => { const el = $(id); if (el) champs[id] = el.type === 'checkbox' ? el.checked : el.value; });
-    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, escalierPaliers, escalierVolets, moduleSemellesInitialise: true, moduleLongrinesInitialise: true, moduleChenagesInitialise: true, moduleAmorcesInitialise: true, moduleMainDoeuvreInitialise: true, moduleEscalierInitialise: true, crepMurs, crepDalles, crepValidation, validationsModules, champs, devis };
+    const data = { v: 2, maj: new Date().toISOString(), uid, murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, escalierPaliers, escalierVolets, moduleSemellesInitialise: true, moduleLongrinesInitialise: true, moduleChenagesInitialise: true, moduleAmorcesInitialise: true, moduleMainDoeuvreInitialise: true, moduleEscalierInitialise: true, crepMurs, crepDalles, crepValidation, validationsModules, etagesCustom, etagesOuverts, champs, devis };
     localStorage.setItem(CLE, JSON.stringify(data));
     const s = $('save-state');
     s.classList.remove('dirty');
@@ -4493,6 +4746,8 @@ function charger() {
     crepValidation = d.crepValidation || null;
     const validationsSauvees = d.validationsModules || {};
     Object.keys(MODULES_VALIDABLES).forEach(cle => { validationsModules[cle] = validationsSauvees[cle] || null; });
+    etagesCustom = Array.isArray(d.etagesCustom) ? d.etagesCustom.filter(e => e && e.id && e.nom) : [];
+    etagesOuverts = (d.etagesOuverts && typeof d.etagesOuverts === 'object') ? d.etagesOuverts : { fondation: true, rdc: true, etage1: true, toiture: true, autres: true };
     const longrineSauvee = validationsModules.longrine?.donnees;
     if (longrineSauvee?.fers) longrineSauvee.fers = normaliserFersLongrines(longrineSauvee.fers);
     const semelleSauvee = validationsModules.semelle?.donnees;
@@ -4545,6 +4800,7 @@ function appliquerTout() {
   syncProjet();
   majVisibilite();
   updateDashboard();
+  appliquerBlocs();
 }
 
 (function init() {
@@ -4562,6 +4818,8 @@ function appliquerTout() {
     ajouterLongrine(); ajouterMur(); ajouterPoteau(); ajouterAmorce(); ajouterPoutre(); ajouterChenage(); ajouterDalle(); ajouterCorps(); ajouterPanneauLatteCorps(); ajouterSemelle(); ajouterPalierEscalier(); ajouterVoletEscalier(); initialiserLignesMainDoeuvre();
     $('dv-date').value = new Date().toLocaleDateString('fr-FR');
   }
+  rendreEtagesNav();
+  appliquerBlocs();
   // préparation silencieuse : on ne rend pas encore l'interface, l'utilisateur doit cliquer sur "Connexion"
   syncEntete();
   $('dv-date').value = $('dv-date').value || new Date().toLocaleDateString('fr-FR');

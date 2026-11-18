@@ -15,6 +15,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 - Semelles avec deux nappes d'armatures (Nappe 1 et Nappe 2), chacune composée de deux lits indépendants (Lit 1 sens longueur L et Lit 2 sens largeur l).
 - Escalier avec deux sous-modules : **Palier** (volume béton et **Fer** Nappe 1 et Nappe 2 avec Lit 1 sens longueur L et Lit 2 sens largeur l) et **Volet** (**Marches** : ((giron × hauteur) ÷ 2) × emmarchement × nombre de marches total ; **Paillasse** : longueur × emmarchement × épaisseur × nombre de volets ; **Fer** : Nappe 1 et Nappe 2 avec Lit 1 sens longueur L et Lit 2 sens largeur l), raccordé au tableau de bord et au devis.
 - Crépissage.
+- Tableau de bord et barre latérale classés par blocs dépliants : **Fondation** (Semelles, Amorce, Longrines, Murs & parpaings), **RDC** et **Étage 1** (Poutres, Poteaux, Murs & parpaings, Dalle pleine, Dalle corps creux), **Toiture** (grand titre seul, sous-modules à venir) et **Autres modules** (Chenage, Escalier, Crépissage, Solivage, Mains d’œuvre). Bouton **« Ajouter un étage »** pour créer Étage 2, Étage 3… avec les mêmes sous-modules que le RDC (suppression possible pour les étages ajoutés) ; l’état déplié/replié et la liste des étages sont sauvegardés automatiquement.
 - Validation explicite de chaque module avant envoi au devis.
 - Devis avec quantités, prix unitaires, prix totaux, TVA et export PDF.
 - Sauvegarde automatique et fonctionnement hors connexion.
