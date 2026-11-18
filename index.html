@@ -1180,7 +1180,7 @@ body:not(.sans-projet) .topbar{position:relative;top:auto}
               <table>
                 <thead>
                   <tr class="poteau-group-row">
-                    <th colspan="6">Dimensions du poteau</th><th colspan="6" class="group-gap">Fers verticaux</th><th colspan="7" class="group-gap">Cadres</th><th colspan="5" class="group-gap">Épingles</th><th colspan="3" class="group-gap">Résultats béton</th><th class="no-print"></th>
+                    <th colspan="6">Dimensions du poteau</th><th colspan="6" class="group-gap">Fers verticaux</th><th colspan="7" class="group-gap">Cadres</th><th colspan="6" class="group-gap">Épingles</th><th colspan="3" class="group-gap">Résultats béton</th><th class="no-print"></th>
                   </tr>
                   <tr>
                     <th>Désignation</th><th class="w-lg">Forme</th><th class="w-md">Long. a / Ø (m)</th><th class="w-md">Larg. b (m)</th>
@@ -1189,7 +1189,7 @@ body:not(.sans-projet) .topbar{position:relative;top:auto}
                     <th class="th-r">Fer total (ml)</th><th class="th-r">Barres 12 m</th>
                     <th class="w-sm group-gap">Nuance cadre</th><th class="w-sm">Ø cadre</th><th class="w-md">Enrobage (cm)</th><th class="w-sm">Cadres / poteau</th>
                     <th class="th-r">Long. 1 cadre (m)</th><th class="th-r">Cadres total (ml)</th><th class="th-r">Barres 12 m</th>
-                    <th class="w-sm group-gap">Nuance épingle</th><th class="w-sm">Nb épingles total</th><th class="w-md">Long. 1 épingle (m)</th>
+                    <th class="w-sm group-gap">Nuance épingle</th><th class="w-sm">Ø épingle</th><th class="w-sm">Nb épingles total</th><th class="w-md">Long. 1 épingle (m)</th>
                     <th class="th-r">Épingles total (ml)</th><th class="th-r">Barres 12 m</th>
                     <th class="th-r group-gap">Section (m²)</th><th class="th-r">Surf. latérale (m²)</th><th class="th-r">Volume (m³)</th><th class="w-sm no-print"></th>
                   </tr>
@@ -1238,7 +1238,7 @@ body:not(.sans-projet) .topbar{position:relative;top:auto}
               <table>
                 <thead>
                   <tr class="poteau-group-row">
-                    <th colspan="6">Dimensions de l’amorce</th><th colspan="6" class="group-gap">Fers verticaux</th><th colspan="7" class="group-gap">Cadres</th><th colspan="5" class="group-gap">Épingles</th><th colspan="3" class="group-gap">Résultats béton</th><th class="no-print"></th>
+                    <th colspan="6">Dimensions de l’amorce</th><th colspan="6" class="group-gap">Fers verticaux</th><th colspan="7" class="group-gap">Cadres</th><th colspan="6" class="group-gap">Épingles</th><th colspan="3" class="group-gap">Résultats béton</th><th class="no-print"></th>
                   </tr>
                   <tr>
                     <th>Désignation</th><th class="w-lg">Forme</th><th class="w-md">Long. a / Ø (m)</th><th class="w-md">Larg. b (m)</th>
@@ -1247,7 +1247,7 @@ body:not(.sans-projet) .topbar{position:relative;top:auto}
                     <th class="th-r">Fer total (ml)</th><th class="th-r">Barres 12 m</th>
                     <th class="w-sm group-gap">Nuance cadre</th><th class="w-sm">Ø cadre</th><th class="w-md">Enrobage (cm)</th><th class="w-sm">Cadres / amorce</th>
                     <th class="th-r">Long. 1 cadre (m)</th><th class="th-r">Cadres total (ml)</th><th class="th-r">Barres 12 m</th>
-                    <th class="w-sm group-gap">Nuance épingle</th><th class="w-sm">Nb épingles total</th><th class="w-md">Long. 1 épingle (m)</th>
+                    <th class="w-sm group-gap">Nuance épingle</th><th class="w-sm">Ø épingle</th><th class="w-sm">Nb épingles total</th><th class="w-md">Long. 1 épingle (m)</th>
                     <th class="th-r">Épingles total (ml)</th><th class="th-r">Barres 12 m</th>
                     <th class="th-r group-gap">Section (m²)</th><th class="th-r">Surf. latérale (m²)</th><th class="th-r">Volume (m³)</th><th class="w-sm no-print"></th>
                   </tr>
@@ -1586,7 +1586,7 @@ body:not(.sans-projet) .topbar{position:relative;top:auto}
               <div class="field"><label for="dv-devise">Devise</label><input class="inp inp-txt" id="dv-devise" value="FCFA" oninput="updateDevis()"></div>
               <div class="field"><label for="dv-tva">TVA (%)</label><input class="inp" id="dv-tva" value="19.25" oninput="updateDevis()"></div>
             </div>
-            <div class="note" style="margin-top:14px"><i class="fa-solid fa-lightbulb"></i><div>Les quantités des modules sont intégrées ici uniquement après clic sur <b>Valider et enregistrer dans le devis</b>. Après modification d’un module, le devis conserve le dernier calcul validé jusqu’à confirmation. Saisissez le <b>prix unitaire</b> : le prix total est calculé automatiquement. La quantité et le prix total peuvent aussi être écrasés manuellement, puis rétablis avec <i class="fa-solid fa-rotate-left"></i>.</div></div>
+            <div class="note" style="margin-top:14px"><i class="fa-solid fa-lightbulb"></i><div>Les quantités des modules sont intégrées après <b>Valider et enregistrer dans le devis</b>. Les lignes de même désignation et de même unité sont regroupées : leur quantité est la somme des sources validées. Si leurs prix diffèrent, le prix affiché est une moyenne pondérée qui conserve le montant total ; modifier ce prix l’applique à toutes les lignes du groupe. Les quantités regroupées se modifient dans leurs modules. Pour les épingles, renseignez le diamètre puis revalidez le module afin de les regrouper avec les autres aciers.</div></div>
           </div>
         </div>
 
@@ -1792,7 +1792,7 @@ function validerModuleDevis(cle) {
   if (!(cle in MODULES_VALIDABLES)) return;
   validationsModules[cle] = { donnees: copierCalcul(calculsModules[cle]), date: new Date().toISOString() };
   calculer();
-  if (cle === 'semelle') { syncSemellesDevis(); rendreDevis(); }
+  if (cle === 'semelle') { syncSemellesDevis(); syncFersDevis(); rendreDevis(); }
   if (cle === 'maindoeuvre') { syncMainDoeuvreDevis({ rafraichir: true }); rendreDevis(); }
   sauver(false);
   toast(`${MODULES_VALIDABLES[cle]} validé et enregistré dans le devis`, 'ok', 'fa-file-circle-check');
@@ -2331,6 +2331,7 @@ function rendre() {
           <div class="subcard-title"><i class="fa-solid fa-link"></i> Épingles</div>
           <div class="longrine-grid">
             <div class="field"><label>Nuance</label><select class="inp" onchange="maj('longrine',${o.id},'epingleNuance',this.value)"><option value="HA" ${o.epingleNuance === 'RL' ? '' : 'selected'}>HA</option><option value="RL" ${o.epingleNuance === 'RL' ? 'selected' : ''}>RL</option></select></div>
+            <div class="field"><label>Diamètre épingle</label><select class="inp" onchange="maj('longrine',${o.id},'epingleDiam',this.value)"><option value="">À préciser</option>${optionsFer(o.epingleDiam || '')}</select></div>
             <div class="field"><label>Nombre total</label><input class="inp" type="number" min="0" step="1" value="${esc(o.epingleNb ?? '')}" oninput="maj('longrine',${o.id},'epingleNb',this.value)"></div>
             <div class="field"><label>Longueur d’une épingle (m)</label><input class="inp" type="number" min="0" step="0.01" value="${esc(o.epingleL ?? '')}" oninput="maj('longrine',${o.id},'epingleL',this.value)"></div>
             <div class="field"><label>Longueur totale</label><div class="inp longrine-resultat"><b class="res" id="long-epingleml-${o.id}">0</b> ml</div></div>
@@ -2375,12 +2376,13 @@ function rendre() {
       <td class="group-gap"><select class="inp" onchange="maj('poteau',${o.id},'epingleNuance',this.value)">
         <option value="HA" ${o.epingleNuance === 'RL' ? '' : 'selected'}>HA</option>
         <option value="RL" ${o.epingleNuance === 'RL' ? 'selected' : ''}>RL</option></select></td>
+      <td><select class="inp" aria-label="Diamètre épingle" onchange="maj('poteau',${o.id},'epingleDiam',this.value)"><option value="">À préciser</option>${optionsFer(o.epingleDiam || '')}</select></td>
       <td><input class="inp" type="number" min="0" step="1" value="${esc(o.epingleNb ?? '')}" oninput="maj('poteau',${o.id},'epingleNb',this.value)"></td>
       <td><input class="inp" type="number" min="0" step="0.01" value="${esc(o.epingleL ?? '')}" oninput="maj('poteau',${o.id},'epingleL',this.value)"></td>
       <td class="res" id="p-epingleml-${o.id}">0</td><td class="res" id="p-epinglebar-${o.id}">0</td>
       <td class="res group-gap" id="p-sec-${o.id}">0</td><td class="res" id="p-lat-${o.id}">0</td><td class="res" id="p-vol-${o.id}">0</td>
       ${delBtn('poteau', o.id)}</tr>`).join('')
-    : ligneVide(28, 'Aucun poteau — cliquez sur « Ajouter un poteau »');
+    : ligneVide(29, 'Aucun poteau — cliquez sur « Ajouter un poteau »');
 
 
   $('tb-amorce').innerHTML = amorces.length ? amorces.map(o => `<tr>
@@ -2408,12 +2410,13 @@ function rendre() {
       <td class="group-gap"><select class="inp" onchange="maj('amorce',${o.id},'epingleNuance',this.value)">
         <option value="HA" ${o.epingleNuance === 'RL' ? '' : 'selected'}>HA</option>
         <option value="RL" ${o.epingleNuance === 'RL' ? 'selected' : ''}>RL</option></select></td>
+      <td><select class="inp" aria-label="Diamètre épingle" onchange="maj('amorce',${o.id},'epingleDiam',this.value)"><option value="">À préciser</option>${optionsFer(o.epingleDiam || '')}</select></td>
       <td><input class="inp" type="number" min="0" step="1" value="${esc(o.epingleNb ?? '')}" oninput="maj('amorce',${o.id},'epingleNb',this.value)"></td>
       <td><input class="inp" type="number" min="0" step="0.01" value="${esc(o.epingleL ?? '')}" oninput="maj('amorce',${o.id},'epingleL',this.value)"></td>
       <td class="res" id="am-epingleml-${o.id}">0</td><td class="res" id="am-epinglebar-${o.id}">0</td>
       <td class="res group-gap" id="am-sec-${o.id}">0</td><td class="res" id="am-lat-${o.id}">0</td><td class="res" id="am-vol-${o.id}">0</td>
       ${delBtn('amorce', o.id)}</tr>`).join('')
-    : ligneVide(28, 'Aucune amorce — cliquez sur « Ajouter une amorce »');
+    : ligneVide(29, 'Aucune amorce — cliquez sur « Ajouter une amorce »');
   $('liste-poutres').innerHTML = poutres.length ? poutres.map(o => `<div class="subcard poutre-ligne">
       <div class="poutre-entete">
         <div class="field"><label>Désignation de la poutre</label>${inp('poutre', o, 'nom', 'inp-txt')}</div>
@@ -2470,6 +2473,7 @@ function rendre() {
           <div class="subcard-title"><i class="fa-solid fa-link"></i> Épingles</div>
           <div class="poutre-grid">
             <div class="field"><label>Nuance</label><select class="inp" onchange="maj('poutre',${o.id},'epingleNuance',this.value)"><option value="HA" ${o.epingleNuance === 'RL' ? '' : 'selected'}>HA</option><option value="RL" ${o.epingleNuance === 'RL' ? 'selected' : ''}>RL</option></select></div>
+            <div class="field"><label>Diamètre épingle</label><select class="inp" onchange="maj('poutre',${o.id},'epingleDiam',this.value)"><option value="">À préciser</option>${optionsFer(o.epingleDiam || '')}</select></div>
             <div class="field"><label>Nombre total</label><input class="inp" type="number" min="0" step="1" value="${esc(o.epingleNb ?? '')}" oninput="maj('poutre',${o.id},'epingleNb',this.value)"></div>
             <div class="field"><label>Longueur d’une épingle (m)</label><input class="inp" type="number" min="0" step="0.01" value="${esc(o.epingleL ?? '')}" oninput="maj('poutre',${o.id},'epingleL',this.value)"></div>
             <div class="field"><label>Longueur totale</label><div class="inp poutre-resultat"><b class="res" id="u-epingleml-${o.id}">0</b> ml</div></div>
@@ -2537,6 +2541,7 @@ function rendre() {
           <div class="subcard-title"><i class="fa-solid fa-link"></i> Épingles</div>
           <div class="poutre-grid">
             <div class="field"><label>Nuance</label><select class="inp" onchange="maj('chenage',${o.id},'epingleNuance',this.value)"><option value="HA" ${o.epingleNuance === 'RL' ? '' : 'selected'}>HA</option><option value="RL" ${o.epingleNuance === 'RL' ? 'selected' : ''}>RL</option></select></div>
+            <div class="field"><label>Diamètre épingle</label><select class="inp" onchange="maj('chenage',${o.id},'epingleDiam',this.value)"><option value="">À préciser</option>${optionsFer(o.epingleDiam || '')}</select></div>
             <div class="field"><label>Nombre total</label><input class="inp" type="number" min="0" step="1" value="${esc(o.epingleNb ?? '')}" oninput="maj('chenage',${o.id},'epingleNb',this.value)"></div>
             <div class="field"><label>Longueur d’une épingle (m)</label><input class="inp" type="number" min="0" step="0.01" value="${esc(o.epingleL ?? '')}" oninput="maj('chenage',${o.id},'epingleL',this.value)"></div>
             <div class="field"><label>Longueur totale</label><div class="inp poutre-resultat"><b class="res" id="uch-epingleml-${o.id}">0</b> ml</div></div>
@@ -2808,7 +2813,8 @@ function calculer() {
     const epingleL = Math.max(0, num(o.epingleL));
     const epingleML = epingleNb * epingleL;
     const epingleNuance = o.epingleNuance === 'RL' ? 'RL' : 'HA';
-    epinglesPoteauxParNuance[epingleNuance] = (epinglesPoteauxParNuance[epingleNuance] || 0) + epingleML;
+    const epingleProfil = epingleNuance + ':' + (o.epingleDiam || '');
+    epinglesPoteauxParNuance[epingleProfil] = (epinglesPoteauxParNuance[epingleProfil] || 0) + epingleML;
 
     tSec += sec * n; tLat += lat; tVol += vol; tFerML += ferML; tCadreML += cadreML; tEpingleML += epingleML;
     $('p-ferml-' + o.id).innerText = fmt(ferML);
@@ -2886,7 +2892,8 @@ function calculer() {
     const epingleL = Math.max(0, num(o.epingleL));
     const epingleML = epingleNb * epingleL;
     const epingleNuance = o.epingleNuance === 'RL' ? 'RL' : 'HA';
-    epinglesAmorcesParNuance[epingleNuance] = (epinglesAmorcesParNuance[epingleNuance] || 0) + epingleML;
+    const epingleProfil = epingleNuance + ':' + (o.epingleDiam || '');
+    epinglesAmorcesParNuance[epingleProfil] = (epinglesAmorcesParNuance[epingleProfil] || 0) + epingleML;
 
     tAmSec += sec * n; tAmLat += lat; tAmVol += vol; tAmFerML += ferML; tAmCadreML += cadreML; tAmEpingleML += epingleML;
     $('am-ferml-' + o.id).innerText = fmt(ferML);
@@ -2971,7 +2978,8 @@ function calculer() {
     const epingleL = Math.max(0, num(o.epingleL));
     const epingleML = epingleNb * epingleL;
     const epingleNuance = o.epingleNuance === 'RL' ? 'RL' : 'HA';
-    epinglesPoutresParNuance[epingleNuance] = (epinglesPoutresParNuance[epingleNuance] || 0) + epingleML;
+    const epingleProfil = epingleNuance + ':' + (o.epingleDiam || '');
+    epinglesPoutresParNuance[epingleProfil] = (epinglesPoutresParNuance[epingleProfil] || 0) + epingleML;
 
     tCof += cof; tSur += sur; tV += vol; tPouFerML += ferML; tChapML += chapML; tPouCadreML += cadreML; tPouEpingleML += epingleML;
     $('u-ferml-' + o.id).innerText = fmt(ferML);
@@ -3066,7 +3074,8 @@ function calculer() {
     const epingleL = Math.max(0, num(o.epingleL));
     const epingleML = epingleNb * epingleL;
     const epingleNuance = o.epingleNuance === 'RL' ? 'RL' : 'HA';
-    epinglesChenagesParNuance[epingleNuance] = (epinglesChenagesParNuance[epingleNuance] || 0) + epingleML;
+    const epingleProfil = epingleNuance + ':' + (o.epingleDiam || '');
+    epinglesChenagesParNuance[epingleProfil] = (epinglesChenagesParNuance[epingleProfil] || 0) + epingleML;
 
     tChCof += cof; tChSur += sur; tChV += vol; tChFerML += ferML; tChChapML += chapML; tChCadreML += cadreML; tChEpingleML += epingleML;
     $('uch-ferml-' + o.id).innerText = fmt(ferML);
@@ -3416,7 +3425,8 @@ function calculer() {
     const epingleL = Math.max(0, num(o.epingleL));
     const epingleML = epingleNb * epingleL;
     const epingleNuance = o.epingleNuance === 'RL' ? 'RL' : 'HA';
-    epinglesLongrinesParNuance[epingleNuance] = (epinglesLongrinesParNuance[epingleNuance] || 0) + epingleML;
+    const epingleProfil = epingleNuance + ':' + (o.epingleDiam || '');
+    epinglesLongrinesParNuance[epingleProfil] = (epinglesLongrinesParNuance[epingleProfil] || 0) + epingleML;
 
     tLongVol += volume; tLongFerML += ferML; tLongCadreML += cadreML; tLongEpingleML += epingleML;
     $('long-vol-' + o.id).innerText = fmt(volume);
@@ -3753,15 +3763,15 @@ let devis = [
     ligne('HA Ø14', 'barre', 'fer:HA:14'), ligne('HA Ø12', 'barre', 'fer:HA:12'), ligne('HA Ø10', 'barre', 'fer:HA:10'),
     ligne('HA Ø8', 'barre', 'fer:HA:8'), ligne('RL Ø6', 'barre', 'fer:RL:6'), ligne("Fil d'attache", 'botte')] },
   { n: 'III', titre: 'MATÉRIELS', lignes: [
-    ligne('Planche de 28', '/'), ligne('Latte', '/'), ligne('Fonds de 20', '/'), ligne('Fonds de 15', '/'),
+    ligne('Planche de 28', '/'), ligne('Latte', 'u'), ligne('Fonds de 20', '/'), ligne('Fonds de 15', '/'),
     ligne('Pointe de 80', 'paquet'), ligne('Pointe tock 60', 'paquet')] }
 ];
 const CREPISSAGE_DEVIS = [
-  { auto: 'crep-ciment', des: 'Ciment pour crépissage', unite: 'sacs' },
-  { auto: 'crep-sable', des: 'Sable pour crépissage', unite: 'm³' }
+  { auto: 'crep-ciment', des: 'Ciment', unite: 'sacs' },
+  { auto: 'crep-sable', des: 'Sable', unite: 'm³' }
 ];
 const SEMELLES_DEVIS = [
-  { auto: 'semelle-volume', des: 'Volume total béton', unite: 'm³' },
+  { auto: 'semelle-volume', des: 'Béton', unite: 'm³' },
   { auto: 'semelle-barres', des: 'Barres à commander', unite: 'barre' }
 ];
 function ordonnerEtNumeroterDevis() {
@@ -3772,9 +3782,6 @@ function ordonnerEtNumeroterDevis() {
   devis.forEach((section, index) => { section.n = romains[index] || String(index + 1); });
 }
 function syncSemellesDevis() {
-  // Nettoyage des anciennes lignes par référence : seules les deux valeurs globales demandées restent au devis.
-  const materiaux = devis.find(s => s.n === 'II' || s.titre === 'MATÉRIAUX');
-  if (materiaux) materiaux.lignes = materiaux.lignes.filter(l => !(typeof l.auto === 'string' && l.auto.startsWith('semellefer:')));
   let section = devis.find(s => s.auto === 'semelles');
   const validation = validationsModules.semelle;
   if (!validation) {
@@ -3786,12 +3793,21 @@ function syncSemellesDevis() {
     section = { n: '', titre: 'SEMELLES', auto: 'semelles', lignes: [] };
     devis.push(section);
   }
-  SEMELLES_DEVIS.forEach(def => {
+  const fers = validation.donnees?.fers || {};
+  const ancienneLigne = section.lignes.find(l => l.auto === 'semelle-barres');
+  if (Object.keys(fers).length && ancienneLigne && !section.prixAcierSemelles) {
+    const qteAncienne = ancienneLigne.qte === null ? (validation.donnees?.barres || 0) : num(ancienneLigne.qte);
+    const montant = ancienneLigne.total === null ? qteAncienne * num(ancienneLigne.pu) : num(ancienneLigne.total);
+    const qteReferences = Object.values(fers).reduce((total, qte) => total + num(qte), 0);
+    if (montant && qteReferences > 0) { section.prixAcierSemelles = montant / qteReferences; section.prixAcierEnAttente = true; }
+  }
+  const defs = Object.keys(fers).length ? SEMELLES_DEVIS.filter(d => d.auto !== 'semelle-barres') : SEMELLES_DEVIS;
+  defs.forEach(def => {
     let l = section.lignes.find(x => x.auto === def.auto);
     if (!l) { l = ligne(def.des, def.unite, def.auto); section.lignes.push(l); }
     l.des = def.des; l.unite = def.unite; l.qte = null;
   });
-  section.lignes = section.lignes.filter(l => SEMELLES_DEVIS.some(def => def.auto === l.auto));
+  section.lignes = section.lignes.filter(l => defs.some(def => def.auto === l.auto));
   ordonnerEtNumeroterDevis();
 }
 function syncCrepissageDevis() {
@@ -3916,7 +3932,7 @@ const estLigneAcier = l => estLigneFer(l) || estLigneFerLongrine(l) || estLigneC
 const ligneDevisMasquee = (l, aciers = aciersDevisActifs()) => (estLigneAcier(l) && !(l.auto in aciers)) || (estLigneLattesDalle(l) && !(G.lattesDalles > 0)) || (estLigneLattesCorps(l) && !(G.lattesCorps > 0)) || (estLigneEtaisDalle(l) && !(G.etaisDalles > 0)) || (estLigneEtaisCorps(l) && !(G.etaisCorps > 0));
 const libelleFer = cle => {
   const [nuance, diametre] = cle.split(':');
-  return `${nuance} Ø${diametre}`;
+  return diametre ? `${nuance} Ø${diametre}` : `${nuance} Ø non renseigné`;
 };
 const normaliserReferenceFerLongrine = cle => {
   const morceaux = String(cle || '').split(':');
@@ -3949,69 +3965,76 @@ function aciersDevisActifs() {
     lignes[`fer:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferLongrines || {}).forEach(([reference, qte]) => {
-    lignes[`longrinefer:${reference}`] = { qte, des: libelleFerLongrine(reference), unite: 'barre' };
+    lignes[`longrinefer:${reference}`] = { qte, des: libelleFer(normaliserReferenceFerLongrine(reference)), unite: 'barre' };
   });
   Object.entries(G.ferCadresLongrines || {}).forEach(([cle, qte]) => {
-    lignes[`cadrelong:${cle}`] = { qte, des: `Cadres longrines — ${libelleFer(cle)}`, unite: 'barre' };
+    lignes[`cadrelong:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferEpinglesLongrines || {}).forEach(([nuanceEpingle, qte]) => {
-    lignes[`epinglelong:${nuanceEpingle}`] = { qte, des: `Épingles longrines — ${nuanceEpingle}`, unite: 'barre' };
+    lignes[`epinglelong:${nuanceEpingle}`] = { qte, des: libelleFer(nuanceEpingle), unite: 'barre' };
   });
   Object.entries(G.ferCadresPoteaux || {}).forEach(([cle, qte]) => {
-    lignes[`cadrepot:${cle}`] = { qte, des: `Cadres poteaux — ${libelleFer(cle)}`, unite: 'barre' };
+    lignes[`cadrepot:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferEpinglesPoteaux || {}).forEach(([nuance, qte]) => {
-    lignes[`epinglepot:${nuance}`] = { qte, des: `Épingles poteaux — ${nuance}`, unite: 'barre' };
+    lignes[`epinglepot:${nuance}`] = { qte, des: libelleFer(nuance), unite: 'barre' };
   });
   Object.entries(G.ferCadresAmorces || {}).forEach(([cle, qte]) => {
-    lignes[`cadreamo:${cle}`] = { qte, des: `Cadres amorces — ${libelleFer(cle)}`, unite: 'barre' };
+    lignes[`cadreamo:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferEpinglesAmorces || {}).forEach(([nuance, qte]) => {
-    lignes[`epingleamo:${nuance}`] = { qte, des: `Épingles amorces — ${nuance}`, unite: 'barre' };
+    lignes[`epingleamo:${nuance}`] = { qte, des: libelleFer(nuance), unite: 'barre' };
   });
   Object.entries(G.ferCadresPoutres || {}).forEach(([cle, qte]) => {
-    lignes[`cadrepout:${cle}`] = { qte, des: `Cadres poutres — ${libelleFer(cle)}`, unite: 'barre' };
+    lignes[`cadrepout:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferEpinglesPoutres || {}).forEach(([nuance, qte]) => {
-    lignes[`epinglepout:${nuance}`] = { qte, des: `Épingles poutres — ${nuance}`, unite: 'barre' };
+    lignes[`epinglepout:${nuance}`] = { qte, des: libelleFer(nuance), unite: 'barre' };
   });
   Object.entries(G.ferChapeaux || {}).forEach(([cle, qte]) => {
-    lignes[`chap:${cle}`] = { qte, des: `Chapeau ${libelleFer(cle)}`, unite: 'barre' };
+    lignes[`chap:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferCadresChenages || {}).forEach(([cle, qte]) => {
-    lignes[`cadrechen:${cle}`] = { qte, des: `Cadres chenages — ${libelleFer(cle)}`, unite: 'barre' };
+    lignes[`cadrechen:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferEpinglesChenages || {}).forEach(([nuance, qte]) => {
-    lignes[`epinglechen:${nuance}`] = { qte, des: `Épingles chenages — ${nuance}`, unite: 'barre' };
+    lignes[`epinglechen:${nuance}`] = { qte, des: libelleFer(nuance), unite: 'barre' };
   });
   Object.entries(G.ferChapeauxChenages || {}).forEach(([cle, qte]) => {
-    lignes[`chapchen:${cle}`] = { qte, des: `Chapeau chenage ${libelleFer(cle)}`, unite: 'barre' };
+    lignes[`chapchen:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferDalles || {}).forEach(([cle, qte]) => {
-    lignes[`dallefer:${cle}`] = { qte, des: `Fer dalle pleine à commander — ${libelleFer(cle)}`, unite: 'barre' };
+    lignes[`dallefer:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferCavaliersDalles || {}).forEach(([cle, qte]) => {
-    if (num(qte) > 0) lignes[`cavdalle:${cle}`] = { qte, des: `Cavaliers dalle pleine — ${libelleFer(cle)}`, unite: 'barre' };
+    if (num(qte) > 0) lignes[`cavdalle:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
+  });
+  Object.entries(G.ferSemelles || {}).forEach(([cle, qte]) => {
+    if (num(qte) > 0) lignes[`semellefer:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferEscalier || {}).forEach(([cle, qte]) => {
-    if (num(qte) > 0) lignes[`escalierfer:${cle}`] = { qte, des: `Fer escalier — ${libelleFer(cle)}`, unite: 'barre' };
+    if (num(qte) > 0) lignes[`escalierfer:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   return lignes;
 }
 function syncFersDevis() {
   const materiaux = devis.find(s => s.n === 'II');
   if (materiaux) {
+    const sectionSemelles = devis.find(s => s.auto === 'semelles');
     Object.entries(aciersDevisActifs()).forEach(([auto, info]) => {
       let l = materiaux.lignes.find(x => x.auto === auto);
       if (!l) {
-        l = { id: dvId++, des: info.des, unite: info.unite || 'barre', qte: null, pu: '0', total: null, auto };
+        const prixInitial = auto.startsWith('semellefer:') && sectionSemelles?.prixAcierSemelles != null ? String(sectionSemelles.prixAcierSemelles) : '0';
+        l = { id: dvId++, des: info.des, unite: info.unite || 'barre', qte: null, pu: prixInitial, total: null, auto };
         const fil = materiaux.lignes.findIndex(x => /fil\s+d['’]?attache/i.test(x.des || ''));
         if (fil >= 0) materiaux.lignes.splice(fil, 0, l); else materiaux.lignes.push(l);
       }
       l.des = info.des;
       l.unite = info.unite || 'barre';
       l.qte = null;
+      if (auto.startsWith('semellefer:') && sectionSemelles?.prixAcierEnAttente && !num(l.pu) && l.total === null) l.pu = String(sectionSemelles.prixAcierSemelles);
     });
+    if (sectionSemelles?.prixAcierEnAttente && Object.keys(G.ferSemelles || {}).length) delete sectionSemelles.prixAcierEnAttente;
   }
   const materiels = devis.find(s => s.titre === 'MATÉRIELS') || devis.find(s => s.n === 'III');
   const syncLigneLatte = (auto, des, qte) => {
@@ -4026,8 +4049,9 @@ function syncFersDevis() {
     l.unite = 'u';
     l.qte = null;
   };
-  syncLigneLatte('dalle-lattes', 'Lattes dalle pleine', G.lattesDalles);
-  syncLigneLatte('corps-lattes', 'Lattes dalle corps creux', G.lattesCorps);
+  if (materiels) materiels.lignes.forEach(l => { if (!l.auto && /^latte$/i.test((l.des || '').trim()) && l.unite === '/') l.unite = 'u'; });
+  syncLigneLatte('dalle-lattes', 'Latte', G.lattesDalles);
+  syncLigneLatte('corps-lattes', 'Latte', G.lattesCorps);
   const syncLigneEtais = (auto, des, qte) => {
     if (!materiels || !(qte > 0)) return;
     let l = materiels.lignes.find(x => x.auto === auto);
@@ -4040,19 +4064,15 @@ function syncFersDevis() {
     l.unite = 'u';
     l.qte = null;
   };
-  syncLigneEtais('dalle-etais', 'Étais dalle pleine', G.etaisDalles);
-  syncLigneEtais('corps-etais', 'Étais dalle corps creux', G.etaisCorps);
+  syncLigneEtais('dalle-etais', 'Étais', G.etaisDalles);
+  syncLigneEtais('corps-etais', 'Étais', G.etaisCorps);
   if (materiels && G.planchesDalles > 0) {
-    let l = materiels.lignes.find(x => x.auto === 'dalle-planches')
-      || materiels.lignes.find(x => /^planche\b/i.test((x.des || '').trim()));
+    let l = materiels.lignes.find(x => x.auto === 'dalle-planches');
     if (!l) {
       l = { id: dvId++, des: 'Planche', unite: 'u', qte: null, pu: '0', total: null, auto: 'dalle-planches' };
       materiels.lignes.unshift(l);
-    } else {
-      l.auto = 'dalle-planches';
-      if (!l.unite || l.unite === '/') l.unite = 'u';
     }
-    l.qte = null;
+    l.des = 'Planche'; l.unite = 'u'; l.qte = null;
   }
 }
 function migrerFersDevis() {
@@ -4067,15 +4087,8 @@ function migrerFersDevis() {
       l.qte = null;
       return;
     }
-    if (estLigneFer(l)) return;
-    const m = String(l.des || '').trim().match(/^(HA|RL)\s*(?:Ø\s*)?(\d{1,2})$/i);
-    if (!m) return;
-    const nuance = m[1].toUpperCase(), diametre = Number(m[2]);
-    if (diametre < 2 || diametre > 40) return;
-    l.auto = `fer:${nuance}:${diametre}`;
-    l.des = `${nuance} Ø${diametre}`;
-    l.unite = 'barre';
-    l.qte = null;
+    // Les anciennes lignes manuelles restent manuelles : leurs quantités et prix
+    // ne doivent pas être remplacés par une nouvelle valeur automatique.
   });
   // Plusieurs anciennes hauteurs peuvent désormais correspondre à une seule référence longitudinale.
   const referencesLongrines = new Set();
@@ -4093,8 +4106,8 @@ function autoVal(l) {
   if (estLigneAcier(l)) return aciersDevisActifs()[l.auto]?.qte || 0;
   switch (l.auto) {
     case 'beton': return G.betonHorsSemelles;
-    case 'semelle-volume': return semelleValidee?.volume || 0;
-    case 'semelle-barres': return semelleValidee?.barres ?? Object.values(semelleValidee?.fers || {}).reduce((total, qte) => total + num(qte), 0);
+    case 'semelle-volume': return $('sel-semelle').checked ? (semelleValidee?.volume || 0) : 0;
+    case 'semelle-barres': return $('sel-semelle').checked ? (semelleValidee?.barres ?? Object.values(semelleValidee?.fers || {}).reduce((total, qte) => total + num(qte), 0)) : 0;
     case 'parpaing': return G.parpaings;
     case 'hourdis': return G.hourdis;
     case 'nervure': return G.nervures;
@@ -4114,30 +4127,73 @@ function autoVal(l) {
 const valL = l => (l.qte === null ? autoVal(l) : num(l.qte));
 function trouverL(id) { for (const s of devis) { const l = s.lignes.find(x => x.id === id); if (l) return l; } return null; }
 
+// Projection non destructive : les lignes sources et leurs validations restent indépendantes.
+function cleDesignationDevis(des) {
+  const nom = String(des || '').trim().replace(/\s+/g, ' ');
+  const acier = nom.match(/^(HA|RL)\s*(?:Ø\s*)?(\d{1,2})$/i);
+  return acier ? `${acier[1].toUpperCase()} Ø${Number(acier[2])}` : nom;
+}
+function groupesDevis() {
+  const actifs = aciersDevisActifs(), groupes = [], parCle = new Map(), autos = new Set();
+  devis.forEach(section => section.lignes.forEach(l => {
+    if (ligneDevisMasquee(l, actifs)) return;
+    // Deux lignes héritées du même calcul automatique ne représentent qu'une source.
+    if (l.auto && autos.has(l.auto)) return;
+    if (l.auto) autos.add(l.auto);
+    const des = cleDesignationDevis(l.des);
+    const unite = String(l.unite || '').trim();
+    const cle = `${des.toLocaleLowerCase('fr-FR')}\u0000${unite.toLocaleLowerCase('fr-FR')}`;
+    let g = des ? parCle.get(cle) : null;
+    if (!g) {
+      g = { section, des, unite, lignes: [], id: l.id };
+      groupes.push(g); if (des) parCle.set(cle, g);
+    }
+    g.lignes.push(l);
+  }));
+  return groupes;
+}
+function valeursGroupe(g) {
+  const qte = g.lignes.reduce((s, l) => s + valL(l), 0);
+  const total = g.lignes.reduce((s, l) => s + (l.total === null ? valL(l) * num(l.pu) : num(l.total)), 0);
+  // Les prix différents ou totaux saisis sont conservés : prix moyen pondéré.
+  return { qte, total, pu: qte ? total / qte : num(g.lignes[0].pu) };
+}
+function afficherNombreDevis(n, precision = 4) { return String(Number(n.toFixed(precision))).replace('.', ','); }
 function rendreDevis() {
-  const aciersActifs = aciersDevisActifs();
+  const groupes = groupesDevis();
   let code = 0, h = '';
   devis.forEach(s => {
     h += `<tr class="dv-sec"><td class="code-sec">${s.n}</td><td colspan="3">${esc(s.titre)}</td><td class="col-prix" colspan="2"></td>
       <td class="no-print" style="text-align:center"><button class="auto-btn" onclick="ajouterLigne('${s.n}')" title="Ajouter une ligne"><i class="fa-solid fa-plus"></i></button></td></tr>`;
-    s.lignes.forEach(l => {
-      // Les lignes automatiques non utilisées (aciers ou lattes de dalle) restent mémorisées mais sont masquées.
-      if (ligneDevisMasquee(l, aciersActifs)) return;
+    groupes.filter(g => g.section === s).forEach(g => {
+      const l = g.lignes[0], fusion = g.lignes.length > 1, v = valeursGroupe(g);
+      const acier = estLigneAcier(l) || /^(HA|RL)\s*Ø\s*\d+$/i.test(g.des);
       const c = s.n === 'I' ? '' : ++code;
       h += `<tr>
         <td class="code-cell">${c}</td>
-        <td class="dv-designation"><input class="inp inp-txt" value="${esc(l.des)}" title="${esc(l.des)}" oninput="majL(${l.id},'des',this.value);this.title=this.value"></td>
-        <td><input class="inp" value="${esc(l.unite)}" oninput="majL(${l.id},'unite',this.value)"></td>
-        <td><div class="qte-cell"><input class="inp" id="dq-${l.id}" value="${l.qte === null ? '' : esc(l.qte)}" oninput="majL(${l.id},'qte',this.value)">
-          ${l.auto ? `<button class="auto-btn no-print" title="Revenir au calcul automatique" onclick="resetAuto(${l.id})"><i class="fa-solid fa-rotate-left"></i></button>` : ''}</div></td>
-        <td class="col-prix"><input class="inp" id="dpu-${l.id}" value="${esc(l.pu)}" oninput="majL(${l.id},'pu',this.value)" aria-label="Prix unitaire"></td>
-        <td class="col-prix"><div class="qte-cell"><input class="inp" id="dtotal-${l.id}" value="${l.total === null ? '' : esc(l.total)}" oninput="majL(${l.id},'total',this.value)" aria-label="Prix total">
-          <button class="auto-btn no-print" title="Revenir au prix total automatique" onclick="resetTotal(${l.id})"><i class="fa-solid fa-rotate-left"></i></button></div></td>
-        <td class="no-print" style="text-align:center"><button class="del-btn" onclick="supprimerLigne(${l.id})" title="Supprimer"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
+        <td class="dv-designation"><input class="inp inp-txt" value="${esc(g.des)}" title="${esc(g.des)}" ${fusion || acier ? 'readonly' : `oninput="majL(${l.id},'des',this.value);this.title=this.value" onchange="rendreDevis()"`}></td>
+        <td><input class="inp" value="${esc(g.unite)}" ${fusion || acier ? 'readonly' : `oninput="majL(${l.id},'unite',this.value)" onchange="rendreDevis()"`}></td>
+        <td><div class="qte-cell"><input class="inp" id="dq-${l.id}" value="${fusion ? afficherNombreDevis(v.qte) : (l.qte === null ? '' : esc(l.qte))}" ${fusion ? 'readonly title="Somme des quantités des lignes regroupées"' : `oninput="majL(${l.id},'qte',this.value)"`}>
+          ${!fusion && l.auto ? `<button class="auto-btn no-print" title="Revenir au calcul automatique" onclick="resetAuto(${l.id})"><i class="fa-solid fa-rotate-left"></i></button>` : ''}</div></td>
+        <td class="col-prix"><input class="inp" id="dpu-${l.id}" value="${fusion ? afficherNombreDevis(v.pu, 8) : esc(l.pu)}" oninput="${fusion ? `majPrixGroupe(${l.id},this.value)` : `majL(${l.id},'pu',this.value)`}" aria-label="Prix unitaire" ${fusion ? 'title="Prix moyen pondéré ; une modification applique le même prix aux lignes regroupées"' : ''}></td>
+        <td class="col-prix"><div class="qte-cell"><input class="inp" id="dtotal-${l.id}" value="${fusion ? afficherNombreDevis(v.total, 2) : (l.total === null ? '' : esc(l.total))}" ${fusion ? 'readonly title="Somme des montants des lignes regroupées"' : `oninput="majL(${l.id},'total',this.value)"`} aria-label="Prix total">
+          ${fusion ? '' : `<button class="auto-btn no-print" title="Revenir au prix total automatique" onclick="resetTotal(${l.id})"><i class="fa-solid fa-rotate-left"></i></button>`}</div></td>
+        <td class="no-print" style="text-align:center"><button class="del-btn" onclick="${fusion ? `supprimerGroupe(${l.id})` : `supprimerLigne(${l.id})`}" title="Supprimer"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
     });
   });
   $('tb-devis').innerHTML = h;
   updateDevis();
+}
+function majPrixGroupe(id, val) {
+  const g = groupesDevis().find(x => x.id === id); if (!g) return;
+  g.lignes.forEach(l => { l.pu = val; l.total = null; });
+  updateDevis();
+}
+function supprimerGroupe(id) {
+  const g = groupesDevis().find(x => x.id === id); if (!g || !window.confirm('Supprimer toutes les lignes regroupées de cette désignation ? Les lignes automatiques peuvent réapparaître après recalcul.')) return;
+  const ids = new Set(g.lignes.map(l => l.id));
+  devis.forEach(s => { s.lignes = s.lignes.filter(l => !ids.has(l.id)); });
+  rendreDevis(); sauver();
 }
 function majL(id, champ, val) { const l = trouverL(id); if (l) { l[champ] = val; updateDevis(); } }
 function resetAuto(id) { const l = trouverL(id); if (l) { l.qte = null; rendreDevis(); toast('Quantité recalculée automatiquement', 'ok'); } }
@@ -4149,18 +4205,17 @@ let totHT = 0, totTTC = 0;
 function updateDevis() {
   if (!$('tb-devis')) return;
   const dev = ($('dv-devise').value || '').trim();
-  const aciersActifs = aciersDevisActifs();
   let ht = 0;
-  devis.forEach(s => s.lignes.forEach(l => {
-    if (ligneDevisMasquee(l, aciersActifs)) return;
-    const v = valL(l), totalAutomatique = v * num(l.pu);
-    const t = l.total === null ? totalAutomatique : num(l.total);
-    ht += t;
+  groupesDevis().forEach(g => {
+    const l = g.lignes[0], fusion = g.lignes.length > 1, v = valeursGroupe(g);
+    ht += v.total;
     const q = $('dq-' + l.id);
-    if (q && l.qte === null) q.value = String(Math.round(v * 10000) / 10000).replace('.', ',');
+    if (q && (fusion || l.qte === null)) q.value = afficherNombreDevis(v.qte);
+    const pu = $('dpu-' + l.id);
+    if (pu && fusion && document.activeElement !== pu) pu.value = afficherNombreDevis(v.pu, 8);
     const total = $('dtotal-' + l.id);
-    if (total && l.total === null) total.value = String(Math.round(totalAutomatique * 100) / 100).replace('.', ',');
-  }));
+    if (total && (fusion || l.total === null)) total.value = afficherNombreDevis(v.total, 2);
+  });
   const txTva = num($('dv-tva').value);
   const tva = ht * txTva / 100;
   totHT = ht; totTTC = ht + tva;
@@ -4404,8 +4459,7 @@ function updateDashboard() {
   $('nav-v-maindoeuvre').textContent = mainsOeuvre.length + ' ligne(s) · ' + fmtM(totalMo) + ' ' + dev;
   // les modules présents dans plusieurs blocs (RDC, Étages…) affichent la même valeur partout
   ['mur', 'poutre', 'poteau', 'dalle', 'corps', 'chenage', 'escalier', 'crepissage'].forEach(syncDupNav);
-  const aciersActifs = aciersDevisActifs();
-  const nbArt = devis.reduce((a, s) => a + s.lignes.filter(l => !ligneDevisMasquee(l, aciersActifs)).length, 0);
+  const nbArt = groupesDevis().length;
   $('nav-v-devis').textContent = nbArt + ' article' + (nbArt > 1 ? 's' : '') + ' · ' + fmtM(totTTC) + ' ' + dev;
   $('nav-badge-devis').textContent = totHT > 0 ? fmtM(totTTC) : '—';
   $('nav-v-dash').textContent = 'Projets';

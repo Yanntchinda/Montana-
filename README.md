@@ -18,7 +18,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 - Crépissage.
 - Navigation horizontale classée par blocs dépliants : **Fondation** (Semelles, Amorce, Longrines, Murs & parpaings, Crépissage), **RDC** et **Étages** (Poutres, Poteaux, Murs & parpaings, Dalle pleine, Dalle corps creux, Chenage, Escalier, Crépissage), **Toiture** (grand titre seul) et **Autres modules** (Mains d’œuvre). Les entrées d’un même module dans différents blocs ouvrent les mêmes calculs partagés. Le bouton **« Ajouter un étage »** crée des étages avec les mêmes sous-modules que le RDC ; la liste des étages est sauvegardée. Les blocs sont fermés au démarrage et s’ouvrent uniquement au clic.
 - Validation explicite de chaque module avant envoi au devis.
-- Devis avec quantités, prix unitaires, prix totaux, TVA et export PDF.
+- Devis avec regroupement des lignes de même désignation et unité, quantités additionnées et prix moyen pondéré lorsque les prix diffèrent ; aciers HA et RL regroupés par diamètre. Les épingles disposent d’un champ diamètre ; les anciennes épingles sans diamètre restent distinctes jusqu’à renseignement et revalidation. Les quantités regroupées sont modifiées dans les modules sources. TVA et export PDF.
 - Sauvegarde automatique et fonctionnement hors connexion.
 - Thèmes clair et sombre.
 
