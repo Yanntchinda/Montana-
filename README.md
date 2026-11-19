@@ -120,3 +120,5 @@ La version de l'application se règle dans `package.json`. Avant chaque publicat
 ### Nappe de compression — dalle à corps creux
 
 Renseignez les dimensions globales de la dalle en mètres, les espacements dans les deux sens et la longueur du crochet en centimètres, puis la nuance et le diamètre. Le calcul est `[(L / espacement L) × (l + crochet) + (l / espacement l) × (L + crochet)] / 12`, après conversion des centimètres en mètres. Les barres à commander sont arrondies au supérieur et rejoignent le devis après validation du module ; elles sont regroupées avec les autres fers de même nuance et diamètre. Les dimensions globales sont indépendantes des panneaux, dont la disposition ne permet pas de déduire automatiquement la longueur et la largeur totales.
+
+Dans ce même sous-module, indiquez l’épaisseur de la dalle de compression en centimètres : le volume de béton est la surface totale de tous les panneaux de corps creux (multiplicités comprises) multipliée par l’épaisseur convertie en mètres. Ce volume est ajouté au béton du devis après validation du module.

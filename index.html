@@ -1432,6 +1432,15 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
                 </div>
                 <div class="semelle-formule">[ (longueur totale ÷ espacement selon longueur) × (largeur totale + crochet) + (largeur totale ÷ espacement selon largeur) × (longueur totale + crochet) ] ÷ 12 m. Espacements et crochet convertis de cm en m ; barres à commander arrondies au supérieur. Saisissez les dimensions globales de la dalle, indépendamment des panneaux.</div>
               </div>
+              <div class="semelle-lit" style="margin-top:12px">
+                <div class="subcard-title">Béton de la dalle de compression</div>
+                <div class="semelle-lit-grid">
+                  <div class="field"><label>Surface totale des panneaux</label><div class="inp semelle-resultat"><b class="res" id="cc-nappe-surface">0</b> m²</div></div>
+                  <div class="field"><label for="cc-nappe-epaisseur">Épaisseur de compression (cm)</label><input class="inp" id="cc-nappe-epaisseur" type="number" min="0" step="0.01" placeholder="0" oninput="calculer()"></div>
+                  <div class="field"><label>Volume de béton</label><div class="inp semelle-resultat"><b class="res" id="cc-nappe-volume">0</b> m³</div></div>
+                </div>
+                <div class="semelle-formule">Volume de béton = surface totale des panneaux × épaisseur (convertie de cm en m). Le volume rejoint le devis après validation du module.</div>
+              </div>
             </div>
             <div class="subcard semelle-nappe dalle-etais" style="margin-top:16px">
               <div class="semelle-nappe-head">
@@ -1747,10 +1756,15 @@ const copierCalcul = valeur => JSON.parse(JSON.stringify(valeur || {}));
 const calculModuleValideAJour = cle => {
   const validation = validationsModules[cle];
   if (!validation) return false;
-  // Les anciens projets validés n'avaient pas encore de nappe de compression.
-  if (cle === 'corps' && !('nappeCompression' in validation.donnees)) {
-    const ancien = { nappeCompression: { metres: 0, exact: 0, barres: 0 }, fers: {}, ...validation.donnees };
-    return JSON.stringify(ancien) === JSON.stringify(calculsModules[cle]);
+  // Les anciens instantanés n'incluent pas nécessairement les calculs de compression.
+  if (cle === 'corps') {
+    const ancien = validation.donnees;
+    const normalise = {
+      ...(!('nappeCompression' in ancien) ? { nappeCompression: { metres: 0, exact: 0, barres: 0 }, fers: {} } : {}),
+      ...ancien,
+      ...(!('volumeCompression' in ancien) ? { volumeCompression: 0 } : {})
+    };
+    return JSON.stringify(normalise) === JSON.stringify(calculsModules[cle]);
   }
   return JSON.stringify(validation.donnees) === JSON.stringify(calculsModules[cle]);
 };
@@ -2000,7 +2014,7 @@ function viderModule(type) {
   const map = { longrine: 'longrines', mur: 'murs', poteau: 'poteaux', amorce: 'amorces', poutre: 'poutres', chenage: 'chenages', maindoeuvre: 'main-d’œuvre', dalle: 'dalles', corps: 'corps', semelle: 'semelles', escalier: 'escalier' };
   const nom = { longrine: 'les longrines', mur: 'les murs', poteau: 'les poteaux', amorce: 'les amorces', poutre: 'les poutres', chenage: 'les chenages', maindoeuvre: 'les lignes de main-d’œuvre', dalle: 'les dalles', corps: 'les panneaux', semelle: 'les semelles', escalier: 'les paliers et volets de l’escalier' }[type];
   if (!window.confirm('Supprimer toutes les lignes : ' + nom + ' ?')) return;
-  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], amorce: () => amorces = [], poutre: () => poutres = [], chenage: () => chenages = [], maindoeuvre: () => mainsOeuvre = [], dalle: () => { dalles = []; if ($('dal-etais-m2')) $('dal-etais-m2').value = ''; }, corps: () => { corps = []; corpsLattes = []; if ($('cc-etais-m2')) $('cc-etais-m2').value = ''; ['cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet'].forEach(id => $(id).value = ''); $('cc-nappe-nuance').value = 'HA'; $('cc-nappe-diam').value = '8'; }, semelle: () => semelles = [], escalier: () => { escalierPaliers = []; escalierVolets = []; } })[type]();
+  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], amorce: () => amorces = [], poutre: () => poutres = [], chenage: () => chenages = [], maindoeuvre: () => mainsOeuvre = [], dalle: () => { dalles = []; if ($('dal-etais-m2')) $('dal-etais-m2').value = ''; }, corps: () => { corps = []; corpsLattes = []; if ($('cc-etais-m2')) $('cc-etais-m2').value = ''; ['cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet', 'cc-nappe-epaisseur'].forEach(id => $(id).value = ''); $('cc-nappe-nuance').value = 'HA'; $('cc-nappe-diam').value = '8'; }, semelle: () => semelles = [], escalier: () => { escalierPaliers = []; escalierVolets = []; } })[type]();
   rendre(); toast('Lignes supprimées (' + map[type] + ')', 'ok');
 }
 function viderCrepissage(type) {
@@ -2756,6 +2770,9 @@ function calculNappeCompression(longueur, largeur, espLongueurCm, espLargeurCm, 
   const exact = metres / 12;
   return { metres, exact, barres: Math.ceil(exact - 1e-9) };
 }
+function calculVolumeCompression(surface, epaisseurCm) {
+  return Math.max(0, num(surface)) * Math.max(0, num(epaisseurCm)) / 100;
+}
 function calculer() {
   // --- Parpaing ---
   const j = num($('pp-j').value) / 100;
@@ -3338,6 +3355,9 @@ function calculer() {
     if (cPex) cPex.innerText = fmt(pEx);
     if (cPnb) cPnb.innerText = fmt(pNb);
   });
+  const volumeCompression = calculVolumeCompression(tCS, $('cc-nappe-epaisseur').value);
+  $('cc-nappe-surface').innerText = fmt(tCS);
+  $('cc-nappe-volume').innerText = fmt(volumeCompression);
   const nappeCompression = calculNappeCompression($('cc-nappe-L').value, $('cc-nappe-l').value, $('cc-nappe-esp-L').value, $('cc-nappe-esp-l').value, $('cc-nappe-crochet').value);
   const diamCompression = num($('cc-nappe-diam').value);
   const profilCompression = `${$('cc-nappe-nuance').value}:${diamCompression}`;
@@ -3722,7 +3742,7 @@ function calculer() {
     poutre: { volume: tV, cadreMetres: tPouCadreML, epingleMetres: tPouEpingleML, fers: fersPoutresCommande, chapeaux: chapeauxCommande, cadres: cadresPoutresCommande, epingles: epinglesPoutresCommande },
     chenage: { volume: tChV, cadreMetres: tChCadreML, epingleMetres: tChEpingleML, fers: fersChenagesCommande, chapeaux: chapeauxChenagesCommande, cadres: cadresChenagesCommande, epingles: epinglesChenagesCommande },
     dalle: { surface: tDS, volume: tDV, fers: fersDallesCommande, cavalierMetres: tDalCavML, cavaliers: cavaliersDallesCommande, latteMetres: tDalLatteML, lattes: tDalLatteCommande, plancheExact: tDalPlancheExact, planches: tDalPlancheCommande, etaisParM2: dalEtaisM2, etaisExact: tDalEtaisExact, etais: tDalEtaisCommande },
-    corps: { nappeCompression, fers: fersCompression, surface: tCS, hourdis: tCH, nervures: tCG, latteMetres: tCCLatteML, lattes: tCCLatteCommande, etaisParM2: ccEtaisM2, etaisExact: tCCEtaisExact, etais: tCCEtaisCommande },
+    corps: { nappeCompression, fers: fersCompression, surface: tCS, hourdis: tCH, nervures: tCG, latteMetres: tCCLatteML, lattes: tCCLatteCommande, etaisParM2: ccEtaisM2, etaisExact: tCCEtaisExact, etais: tCCEtaisCommande, volumeCompression },
     semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande },
     escalier: { volumePalier: tEscPalVol, volumeMarches: tEscMarVol, volumePaillasse: tEscPaiVol, volume: tEscVol, ferMetres: tEscFerML, barres: tEscFerCommande, fers: fersEscalierCommande },
     maindoeuvre: { lignes: mainsOeuvre.map(o => ({ designation: o.designation, unite: o.unite, qte: o.qte, pu: o.pu })), total: totalMo }
@@ -3734,7 +3754,7 @@ function calculer() {
   const amorceValide = valideActif('amorce');
 
   // --- Alimentation du devis à partir des derniers instantanés validés ---
-  G.betonHorsSemelles = (longrineValidee?.volume || 0) + (poteauValide?.volume || 0) + (amorceValide?.volume || 0) + (poutreValide?.volume || 0) + (chenageValide?.volume || 0) + (dalleValidee?.volume || 0) + (escalierValide?.volume || 0) + num($('dos-autre').value);
+  G.betonHorsSemelles = (longrineValidee?.volume || 0) + (poteauValide?.volume || 0) + (amorceValide?.volume || 0) + (poutreValide?.volume || 0) + (chenageValide?.volume || 0) + (dalleValidee?.volume || 0) + (corpsValide?.volumeCompression || 0) + (escalierValide?.volume || 0) + num($('dos-autre').value);
   G.beton = G.betonHorsSemelles + (semelleValidee?.volume || 0);
   G.parpaings = murValide?.parpaings || 0;
   G.cimentMur = murValide?.ciment || 0;
@@ -4510,7 +4530,7 @@ const CLE_RECENTS = 'gros-oeuvre-projets-recents-v1';
 const MAX_RECENTS = 10;
 const nouvelIdProjet = () => (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2));
 let projetId = nouvelIdProjet();
-const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dal-etais-m2', 'cc-etais-m2', 'cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet', 'cc-nappe-nuance', 'cc-nappe-diam', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
+const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dal-etais-m2', 'cc-etais-m2', 'cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet', 'cc-nappe-nuance', 'cc-nappe-diam', 'cc-nappe-epaisseur', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
   'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
   'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-dalle', 'sel-corps', 'sel-semelle', 'sel-escalier'];
 let saveTimer = null;
