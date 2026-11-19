@@ -10,3 +10,6 @@ out/
 Thumbs.db
 .vscode/
 .idea/
+
+# Cache de montage vidéo
+video/.hyperframes/
