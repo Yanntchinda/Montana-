@@ -849,13 +849,13 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
 
       <button class="nav-add-etage" onclick="ajouterEtage()"><i class="fa-solid fa-plus"></i> Ajouter un étage</button>
 
-      <!-- Toiture : grand titre seul, sous-modules à venir -->
+      <!-- Toiture -->
       <div class="nav-group ferme" id="navgrp-toiture">
         <div class="nav-group-head" role="button" tabindex="0" aria-expanded="false" onclick="basculerBloc('toiture')" onkeydown="if(event.target===this &amp;&amp; (event.key==='Enter' || event.key===' ')){event.preventDefault();basculerBloc('toiture')}">
-          <i class="fa-solid fa-house-chimney"></i><span>Toiture</span><span class="nav-group-count">0</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
+          <i class="fa-solid fa-house-chimney"></i><span>Toiture</span><span class="nav-group-count">1</span><i class="fa-solid fa-chevron-down nav-group-chev"></i>
         </div>
         <div class="nav-group-body">
-          <div class="nav-empty">Aucun sous-module pour le moment — les éléments de Toiture seront ajoutés ici.</div>
+          <button class="nav-item" data-tab="toiture" onclick="aller('toiture')"><i class="fa-solid fa-house-chimney ni"></i><span class="ni-txt"><b>Calcul toiture</b><span class="ni-val" id="nav-v-toiture">0 m²</span></span><label class="sw" title="Inclure dans le devis" onclick="event.stopPropagation()"><input type="checkbox" id="sel-toiture" checked onchange="majVisibilite()"><span class="track"></span></label></button>
         </div>
       </div>
 
@@ -1400,6 +1400,270 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
         </div>
       </section>
 
+<section class="panel" id="bloc-toiture">
+<div class="card">
+<div class="card-head">
+<div class="ch-txt">
+<h3>
+<i class="fa-solid fa-house-chimney">
+</i> Toiture à deux versants</h3>
+<div class="ch-sub">Géométrie, tôles, fermes et pannes</div>
+</div>
+<div class="ch-act">
+<label class="incl">
+<span class="sw">
+<input type="checkbox" class="dup-sel" data-for="sel-toiture" checked onchange="dupSwitch(this)">
+<span class="track">
+</span>
+</span> Inclus au devis</label>
+<button class="btn btn-sm btn-danger" onclick="viderToiture()">
+<i class="fa-solid fa-eraser">
+</i> Vider</button>
+</div>
+</div>
+<div class="card-body">
+<div class="note">
+<i class="fa-solid fa-circle-info">
+</i>
+<div>Estimation indicative pour une toiture symétrique à deux versants. Saisissez toutes les valeurs utiles, y compris zéro lorsqu’il n’y a pas de débord ou de recouvrement. Les quantités de bois sont théoriques et ne tiennent pas compte du plan de coupe, des sections, des assemblages ni des contraintes de joints. La stabilité et le plan de charpente doivent être vérifiés par un professionnel qualifié.</div>
+</div>
+<div class="subcard semelle-nappe" id="toiture-base" style="margin-top:14px">
+<div class="subcard-title">1. Données de base</div>
+<div class="semelle-lit-grid">
+<div class="field">
+<label for="toi-L">Longueur du bâtiment L (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-L" placeholder="ex. 10" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-l">Largeur / portée l (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-l" placeholder="ex. 8" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-d">Débord latéral d (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-d" placeholder="ex. 0.5" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-dp">Débord de pignon dₚ (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-dp" placeholder="ex. 0.3" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-pente">Pente (%)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-pente" placeholder="ex. 30" oninput="calculer()">
+</div>
+<div class="field">
+<label>Angle α</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-angle">—</b> °</div>
+</div>
+<div class="field">
+<label>Longueur du rampant</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-rampant">—</b> m</div>
+</div>
+<div class="field">
+<label>Hauteur du poinçon</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-hauteur">—</b> m</div>
+</div>
+<div class="field">
+<label>Longueur utile de toiture</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-longueur">—</b> m</div>
+</div>
+<div class="field">
+<label>Surface des deux versants</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-surface">—</b> m²</div>
+</div>
+</div>
+<div class="semelle-formule">Toiture symétrique à deux versants : α = arctan(pente ÷ 100) ; rampant = (largeur ÷ 2 + débord latéral) ÷ cos α ; poinçon = largeur ÷ 2 × pente ; longueur utile = L + 2 × débord de pignon ; surface = 2 × rampant × longueur utile.</div>
+<p class="semelle-formule" id="toi-msg-base" role="status">
+</p>
+</div>
+<div class="subcard semelle-nappe" id="toiture-toles" style="margin-top:14px">
+<div class="subcard-title">2. Nombre de tôles</div>
+<div class="semelle-lit-grid">
+<div class="field">
+<label for="toi-tole-largeur">Largeur totale d’une tôle (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-tole-largeur" placeholder="ex. 0.9" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-tole-rec-lat">Recouvrement latéral (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-tole-rec-lat" placeholder="ex. 0.1" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-tole-longueur">Longueur d’une tôle (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-tole-longueur" placeholder="ex. 3" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-tole-rec-bout">Recouvrement en bout (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-tole-rec-bout" placeholder="ex. 0.2" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-tole-pertes">Pertes par surface (%)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-tole-pertes" placeholder="ex. 10" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-methode">Méthode de tôles pour le devis</label>
+<select class="inp" id="toi-methode" onchange="calculer()">
+<option value="rangees">Par rangées</option>
+<option value="surface">Par surface avec pertes</option>
+</select>
+</div>
+<div class="field">
+<label>Largeur utile</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-largeurUtile">—</b> m</div>
+</div>
+<div class="field">
+<label>Longueur utile</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-longueurUtile">—</b> m</div>
+</div>
+<div class="field">
+<label>Estimation par surface (exacte)</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-toleSurfaceExact">—</b> tôles</div>
+</div>
+<div class="field">
+<label>Estimation par surface (arrondie)</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-toleSurface">—</b> tôles</div>
+</div>
+<div class="field">
+<label>Rangées par versant</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-rangees">—</b> </div>
+</div>
+<div class="field">
+<label>Tôles par rangée</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-tolesRangee">—</b> </div>
+</div>
+<div class="field">
+<label>Total par rangées</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-toleRangees">—</b> tôles</div>
+</div>
+</div>
+<div class="semelle-formule">Méthode surface : surface × (1 + pertes) ÷ (largeur utile × longueur utile). Méthode rangées : 2 × ⌈longueur toiture ÷ largeur utile⌉ × ⌈rampant ÷ longueur utile⌉. La méthode par rangées n’ajoute pas le pourcentage de pertes.</div>
+<p class="semelle-formule" id="toi-msg-toles" role="status">
+</p>
+</div>
+<div class="subcard semelle-nappe" id="toiture-fermes" style="margin-top:14px">
+<div class="subcard-title">3. Bois pour les fermes</div>
+<div class="semelle-lit-grid">
+<div class="field">
+<label for="toi-ferme-entraxe">Entraxe des fermes (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-ferme-entraxe" placeholder="ex. 2.5" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-ferme-debord">Débord supplémentaire par arbalétrier (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-ferme-debord" placeholder="ex. 0" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-ferme-contrefiche">Longueur d’une contre-fiche (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-ferme-contrefiche" placeholder="ex. 2" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-ferme-piece">Longueur commerciale d’une pièce (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-ferme-piece" placeholder="ex. 4" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-ferme-pertes">Pertes bois des fermes (%)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-ferme-pertes" placeholder="ex. 10" oninput="calculer()">
+</div>
+<div class="field">
+<label>Nombre de fermes</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-fermes">—</b> </div>
+</div>
+<div class="field">
+<label>Arbalétriers par ferme</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-arbaletriers">—</b> m</div>
+</div>
+<div class="field">
+<label>Entrait par ferme</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-entrait">—</b> m</div>
+</div>
+<div class="field">
+<label>Poinçon par ferme</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-poincon">—</b> m</div>
+</div>
+<div class="field">
+<label>Deux contre-fiches par ferme</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-contrefiches">—</b> m</div>
+</div>
+<div class="field">
+<label>Bois par ferme</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-fermePar">—</b> m</div>
+</div>
+<div class="field">
+<label>Bois total des fermes</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-fermeTotal">—</b> m</div>
+</div>
+<div class="field">
+<label>Pièces pour les fermes</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-fermePieces">—</b> u</div>
+</div>
+</div>
+<div class="semelle-formule">Nombre de fermes = ⌊L ÷ entraxe⌋ + 1 ; vérifier leur positionnement et les appuis en extrémité selon le plan. Par ferme : 2 × (rampant + débord supplémentaire) + (largeur + 2 × débord latéral) + poinçon + 2 × longueur d’une contre-fiche. Le rampant comprend déjà le débord latéral : saisir 0 pour le débord supplémentaire sauf si une longueur additionnelle est réellement prévue.</div>
+<p class="semelle-formule" id="toi-msg-fermes" role="status">
+</p>
+</div>
+<div class="subcard semelle-nappe" id="toiture-pannes" style="margin-top:14px">
+<div class="subcard-title">4. Bois pour les pannes</div>
+<div class="semelle-lit-grid">
+<div class="field">
+<label for="toi-panne-entraxe">Entraxe des pannes sur le rampant (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-panne-entraxe" placeholder="ex. 1" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-panne-piece">Longueur commerciale d’une pièce (m)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-panne-piece" placeholder="ex. 4" oninput="calculer()">
+</div>
+<div class="field">
+<label for="toi-panne-pertes">Pertes bois des pannes (%)</label>
+<input class="inp" type="number" min="0" step="any" id="toi-panne-pertes" placeholder="ex. 10" oninput="calculer()">
+</div>
+<div class="field">
+<label>Pannes par versant</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-panneVersant">—</b> </div>
+</div>
+<div class="field">
+<label>Total des pannes</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-panneTotal">—</b> </div>
+</div>
+<div class="field">
+<label>Bois total des pannes</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-panneMetres">—</b> m</div>
+</div>
+<div class="field">
+<label>Pièces pour les pannes</label>
+<div class="inp semelle-resultat">
+<b class="res" id="toi-r-pannePieces">—</b> u</div>
+</div>
+</div>
+<div class="semelle-formule">Pannes par versant = ⌈rampant ÷ entraxe⌉ + 1 ; total = 2 × ce nombre ; métrage = total × longueur utile. La formule demandée compte le +1 sur chaque versant : vérifier le comptage de la faîtière et de la sablière selon le plan. Les joints des pannes doivent tomber sur une ferme.</div>
+<p class="semelle-formule" id="toi-msg-pannes" role="status">
+</p>
+</div>
+<div id="validation-module-toiture">
+</div>
+</div>
+</div>
+</section>
+
       <!-- ============ ONGLET : CORPS CREUX ============ -->
       <section class="panel" id="bloc-corps">
         <div class="card">
@@ -1706,6 +1970,7 @@ const ONGLETS = {
   poutre:    { titre: 'Poutres', sub: 'Coffrage, surfaces et volumes de béton' },
   chenage:   { titre: 'Chenage', sub: 'Coffrage, surfaces et volumes de béton' },
   dalle:     { titre: 'Dalle pleine', sub: 'Surfaces, volumes, nappes 1 & 2, cavaliers, lattes, planches et étais' },
+  toiture:   { titre: 'Toiture', sub: 'Deux versants : tôles, fermes et pannes' },
   corps:     { titre: 'Dalle à corps creux', sub: 'Hourdis, nervures, longueurs, lattes et étais' },
   semelle:   { titre: 'Semelles', sub: 'Volume de béton et armatures des nappes 1 et 2 (Lit 1 et Lit 2)' },
   escalier:  { titre: 'Escalier', sub: 'Palier (béton & fer) et Volet (marches & paillasse)' },
@@ -1758,10 +2023,10 @@ let uid = 1;
 let murs = [], poteaux = [], amorces = [], poutres = [], chenages = [], mainsOeuvre = [], dalles = [], corps = [], corpsLattes = [], semelles = [], longrines = [], escalierPaliers = [], escalierVolets = [], crepMurs = [], crepDalles = [];
 let crepValidation = null;
 const MODULES_VALIDABLES = {
-  longrine: 'Longrines', mur: 'Murs & parpaings', poteau: 'Poteaux', amorce: 'Amorce', poutre: 'Poutres', chenage: 'Chenage', maindoeuvre: 'Mains d’œuvre', dalle: 'Dalle pleine', corps: 'Dalle corps creux', semelle: 'Semelles', escalier: 'Escalier'
+  toiture: 'Toiture', longrine: 'Longrines', mur: 'Murs & parpaings', poteau: 'Poteaux', amorce: 'Amorce', poutre: 'Poutres', chenage: 'Chenage', maindoeuvre: 'Mains d’œuvre', dalle: 'Dalle pleine', corps: 'Dalle corps creux', semelle: 'Semelles', escalier: 'Escalier'
 };
-let calculsModules = { longrine: {}, mur: {}, poteau: {}, amorce: {}, poutre: {}, chenage: {}, maindoeuvre: {}, dalle: {}, corps: {}, semelle: {}, escalier: {} };
-let validationsModules = { longrine: null, mur: null, poteau: null, amorce: null, poutre: null, chenage: null, maindoeuvre: null, dalle: null, corps: null, semelle: null, escalier: null };
+let calculsModules = { toiture: {}, longrine: {}, mur: {}, poteau: {}, amorce: {}, poutre: {}, chenage: {}, maindoeuvre: {}, dalle: {}, corps: {}, semelle: {}, escalier: {} };
+let validationsModules = { toiture: null, longrine: null, mur: null, poteau: null, amorce: null, poutre: null, chenage: null, maindoeuvre: null, dalle: null, corps: null, semelle: null, escalier: null };
 let T = { longVol: 0, longFerML: 0, longFer: 0, longCadreML: 0, longCadre: 0, longEpingleML: 0, longEpingle: 0, sMur: 0, nbPP: 0, ppArr: 0, potSec: 0, potLat: 0, potVol: 0, potFer: 0, potCadreML: 0, potCadre: 0, potEpingleML: 0, potEpingle: 0, amSec: 0, amLat: 0, amVol: 0, amFer: 0, amCadreML: 0, amCadre: 0, amEpingleML: 0, amEpingle: 0, pouCof: 0, pouSur: 0, pouVol: 0, pouFer: 0, pouChap: 0, pouCadreML: 0, pouCadre: 0, pouEpingleML: 0, pouEpingle: 0, cheCof: 0, cheSur: 0, cheVol: 0, cheFer: 0, cheChap: 0, cheCadreML: 0, cheCadre: 0, cheEpingleML: 0, cheEpingle: 0, dalSurf: 0, dalVol: 0, dalFer: 0, dalCavML: 0, dalCav: 0, dalLatteML: 0, dalLatte: 0, dalPlancheExact: 0, dalPlanche: 0, dalEtaisExact: 0, dalEtais: 0, semVol: 0, semFer1: 0, semFer2: 0, semFer: 0, escPalVol: 0, escMarVol: 0, escPaiVol: 0, escVol: 0, escFerML: 0, escFer: 0, crepMurNet: 0, crepMur: 0, crepDalle: 0, crepTotal: 0, crepEpaisseur: 0, crepVolume: 0, crepDosage: 0, crepCiment: 0, crepDosageSable: 0, crepSable: 0, ccSurf: 0, ccHour: 0, ccNerv: 0, ccLg: 0, ccLatteML: 0, ccLatte: 0, ccEtaisExact: 0, ccEtais: 0 };
 
 const copierCalcul = valeur => JSON.parse(JSON.stringify(valeur || {}));
@@ -1811,6 +2076,13 @@ function rendreValidationsModules() {
 }
 function validerModuleDevis(cle) {
   if (!(cle in MODULES_VALIDABLES)) return;
+  if (cle === 'toiture') {
+    const toit = calculsModules.toiture;
+    if (!toit.baseValide || toit.erreurs.length || !(toit.toles > 0 || toit.piecesFermes > 0 || toit.piecesPannes > 0)) {
+      alert('Complétez les données de base et tous les champs des sous-modules commencés avant de valider. Renseignez au moins un sous-module de matériaux.');
+      return;
+    }
+  }
   if (cle === 'corps') {
     const dimensions = ['cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l'];
     const saisie = dimensions.concat('cc-nappe-crochet').some(id => $(id).value !== '');
@@ -2903,6 +3175,107 @@ function calculChapeauDalle(longueur, nombre) {
   const exact = metres / 12;
   return { metres, exact, barres: metres > 0 ? Math.ceil(exact - 1e-9) : 0 };
 }
+// Toiture symétrique à deux versants. Toutes les dimensions sont en mètres,
+// les pentes et les pertes en pourcentage. Une valeur vide n'est pas un zéro.
+const TOITURE_GROUPES = {
+  base: ['L','l','d','dp','pente'],
+  toles: ['tole-largeur','tole-rec-lat','tole-longueur','tole-rec-bout','tole-pertes'],
+  fermes: ['ferme-entraxe','ferme-debord','ferme-contrefiche','ferme-piece','ferme-pertes'],
+  pannes: ['panne-entraxe','panne-piece','panne-pertes']
+};
+const CHAMPS_TOITURE = Object.values(TOITURE_GROUPES).flat().map(k => 'toi-' + k);
+function calculToiture(valeurs, methode = 'rangees') {
+  const nombres = {};
+  Object.values(TOITURE_GROUPES).flat().forEach(k => {
+    const brut = String(valeurs[k] ?? '').trim().replace(',', '.');
+    nombres[k] = brut === '' ? null : Number(brut);
+  });
+  const complet = groupe => TOITURE_GROUPES[groupe].every(k => nombres[k] !== null && Number.isFinite(nombres[k]) && nombres[k] >= 0);
+  const commence = groupe => TOITURE_GROUPES[groupe].some(k => nombres[k] !== null);
+  const r = { entrees: nombres, methode: methode === 'surface' ? 'surface' : 'rangees', baseValide: false, erreurs: [], toles: 0, piecesFermes: 0, piecesPannes: 0, affichage: {}, messages: {} };
+  const a = r.affichage, n = nombres;
+  const baseValide = complet('base') && n.L > 0 && n.l > 0;
+  r.baseValide = baseValide;
+  if (!baseValide) {
+    r.messages.base = 'Saisissez une longueur et une largeur positives, ainsi que les deux débords et la pente (zéro accepté).';
+    if (commence('base') || ['toles','fermes','pannes'].some(commence)) r.erreurs.push('base');
+  } else {
+    const p = n.pente / 100, angle = Math.atan(p);
+    a.angle = angle * 180 / Math.PI;
+    a.rampant = (n.l / 2 + n.d) / Math.cos(angle);
+    a.hauteur = n.l / 2 * p;
+    a.longueur = n.L + 2 * n.dp;
+    a.surface = 2 * a.rampant * a.longueur;
+    if (![a.angle,a.rampant,a.hauteur,a.longueur,a.surface].every(Number.isFinite)) {
+      r.baseValide = false; r.erreurs.push('base'); r.messages.base = 'Valeurs trop grandes : vérifiez les dimensions et la pente.';
+    } else r.surface = a.surface;
+  }
+  if (commence('toles')) {
+    if (!r.baseValide || !complet('toles') || !(n['tole-largeur'] > n['tole-rec-lat']) || !(n['tole-longueur'] > n['tole-rec-bout'])) {
+      r.erreurs.push('toles'); r.messages.toles = 'Renseignez toutes les valeurs ; chaque recouvrement doit être inférieur à la dimension de la tôle.';
+    } else {
+      a.largeurUtile = n['tole-largeur'] - n['tole-rec-lat'];
+      a.longueurUtile = n['tole-longueur'] - n['tole-rec-bout'];
+      a.toleSurfaceExact = a.surface * (1 + n['tole-pertes'] / 100) / (a.largeurUtile * a.longueurUtile);
+      a.toleSurface = Math.ceil(a.toleSurfaceExact - 1e-9);
+      a.rangees = Math.ceil(a.longueur / a.largeurUtile - 1e-9);
+      a.tolesRangee = n['tole-longueur'] >= a.rampant ? 1 : Math.ceil(a.rampant / a.longueurUtile - 1e-9);
+      a.toleRangees = 2 * a.rangees * a.tolesRangee;
+      if (![a.toleSurfaceExact,a.toleSurface,a.rangees,a.tolesRangee,a.toleRangees].every(x => Number.isFinite(x) && x <= Number.MAX_SAFE_INTEGER)) {
+        r.erreurs.push('toles'); r.messages.toles = 'Quantité trop grande : vérifiez les valeurs.';
+      } else r.toles = r.methode === 'surface' ? a.toleSurface : a.toleRangees;
+    }
+  }
+  if (commence('fermes')) {
+    if (!r.baseValide || !complet('fermes') || !(n['ferme-entraxe'] > 0) || !(n['ferme-piece'] > 0)) {
+      r.erreurs.push('fermes'); r.messages.fermes = 'Renseignez tous les champs ; entraxe et longueur commerciale doivent être positifs.';
+    } else {
+      a.fermes = Math.floor(n.L / n['ferme-entraxe'] + 1e-9) + 1;
+      a.arbaletriers = 2 * (a.rampant + n['ferme-debord']);
+      a.entrait = n.l + 2 * n.d; a.poincon = a.hauteur; a.contrefiches = 2 * n['ferme-contrefiche'];
+      a.fermePar = a.arbaletriers + a.entrait + a.poincon + a.contrefiches;
+      a.fermeTotal = a.fermes * a.fermePar;
+      a.fermePieces = Math.ceil(a.fermeTotal * (1 + n['ferme-pertes'] / 100) / n['ferme-piece'] - 1e-9);
+      if (![a.fermes,a.fermePar,a.fermeTotal,a.fermePieces].every(x => Number.isFinite(x) && x <= Number.MAX_SAFE_INTEGER)) {
+        r.erreurs.push('fermes'); r.messages.fermes = 'Quantité trop grande : vérifiez les valeurs.';
+      } else r.piecesFermes = a.fermePieces;
+    }
+  }
+  if (commence('pannes')) {
+    if (!r.baseValide || !complet('pannes') || !(n['panne-entraxe'] > 0) || !(n['panne-piece'] > 0)) {
+      r.erreurs.push('pannes'); r.messages.pannes = 'Renseignez tous les champs ; entraxe et longueur commerciale doivent être positifs.';
+    } else {
+      a.panneVersant = Math.ceil(a.rampant / n['panne-entraxe'] - 1e-9) + 1;
+      a.panneTotal = 2 * a.panneVersant;
+      a.panneMetres = a.panneTotal * a.longueur;
+      a.pannePieces = Math.ceil(a.panneMetres * (1 + n['panne-pertes'] / 100) / n['panne-piece'] - 1e-9);
+      if (![a.panneVersant,a.panneTotal,a.panneMetres,a.pannePieces].every(x => Number.isFinite(x) && x <= Number.MAX_SAFE_INTEGER)) {
+        r.erreurs.push('pannes'); r.messages.pannes = 'Quantité trop grande : vérifiez les valeurs.';
+      } else r.piecesPannes = a.pannePieces;
+    }
+  }
+  // Ne jamais conserver Infinity / NaN dans les projets JSON ou la sortie affichée.
+  Object.keys(a).forEach(k => { if (!Number.isFinite(a[k])) delete a[k]; });
+  Object.keys(nombres).forEach(k => { if (nombres[k] !== null && !Number.isFinite(nombres[k])) nombres[k] = null; });
+  return r;
+}
+function calculToitureActuel() {
+  const valeurs = Object.fromEntries(Object.values(TOITURE_GROUPES).flat().map(k => [k, $('toi-' + k).value]));
+  const r = calculToiture(valeurs, $('toi-methode').value);
+  document.querySelectorAll('[id^="toi-r-"]').forEach(el => {
+    const v = r.affichage[el.id.slice(6)];
+    el.innerText = v == null ? '—' : fmt(v);
+  });
+  Object.keys(TOITURE_GROUPES).forEach(groupe => { $('toi-msg-' + groupe).textContent = r.messages[groupe] || ''; });
+  return r;
+}
+function viderToiture() {
+  if (!window.confirm('Effacer toutes les saisies de toiture ?')) return;
+  CHAMPS_TOITURE.forEach(id => { $(id).value = ''; });
+  $('toi-methode').value = 'rangees';
+  calculer();
+  toast('Saisies de toiture effacées', 'ok');
+}
 function calculer() {
   // --- Parpaing ---
   const j = num($('pp-j').value) / 100;
@@ -3903,6 +4276,7 @@ function calculer() {
     corps: { nappeCompression, fers: fersCompression, surface: tCS, hourdis: tCH, nervures: tCG, latteMetres: tCCLatteML, lattes: tCCLatteCommande, etaisParM2: ccEtaisM2, etaisExact: tCCEtaisExact, etais: tCCEtaisCommande, volumeCompression },
     semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande },
     escalier: { volumePalier: tEscPalVol, volumeMarches: tEscMarVol, volumePaillasse: tEscPaiVol, volume: tEscVol, ferMetres: tEscFerML, barres: tEscFerCommande, fers: fersEscalierCommande },
+    toiture: calculToitureActuel(),
     maindoeuvre: { lignes: mainsOeuvre.map(o => ({ designation: o.designation, unite: o.unite, qte: o.qte, pu: o.pu })), total: totalMo }
   };
   const valideActif = cle => $('sel-' + cle).checked ? validationsModules[cle]?.donnees : null;
@@ -3910,6 +4284,7 @@ function calculer() {
   const poutreValide = valideActif('poutre'), dalleValidee = valideActif('dalle'), corpsValide = valideActif('corps'), semelleValidee = valideActif('semelle'), escalierValide = valideActif('escalier');
   const chenageValide = valideActif('chenage');
   const amorceValide = valideActif('amorce');
+  const toitureValidee = valideActif('toiture');
 
   // --- Alimentation du devis à partir des derniers instantanés validés ---
   G.betonHorsSemelles = (longrineValidee?.volume || 0) + (poteauValide?.volume || 0) + (amorceValide?.volume || 0) + (poutreValide?.volume || 0) + (chenageValide?.volume || 0) + (dalleValidee?.volume || 0) + (corpsValide?.volumeCompression || 0) + (escalierValide?.volume || 0) + num($('dos-autre').value);
@@ -3917,6 +4292,7 @@ function calculer() {
   G.parpaings = murValide?.parpaings || 0;
   G.cimentMur = murValide?.ciment || 0;
   G.sableMur = murValide?.sable || 0;
+  G.toiture = { toles: toitureValidee?.toles || 0, piecesFermes: toitureValidee?.piecesFermes || 0, piecesPannes: toitureValidee?.piecesPannes || 0 };
   G.hourdis = corpsValide?.hourdis || 0;
   G.nervures = corpsValide?.nervures || 0;
   G.lattesCorps = corpsValide?.lattes || 0;
@@ -3954,7 +4330,7 @@ function calculer() {
 /* ============================================================
    DEVIS QUANTITATIF
    ============================================================ */
-let G = { beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferLongrines: {}, ferCadresLongrines: {}, ferEpinglesLongrines: {}, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferAmorces: {}, ferCadresAmorces: {}, ferEpinglesAmorces: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferChenages: {}, ferChapeauxChenages: {}, ferCadresChenages: {}, ferEpinglesChenages: {}, ferDalles: {}, ferCavaliersDalles: {}, ferChapeauxDalles: {}, lattesDalles: 0, planchesDalles: 0, etaisDalles: 0, lattesCorps: 0, etaisCorps: 0, ferCompressionCorps: {}, ferSemelles: {}, ferEscalier: {} };
+let G = { toiture: {}, beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferLongrines: {}, ferCadresLongrines: {}, ferEpinglesLongrines: {}, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferAmorces: {}, ferCadresAmorces: {}, ferEpinglesAmorces: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferChenages: {}, ferChapeauxChenages: {}, ferCadresChenages: {}, ferEpinglesChenages: {}, ferDalles: {}, ferCavaliersDalles: {}, ferChapeauxDalles: {}, lattesDalles: 0, planchesDalles: 0, etaisDalles: 0, lattesCorps: 0, etaisCorps: 0, ferCompressionCorps: {}, ferSemelles: {}, ferEscalier: {} };
 let dvId = 1000;
 function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', total: null, auto }; }
 let devis = [
@@ -4133,7 +4509,8 @@ const estLigneFerCompressionCorps = l => typeof l.auto === 'string' && l.auto.st
 const estLigneFerSemelle = l => typeof l.auto === 'string' && l.auto.startsWith('semellefer:');
 const estLigneFerEscalier = l => typeof l.auto === 'string' && l.auto.startsWith('escalierfer:');
 const estLigneAcier = l => estLigneFer(l) || estLigneFerLongrine(l) || estLigneCadreLongrine(l) || estLigneEpingleLongrine(l) || estLigneCadrePoteau(l) || estLigneEpinglePoteau(l) || estLigneCadreAmorce(l) || estLigneEpingleAmorce(l) || estLigneCadrePoutre(l) || estLigneEpinglePoutre(l) || estLigneChapeau(l) || estLigneCadreChenage(l) || estLigneEpingleChenage(l) || estLigneChapeauChenage(l) || estLigneFerDalle(l) || estLigneCavalierDalle(l) || estLigneChapeauDalle(l) || estLigneFerSemelle(l) || estLigneFerEscalier(l) || estLigneFerCompressionCorps(l);
-const ligneDevisMasquee = (l, aciers = aciersDevisActifs()) => (estLigneAcier(l) && !(l.auto in aciers)) || (estLigneLattesDalle(l) && !(G.lattesDalles > 0)) || (estLigneLattesCorps(l) && !(G.lattesCorps > 0)) || (estLigneEtaisDalle(l) && !(G.etaisDalles > 0)) || (estLigneEtaisCorps(l) && !(G.etaisCorps > 0));
+const ligneToitureMasquee = l => typeof l.auto === 'string' && l.auto.startsWith('toiture:') && !(G.toiture?.[l.auto.slice(8)] > 0);
+const ligneDevisMasquee = (l, aciers = aciersDevisActifs()) => (estLigneAcier(l) && !(l.auto in aciers)) || ligneToitureMasquee(l) || (estLigneLattesDalle(l) && !(G.lattesDalles > 0)) || (estLigneLattesCorps(l) && !(G.lattesCorps > 0)) || (estLigneEtaisDalle(l) && !(G.etaisDalles > 0)) || (estLigneEtaisCorps(l) && !(G.etaisCorps > 0));
 const libelleFer = cle => {
   const [nuance, diametre] = cle.split(':');
   return diametre ? `${nuance} Ø${diametre}` : `${nuance} Ø non renseigné`;
@@ -4246,6 +4623,15 @@ function syncFersDevis() {
     });
     if (sectionSemelles?.prixAcierEnAttente && Object.keys(G.ferSemelles || {}).length) delete sectionSemelles.prixAcierEnAttente;
   }
+  if (materiaux) {
+    [['toles', 'Tôle'], ['piecesFermes', 'Bois pour fermes'], ['piecesPannes', 'Bois pour pannes']].forEach(([cle, designation]) => {
+      const auto = 'toiture:' + cle;
+      if (!(G.toiture?.[cle] > 0)) return;
+      let ligne = materiaux.lignes.find(l => l.auto === auto);
+      if (!ligne) { ligne = { id: dvId++, des: designation, unite: 'u', qte: null, pu: '0', total: null, auto }; materiaux.lignes.push(ligne); }
+      ligne.des = designation; ligne.unite = 'u'; ligne.qte = null;
+    });
+  }
   const materiels = devis.find(s => s.titre === 'MATÉRIELS') || devis.find(s => s.n === 'III');
   const syncLigneLatte = (auto, des, qte) => {
     if (!materiels || !(qte > 0)) return;
@@ -4315,6 +4701,9 @@ function autoVal(l) {
   const semelleValidee = validationsModules.semelle?.donnees;
   if (estLigneAcier(l)) return aciersDevisActifs()[l.auto]?.qte || 0;
   switch (l.auto) {
+    case 'toiture:toles': return G.toiture?.toles || 0;
+    case 'toiture:piecesFermes': return G.toiture?.piecesFermes || 0;
+    case 'toiture:piecesPannes': return G.toiture?.piecesPannes || 0;
     case 'beton': return G.betonHorsSemelles;
     case 'semelle-volume': return $('sel-semelle').checked ? (semelleValidee?.volume || 0) : 0;
     case 'semelle-barres': return $('sel-semelle').checked ? (semelleValidee?.barres ?? Object.values(semelleValidee?.fers || {}).reduce((total, qte) => total + num(qte), 0)) : 0;
@@ -4473,7 +4862,7 @@ function syncProjet() { $('projet-nom-affiche').textContent = $('dv-projet').val
    ============================================================ */
 function majVisibilite() {
   syncSwitches();
-  ['longrine', 'mur', 'poteau', 'amorce', 'poutre', 'chenage', 'maindoeuvre', 'dalle', 'corps', 'semelle', 'escalier'].forEach(k => {
+  ['longrine', 'mur', 'poteau', 'amorce', 'poutre', 'chenage', 'maindoeuvre', 'dalle', 'corps', 'semelle', 'escalier', 'toiture'].forEach(k => {
     const on = $('sel-' + k).checked;
     document.querySelectorAll(`.nav-item[data-tab="${k}"]`).forEach(nav => nav.classList.toggle('off', !on));
     const panel = $('bloc-' + k);
@@ -4488,13 +4877,13 @@ function majVisibilite() {
    Les blocs classent les modules : chaque bloc pointe vers les
    mêmes modules de calcul (données partagées). On peut ajouter
    autant d'étages que nécessaire, avec les mêmes sous-modules
-   que le RDC. Toiture ne contient pour l'instant aucun module.
+   que le RDC. Le bloc Toiture contient son propre calcul.
    ============================================================ */
 const ETAGES_BASE = [
   { id: 'fondation', nom: 'Fondation', ico: 'fa-layer-group', modules: ['semelle', 'amorce', 'longrine', 'mur', 'crepissage'] },
   { id: 'rdc', nom: 'RDC', ico: 'fa-building', modules: ['poutre', 'poteau', 'mur', 'dalle', 'corps', 'chenage', 'escalier', 'crepissage'] },
   { id: 'etage1', nom: 'Étage 1', ico: 'fa-building', modules: ['poutre', 'poteau', 'mur', 'dalle', 'corps', 'chenage', 'escalier', 'crepissage'] },
-  { id: 'toiture', nom: 'Toiture', ico: 'fa-house-chimney', modules: [] }
+  { id: 'toiture', nom: 'Toiture', ico: 'fa-house-chimney', modules: ['toiture'] }
 ];
 const MODULES_ETAGE = ['poutre', 'poteau', 'mur', 'dalle', 'corps', 'chenage', 'escalier', 'crepissage'];
 const META_NAV = {
@@ -4502,6 +4891,7 @@ const META_NAV = {
   poteau: { ico: 'fa-grip-lines-vertical', label: 'Poteaux' },
   mur: { ico: 'fa-border-all', label: 'Murs & parpaings' },
   dalle: { ico: 'fa-square', label: 'Dalle pleine' },
+  toiture: { ico: 'fa-house-chimney', label: 'Calcul toiture' },
   corps: { ico: 'fa-table-cells', label: 'Dalle corps creux' },
   chenage: { ico: 'fa-link', label: 'Chenage' },
   escalier: { ico: 'fa-stairs', label: 'Escalier' },
@@ -4660,6 +5050,7 @@ function updateDashboard() {
   $('nav-v-poutre').textContent = fmt(T.pouVol) + ' m³ · ' + fmt(T.pouFer) + ' fers · ' + fmt(T.pouChap) + ' chapeaux · ' + fmt(T.pouCadre) + ' cadres · ' + fmt(T.pouEpingle) + ' épingles';
   $('nav-v-chenage').textContent = fmt(T.cheVol) + ' m³ · ' + fmt(T.cheFer) + ' fers · ' + fmt(T.cheChap) + ' chapeaux · ' + fmt(T.cheCadre) + ' cadres · ' + fmt(T.cheEpingle) + ' épingles';
   $('nav-v-dalle').textContent = fmt(T.dalVol) + ' m³ · ' + fmt(T.dalFer) + ' barres · ' + fmt(T.dalCav) + ' cavaliers · ' + fmt(T.dalLatte) + ' lattes · ' + fmt(T.dalPlanche) + ' planches · ' + fmt(T.dalEtais) + ' étais';
+  $('nav-v-toiture').textContent = fmt(calculsModules.toiture?.surface || 0) + ' m²';
   $('nav-v-corps').textContent = fmt(T.ccHour) + ' hourdis · ' + fmt(T.ccSurf) + ' m² · ' + fmt(T.ccLatte) + ' lattes · ' + fmt(T.ccEtais) + ' étais';
   $('nav-v-semelle').textContent = fmt(T.semVol) + ' m³ · ' + fmt(T.semFer) + ' barres';
   $('nav-v-escalier').textContent = fmt(T.escVol) + ' m³ · ' + fmt(T.escFer) + ' barres';
@@ -4693,7 +5084,7 @@ const CLE_RECENTS = 'gros-oeuvre-projets-recents-v1';
 const MAX_RECENTS = 10;
 const nouvelIdProjet = () => (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2));
 let projetId = nouvelIdProjet();
-const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dal-etais-m2', 'cc-etais-m2', 'cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet', 'cc-nappe-nuance', 'cc-nappe-diam', 'cc-nappe-epaisseur', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
+const CHAMPS = [...CHAMPS_TOITURE, 'sel-toiture', 'toi-methode', 'pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dal-etais-m2', 'cc-etais-m2', 'cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet', 'cc-nappe-nuance', 'cc-nappe-diam', 'cc-nappe-epaisseur', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
   'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
   'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-dalle', 'sel-corps', 'sel-semelle', 'sel-escalier'];
 let saveTimer = null;
