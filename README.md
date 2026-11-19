@@ -139,8 +139,10 @@ Les chapeaux peuvent être ajoutés ou supprimés indépendamment dans chaque pa
 
 ### Toiture à deux versants
 
-Le bloc **Toiture → Calcul toiture** regroupe quatre sous-modules : données de base, tôles, fermes et pannes. Les dimensions et recouvrements sont en mètres ; la pente et les pertes sont saisies en pourcentage. Toutes les valeurs nécessaires sont à saisir, y compris zéro si aucun débord, recouvrement ou perte n’est prévu.
+Le bloc **Toiture → Calcul toiture** regroupe quatre sous-modules : données de base, tôles, fermes et pannes. Choisir deux versants symétriques ou des versants indépendants (de 1 à 20). Pour ces derniers, saisir pour chacun la longueur finie parallèle à l’égout, la largeur horizontale finie et la pente. Les débords sont compris dans ces dimensions. Les dimensions et recouvrements sont en mètres ; la pente et les pertes sont saisies en pourcentage. Toutes les valeurs nécessaires sont à saisir, y compris zéro si aucun débord, recouvrement ou perte n’est prévu.
 
 Les deux estimations de tôles sont affichées. La méthode sélectionnée (par rangées ou par surface avec pertes) est celle transmise au devis. La méthode par rangées ne rajoute pas automatiquement les pertes. Chaque longueur de contre-fiche et le débord supplémentaire de l’arbalétrier sont saisissables ; le rampant inclut déjà le débord latéral. Les résultats des sous-modules remplis sont transférés au devis après validation.
 
 **Limites :** estimation géométrique et quantitative, non dimensionnement structurel ni plan de coupe. La formule de pannes compte le +1 sur chaque versant ; vérifier faîtière et sablières selon le plan. Les joints de pannes doivent tomber sur une ferme. Faire vérifier les sections, appuis, assemblages, stabilité et plan de coupe par un professionnel qualifié.
+
+En mode versants indépendants, les surfaces, tôles par rangées et pannes sont additionnées par versant rectangulaire. Cette méthode ne convient pas aux versants triangulaires ou trapézoïdaux. Les fermes ne peuvent pas être déduites de ces seules dimensions : saisir leur nombre total et le métrage de bois par ferme d’après un plan de charpente vérifié. Vérifier les éléments partagés entre versants (notamment faîtières) pour éviter les doubles comptes. Les anciens projets conservent leur mode symétrique et leurs validations.
