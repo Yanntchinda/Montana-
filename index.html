@@ -1425,16 +1425,17 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
 <div class="note">
 <i class="fa-solid fa-circle-info">
 </i>
-<div>Estimation indicative de toiture : versants rectangulaires, symétriques ou saisis séparément. Saisissez toutes les valeurs utiles, y compris zéro lorsqu’il n’y a pas de débord ou de recouvrement. Les quantités de bois sont théoriques et ne tiennent pas compte du plan de coupe, des sections, des assemblages ni des contraintes de joints. La stabilité et le plan de charpente doivent être vérifiés par un professionnel qualifié.</div>
+<div>Estimation indicative de toiture : deux versants symétriques, quatre versants à croupes ou versants rectangulaires saisis séparément. Saisissez toutes les valeurs utiles, y compris zéro lorsqu’il n’y a pas de débord ou de recouvrement. Les quantités de bois sont théoriques et ne tiennent pas compte du plan de coupe, des sections, des assemblages ni des contraintes de joints. La stabilité et le plan de charpente doivent être vérifiés par un professionnel qualifié.</div>
 </div>
 <div class="subcard semelle-nappe" id="toiture-base" style="margin-top:14px">
 <div class="subcard-title">Données de base</div>
-<div class="field"><label for="toi-mode">Configuration des versants</label><select class="inp" id="toi-mode" onchange="afficherVersants(); calculer()"><option value="symetrique">Deux versants symétriques</option><option value="libre">Versants indépendants</option></select></div>
+<div class="field"><label for="toi-mode">Configuration des versants</label><select class="inp" id="toi-mode" onchange="afficherVersants(); calculer()"><option value="symetrique">Deux versants symétriques</option><option value="libre">Versants indépendants</option><option value="croupe">Quatre versants à croupes</option></select></div>
 <input type="hidden" id="toi-versants" value="[]">
 <div id="toi-base-libre" hidden>
 <div class="field"><label for="toi-nb-versants">Nombre de versants</label><input class="inp" id="toi-nb-versants" type="number" min="1" max="20" step="1" value="2" onchange="changerNombreVersants()"></div>
 <p class="semelle-formule">Chaque versant est supposé rectangulaire. Saisissez ses dimensions finies, débords compris : longueur parallèle à l’égout et largeur horizontale de l’égout au faîtage. Pour les versants triangulaires ou trapézoïdaux, cette estimation n’est pas adaptée.</p>
 <div id="toi-liste-versants"></div><p>Surface totale : <b id="toi-surface-libre">—</b> m²</p></div>
+<div id="toi-base-croupe" hidden><p class="semelle-formule">Deux grands pans trapézoïdaux et deux croupes triangulaires. Pentes en pourcentage ; débord identique sur les quatre côtés.</p><div class="semelle-lit-grid"><div class="field"><label for="toi-c-L">Longueur du bâtiment L (m)</label><input class="inp" id="toi-c-L" type="number" min="0" step="any" oninput="calculer()"></div><div class="field"><label for="toi-c-l">Largeur du bâtiment l (m)</label><input class="inp" id="toi-c-l" type="number" min="0" step="any" oninput="calculer()"></div><div class="field"><label for="toi-c-d">Débord d sur chaque côté (m)</label><input class="inp" id="toi-c-d" type="number" min="0" step="any" oninput="calculer()"></div><div class="field"><label for="toi-c-p1">Pente des grands pans (%)</label><input class="inp" id="toi-c-p1" type="number" min="0" step="any" oninput="calculer()"></div><div class="field"><label for="toi-c-p2">Pente des croupes (%)</label><input class="inp" id="toi-c-p2" type="number" min="0" step="any" oninput="calculer()"></div><div class="field"><label>Angle grand pan</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-angle1">—</b> °</div></div><div class="field"><label>Angle croupe</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-angle2">—</b> °</div></div><div class="field"><label>Course grand pan</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-w1">—</b> m</div></div><div class="field"><label>Course croupe</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-w2">—</b> m</div></div><div class="field"><label>Hauteur au faîtage depuis l’égout</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-H">—</b> m</div></div><div class="field"><label>Longueur du faîtage</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-Lf">—</b> m</div></div><div class="field"><label>Rampant grand pan</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-R1">—</b> m</div></div><div class="field"><label>Rampant croupe</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-R2">—</b> m</div></div><div class="field"><label>Longueur d’un arêtier (4 au total)</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-aretier">—</b> m</div></div><div class="field"><label>Surface des deux grands pans</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-S1">—</b> m²</div></div><div class="field"><label>Surface des deux croupes</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-S2">—</b> m²</div></div><div class="field"><label>Surface totale</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-surface">—</b> m²</div></div></div><p class="semelle-formule">Le faîtage doit avoir une longueur strictement positive ; sinon réduire la pente des grands pans ou augmenter celle des croupes.</p></div>
 <div id="toi-base-symetrique"><div class="semelle-lit-grid">
 <div class="field">
 <label for="toi-L">Longueur du bâtiment L (m)</label>
@@ -1510,7 +1511,7 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
 <label for="toi-tole-pertes">Pertes par surface (%)</label>
 <input class="inp" type="number" min="0" step="any" id="toi-tole-pertes" placeholder="ex. 10" oninput="calculer()">
 </div>
-<div class="field">
+<div class="field toi-pas-croupe">
 <label for="toi-methode">Méthode de tôles pour le devis</label>
 <select class="inp" id="toi-methode" onchange="calculer()">
 <option value="rangees">Par rangées</option>
@@ -1547,20 +1548,21 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
 <div class="inp semelle-resultat">
 <b class="res" id="toi-r-tolesRangee">—</b> </div>
 </div>
-<div class="field">
+<div class="field toi-pas-croupe">
 <label>Total par rangées</label>
 <div class="inp semelle-resultat">
 <b class="res" id="toi-r-toleRangees">—</b> tôles</div>
 </div>
 </div>
-<div class="semelle-formule">Méthode surface : surface × (1 + pertes) ÷ (largeur utile × longueur utile). Méthode rangées : somme, pour chaque versant, de ⌈longueur ÷ largeur utile⌉ × nombre de tôles sur le rampant. La méthode par rangées n’ajoute pas le pourcentage de pertes.</div>
+<div class="semelle-formule toi-pas-croupe">Méthode surface : surface × (1 + pertes) ÷ (largeur utile × longueur utile). Méthode rangées : somme, pour chaque versant, de ⌈longueur ÷ largeur utile⌉ × nombre de tôles sur le rampant. La méthode par rangées n’ajoute pas le pourcentage de pertes.</div>
+<p class="semelle-formule toi-croupe-seul" hidden>Estimation par surface uniquement, avec pertes pour les coupes en biais (souvent 10 à 15 %, à saisir). Les rampants diffèrent : vérifier séparément les longueurs de tôles à commander selon le plan.</p>
 <p class="semelle-formule" id="toi-msg-toles" role="status">
 </p>
 </div>
 <div class="subcard semelle-nappe" id="toiture-fermes" style="margin-top:14px">
 <div class="subcard-title">Bois pour les fermes</div>
 <div class="semelle-lit-grid">
-<div class="field toi-sym-seul">
+<div class="field toi-sym-ou-croupe">
 <label for="toi-ferme-entraxe">Entraxe des fermes (m)</label>
 <input class="inp" type="number" min="0" step="any" id="toi-ferme-entraxe" placeholder="ex. 2.5" oninput="calculer()">
 </div>
@@ -1573,7 +1575,7 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
 <input class="inp" type="number" min="0" step="any" id="toi-ferme-contrefiche" placeholder="ex. 2" oninput="calculer()">
 </div>
 <div class="field toi-libre-seul" hidden><label for="toi-ferme-nombre">Nombre total de fermes (selon le plan)</label><input class="inp" type="number" min="1" step="1" id="toi-ferme-nombre" oninput="calculer()"></div>
-<div class="field toi-libre-seul" hidden><label for="toi-ferme-metrage">Métrage total de bois par ferme (m, selon le plan)</label><input class="inp" type="number" min="0" step="any" id="toi-ferme-metrage" oninput="calculer()"></div>
+<div class="field toi-non-sym" hidden><label for="toi-ferme-metrage">Métrage total de bois par ferme (m, selon le plan)</label><input class="inp" type="number" min="0" step="any" id="toi-ferme-metrage" oninput="calculer()"></div>
 <div class="field">
 <label for="toi-ferme-piece">Longueur commerciale d’une pièce (m)</label>
 <input class="inp" type="number" min="0" step="any" id="toi-ferme-piece" placeholder="ex. 4" oninput="calculer()">
@@ -1582,7 +1584,7 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
 <label for="toi-ferme-pertes">Pertes bois des fermes (%)</label>
 <input class="inp" type="number" min="0" step="any" id="toi-ferme-pertes" placeholder="ex. 10" oninput="calculer()">
 </div>
-<div class="field toi-sym-seul">
+<div class="field toi-sym-ou-croupe">
 <label>Nombre de fermes</label>
 <div class="inp semelle-resultat">
 <b class="res" id="toi-r-fermes">—</b> </div>
@@ -1625,9 +1627,11 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
 </div>
 <div class="semelle-formule toi-sym-seul">Nombre de fermes = ⌊L ÷ entraxe⌋ + 1 ; vérifier leur positionnement et les appuis en extrémité selon le plan. Par ferme : 2 × (rampant + débord supplémentaire) + (largeur + 2 × débord latéral) + poinçon + 2 × longueur d’une contre-fiche. Le rampant comprend déjà le débord latéral : saisir 0 pour le débord supplémentaire sauf si une longueur additionnelle est réellement prévue.</div>
 <p class="semelle-formule toi-libre-seul" hidden>Pour les versants indépendants, les fermes ne peuvent pas être déduites de leur seule géométrie : saisir le nombre et le métrage par ferme d’après un plan de charpente vérifié.</p>
+<p class="semelle-formule toi-croupe-seul" hidden>Nombre de fermes complètes = ⌊longueur du faîtage ÷ entraxe⌋ + 1. Le métrage par ferme est à établir sur le plan de charpente. Ce total exclut les arêtiers et chevrons de croupe.</p>
 <p class="semelle-formule" id="toi-msg-fermes" role="status">
 </p>
 </div>
+<div class="subcard semelle-nappe toi-croupe-seul" hidden style="margin-top:14px"><div class="subcard-title">Chevrons de croupe</div><div class="semelle-lit-grid"><div class="field"><label for="toi-c-chev-e">Entraxe e (m)</label><input class="inp" type="number" min="0" step="any" id="toi-c-chev-e" oninput="calculer()"></div><div class="field"><label for="toi-c-chev-k">Rang k à partir de l’arêtier</label><input class="inp" type="number" min="1" step="1" id="toi-c-chev-k" oninput="calculer()"></div><div class="field"><label>Longueur approximative du chevron k</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-chevron">—</b> m</div></div></div><p class="semelle-formule">Longueur indicative = k × e ÷ cos α₂. Ce résultat individuel n’est pas ajouté au devis ; le nombre et le plan de coupe doivent être établis sur le plan de charpente.</p><p class="semelle-formule" id="toi-msg-chevron" role="status"></p></div>
 <div class="subcard semelle-nappe" id="toiture-pannes" style="margin-top:14px">
 <div class="subcard-title">Bois pour les pannes</div>
 <div class="semelle-lit-grid">
@@ -1643,6 +1647,11 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
 <label for="toi-panne-pertes">Pertes bois des pannes (%)</label>
 <input class="inp" type="number" min="0" step="any" id="toi-panne-pertes" placeholder="ex. 10" oninput="calculer()">
 </div>
+<div class="field toi-croupe-seul" hidden><label for="toi-c-panne-j">Rangée j à partir de l’égout (0 = égout)</label><input class="inp" type="number" min="0" step="1" id="toi-c-panne-j" oninput="calculer()"></div>
+<div class="field toi-croupe-seul" hidden><label>Longueur d’une panne de grand pan à la rangée j</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-panneG">—</b> m</div></div>
+<div class="field toi-croupe-seul" hidden><label>Longueur d’une panne de croupe à la rangée j</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-panneC">—</b> m</div></div>
+<div class="field toi-croupe-seul" hidden><label>Métrage des pannes des grands pans</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-pannesG">—</b> m</div></div>
+<div class="field toi-croupe-seul" hidden><label>Métrage des pannes des croupes</label><div class="inp semelle-resultat"><b class="res" id="toi-r-c-pannesC">—</b> m</div></div>
 <div class="field toi-sym-seul">
 <label>Pannes par versant</label>
 <div class="inp semelle-resultat">
@@ -1664,8 +1673,8 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
 <b class="res" id="toi-r-pannePieces">—</b> u</div>
 </div>
 </div>
-<div class="semelle-formule">Pannes par versant = ⌈rampant ÷ entraxe⌉ + 1 ; total et métrage : somme des quantités et longueurs de tous les versants. La formule demandée compte le +1 sur chaque versant : vérifier le comptage de la faîtière et de la sablière selon le plan. Les joints des pannes doivent tomber sur une ferme.</div>
-<p class="semelle-formule" id="toi-msg-pannes" role="status">
+<div class="semelle-formule toi-pas-croupe">Pannes par versant = ⌈rampant ÷ entraxe⌉ + 1 ; total et métrage : somme des quantités et longueurs de tous les versants. La formule demandée compte le +1 sur chaque versant : vérifier le comptage de la faîtière et de la sablière selon le plan. Les joints des pannes doivent tomber sur une ferme.</div>
+<p class="semelle-formule toi-croupe-seul" hidden>Rangées à partir de l’égout : j = 0, 1, … jusqu’au faîtage, avec entraxe mesuré sur le rampant. Le métrage additionne les deux grands pans et les deux croupes ; la rangée de longueur nulle est ignorée. Si une rangée tombe au faîtage, elle est comptée sur chaque grand pan : retirer le doublon selon le plan. Les joints doivent aussi être vérifiés.</p><p class="semelle-formule" id="toi-msg-pannes" role="status">
 </p>
 </div>
 <div id="validation-module-toiture">
@@ -3193,7 +3202,7 @@ const TOITURE_GROUPES = {
   fermes: ['ferme-entraxe','ferme-debord','ferme-contrefiche','ferme-piece','ferme-pertes'],
   pannes: ['panne-entraxe','panne-piece','panne-pertes']
 };
-const CHAMPS_TOITURE = [...Object.values(TOITURE_GROUPES).flat().map(k => 'toi-' + k), 'toi-mode', 'toi-nb-versants', 'toi-versants', 'toi-ferme-nombre', 'toi-ferme-metrage'];
+const CHAMPS_TOITURE = [...Object.values(TOITURE_GROUPES).flat().map(k => 'toi-' + k), 'toi-mode', 'toi-nb-versants', 'toi-versants', 'toi-ferme-nombre', 'toi-ferme-metrage', ...['L','l','d','p1','p2','chev-e','chev-k','panne-j'].map(k => 'toi-c-' + k)];
 function calculToiture(valeurs, methode = 'rangees') {
   const nombres = {};
   Object.values(TOITURE_GROUPES).flat().forEach(k => {
@@ -3338,9 +3347,13 @@ function lireVersants() {
   try { const a = JSON.parse($('toi-versants').value); return Array.isArray(a) ? a.slice(0,20) : []; } catch (_) { return []; }
 }
 function afficherVersants() {
-  const libre = $('toi-mode').value === 'libre';
-  $('toi-base-libre').hidden = !libre; $('toi-base-symetrique').hidden = libre;
-  document.querySelectorAll('#bloc-toiture .toi-sym-seul').forEach(e => e.hidden = libre);
+  const mode = $('toi-mode').value, libre = mode === 'libre', croupe = mode === 'croupe';
+  $('toi-base-libre').hidden = !libre; $('toi-base-symetrique').hidden = mode !== 'symetrique'; $('toi-base-croupe').hidden = !croupe;
+  document.querySelectorAll('#bloc-toiture .toi-croupe-seul').forEach(e => e.hidden = !croupe);
+  document.querySelectorAll('#bloc-toiture .toi-pas-croupe').forEach(e => e.hidden = croupe);
+  document.querySelectorAll('#bloc-toiture .toi-sym-ou-croupe').forEach(e => e.hidden = libre);
+  document.querySelectorAll('#bloc-toiture .toi-non-sym').forEach(e => e.hidden = mode === 'symetrique');
+  document.querySelectorAll('#bloc-toiture .toi-sym-seul').forEach(e => e.hidden = mode !== 'symetrique');
   document.querySelectorAll('#bloc-toiture .toi-libre-seul').forEach(e => e.hidden = !libre);
   const root = $('toi-liste-versants'); root.replaceChildren();
   const count = Number($('toi-nb-versants').value), data = lireVersants();
@@ -3367,9 +3380,97 @@ function afficherResultatsVersants(r) {
   (r.versants || []).forEach((v,i) => ['angle','rampant','surface'].forEach(k => { const e = $('toi-vres-' + i + '-' + k); if (e) e.textContent = Number.isFinite(v[k]) ? fmt(v[k]) : '—'; }));
 }
 function changerNombreVersants() { afficherVersants(); calculer(); }
+// Toit à croupes : pente en %, dimensions en m, surface sur les rampants.
+function calculToitureCroupe(valeurs, croupe, metrageFerme) {
+  const lire = v => { const t = String(v ?? '').trim().replace(',', '.'); return t === '' ? null : Number(t); };
+  const n = Object.fromEntries(Object.values(TOITURE_GROUPES).flat().map(k => [k, lire(valeurs[k])]));
+  const c = Object.fromEntries(['L','l','d','p1','p2','chev-e','chev-k','panne-j'].map(k => [k,lire(croupe[k])]));
+  const fm = lire(metrageFerme);
+  const r = { mode: 'croupe', entrees: n, croupe: c, fermeMetrage: fm, methode: 'surface', baseValide: false, erreurs: [], toles: 0, piecesFermes: 0, piecesPannes: 0, affichage: {}, messages: {} };
+  const a = r.affichage;
+  const valide = x => x !== null && Number.isFinite(x) && x >= 0;
+  const complet = keys => keys.every(k => valide(n[k]));
+  const commence = keys => keys.some(k => n[k] !== null);
+  if (!['L','l','d','p1','p2'].every(k => valide(c[k])) || !(c.L > 0 && c.l > 0 && c.p1 > 0 && c.p2 > 0)) {
+    r.erreurs.push('base'); r.messages.base = 'Saisissez des dimensions et pentes positives, ainsi qu’un débord positif ou nul.';
+  } else {
+    const p1 = c.p1 / 100, p2 = c.p2 / 100;
+    const w1 = c.l / 2 + c.d, H = w1 * p1, w2 = H / p2, Lp = c.L + 2*c.d, lp = c.l + 2*c.d, Lf = Lp - 2*w2;
+    if (![w1,H,w2,Lp,lp,Lf].every(Number.isFinite) || Lf <= 0) {
+      r.erreurs.push('base'); r.messages.base = 'Faîtage nul ou négatif, ou valeurs trop grandes : réduisez la pente des grands pans ou augmentez celle des croupes.';
+    } else {
+      const angle1 = Math.atan(p1), angle2 = Math.atan(p2), R1 = w1 * Math.hypot(1,p1), R2 = w2 * Math.hypot(1,p2);
+      const S1 = (Lp + Lf) * R1, S2 = lp * R2, surface = S1 + S2, aretier = Math.hypot(w1,w2,H);
+      if (![R1,R2,S1,S2,surface,aretier].every(x => Number.isFinite(x) && x <= Number.MAX_SAFE_INTEGER)) {
+        r.erreurs.push('base'); r.messages.base = 'Valeurs trop grandes : vérifiez les dimensions et les pentes.';
+      } else {
+        r.baseValide = true; r.surface = surface;
+        Object.assign(a, {'c-angle1':angle1*180/Math.PI,'c-angle2':angle2*180/Math.PI,'c-w1':w1,'c-w2':w2,'c-H':H,'c-Lf':Lf,'c-R1':R1,'c-R2':R2,'c-aretier':aretier,'c-S1':S1,'c-S2':S2,'c-surface':surface, surface});
+      }
+    }
+  }
+  const tk = TOITURE_GROUPES.toles;
+  if (commence(tk)) {
+    if (!r.baseValide || !complet(tk) || !(n['tole-largeur'] > n['tole-rec-lat']) || !(n['tole-longueur'] > n['tole-rec-bout'])) {
+      r.erreurs.push('toles'); r.messages.toles = 'Renseignez toutes les valeurs ; chaque recouvrement doit être inférieur à la dimension de la tôle.';
+    } else {
+      a.largeurUtile = n['tole-largeur'] - n['tole-rec-lat']; a.longueurUtile = n['tole-longueur'] - n['tole-rec-bout'];
+      a.toleSurfaceExact = r.surface * (1+n['tole-pertes']/100) / (a.largeurUtile*a.longueurUtile); a.toleSurface = Math.ceil(a.toleSurfaceExact - 1e-9);
+      if (!Number.isSafeInteger(a.toleSurface)) { r.erreurs.push('toles'); r.messages.toles = 'Quantité trop grande.'; } else r.toles = a.toleSurface;
+    }
+  }
+  const fk = ['ferme-entraxe','ferme-piece','ferme-pertes'];
+  if (commence(fk) || fm !== null) {
+    if (!r.baseValide || !complet(fk) || !(n['ferme-entraxe'] > 0) || !(n['ferme-piece'] > 0) || !valide(fm) || !(fm > 0)) {
+      r.erreurs.push('fermes'); r.messages.fermes = 'Saisissez l’entraxe, le métrage par ferme, la longueur commerciale et les pertes.';
+    } else {
+      a.fermes = Math.floor(a['c-Lf']/n['ferme-entraxe'] + 1e-9)+1;
+      a.fermePieces = Math.ceil(a.fermes * fm * (1+n['ferme-pertes']/100)/n['ferme-piece'] - 1e-9);
+      if (![a.fermes,a.fermePieces].every(Number.isSafeInteger)) { r.erreurs.push('fermes'); r.messages.fermes = 'Quantité trop grande.'; } else r.piecesFermes = a.fermePieces;
+    }
+  }
+  if (c['chev-e'] !== null || c['chev-k'] !== null) {
+    if (!r.baseValide || !valide(c['chev-e']) || !(c['chev-e'] > 0) || !Number.isSafeInteger(c['chev-k']) || !(c['chev-k'] >= 1)) {
+      r.erreurs.push('chevron'); r.messages.chevron = 'Saisissez un entraxe positif et un rang entier positif ; vérifiez son emplacement sur le plan.';
+    } else {
+      a['c-chevron'] = c['chev-k'] * c['chev-e'] * Math.hypot(1,c.p2/100);
+    }
+  }
+  const pk = TOITURE_GROUPES.pannes;
+  if (commence(pk)) {
+    if (!r.baseValide || !complet(pk) || !(n['panne-entraxe'] > 0) || !(n['panne-piece'] > 0)) {
+      r.erreurs.push('pannes'); r.messages.pannes = 'Renseignez tous les champs ; entraxe et longueur commerciale doivent être positifs.';
+    } else {
+      const e = n['panne-entraxe'], w1 = a['c-w1'], w2 = a['c-w2'];
+      // Rangée j=0 à l’égout. La dernière rangée de croupe nulle n’est pas une panne.
+      const j1 = Math.floor(a['c-R1']/e + 1e-9), j2 = Math.ceil(a['c-R2']/e - 1e-9) - 1;
+      const count1 = j1+1, count2 = j2+1;
+      const step1 = 2*e/Math.hypot(1,c.p1/100)*w2/w1, step2 = 2*e/Math.hypot(1,c.p2/100)*w1/w2;
+      const sum1 = count1*(c.L+2*c.d) - step1*j1*count1/2;
+      const sum2 = count2*(c.l+2*c.d) - step2*j2*count2/2;
+      a['c-pannesG'] = 2*sum1; a['c-pannesC'] = 2*sum2;
+      a.panneTotal = 2*(count1+count2); a.panneMetres = a['c-pannesG'] + a['c-pannesC'];
+      if (c['panne-j'] !== null) {
+        const j = c['panne-j'];
+        if (!Number.isSafeInteger(j) || j < 0 || (j > j1 && j > j2)) { r.erreurs.push('pannes'); r.messages.pannes = 'Le rang j doit être un entier présent sur au moins un versant.'; }
+        else {
+          if (j <= j1) a['c-panneG'] = Math.max(0, c.L+2*c.d-step1*j);
+          if (j <= j2) a['c-panneC'] = Math.max(0, c.l+2*c.d-step2*j);
+        }
+      }
+      a.pannePieces = Math.ceil(a.panneMetres*(1+n['panne-pertes']/100)/n['panne-piece'] - 1e-9);
+      if (![a.panneTotal,a.panneMetres,a.pannePieces].every(x => Number.isFinite(x) && x >= 0 && x <= Number.MAX_SAFE_INTEGER)) { r.erreurs.push('pannes'); r.messages.pannes = 'Quantité trop grande : vérifiez l’entraxe.'; } else r.piecesPannes = a.pannePieces;
+    }
+  }
+  Object.keys(a).forEach(k => { if (!Number.isFinite(a[k])) delete a[k]; });
+  return r;
+}
 function calculToitureActuel() {
   const valeurs = Object.fromEntries(Object.values(TOITURE_GROUPES).flat().map(k => [k, $('toi-' + k).value]));
-  const r = $('toi-mode').value === 'libre' ? calculToitureLibre(valeurs, $('toi-methode').value, lireVersants(), $('toi-nb-versants').value, $('toi-ferme-nombre').value, $('toi-ferme-metrage').value) : calculToiture(valeurs, $('toi-methode').value);
+  const mode = $('toi-mode').value;
+  const c = Object.fromEntries(['L','l','d','p1','p2','chev-e','chev-k','panne-j'].map(k => [k, $('toi-c-' + k).value]));
+  const r = mode === 'croupe' ? calculToitureCroupe(valeurs, c, $('toi-ferme-metrage').value) : mode === 'libre' ? calculToitureLibre(valeurs, $('toi-methode').value, lireVersants(), $('toi-nb-versants').value, $('toi-ferme-nombre').value, $('toi-ferme-metrage').value) : calculToiture(valeurs, $('toi-methode').value);
+  $('toi-msg-chevron').textContent = r.messages.chevron || '';
   afficherResultatsVersants(r);
   document.querySelectorAll('[id^="toi-r-"]').forEach(el => {
     const v = r.affichage[el.id.slice(6)];
@@ -5616,7 +5717,7 @@ function charger() {
     dvId = Math.max(dvId, ...devis.flatMap(s => s.lignes.map(l => l.id + 1)));
     // Valeurs par défaut pour les projets antérieurs aux versants indépendants.
     $('toi-mode').value = 'symetrique'; $('toi-nb-versants').value = '2'; $('toi-versants').value = '[]';
-    $('toi-ferme-nombre').value = ''; $('toi-ferme-metrage').value = '';
+    $('toi-ferme-nombre').value = ''; $('toi-ferme-metrage').value = ''; ['L','l','d','p1','p2','chev-e','chev-k','panne-j'].forEach(k => $('toi-c-' + k).value = '');
     CHAMPS.forEach(id => {
       const el = $(id); if (!el || !(id in (d.champs || {}))) return;
       if (el.type === 'checkbox') el.checked = !!d.champs[id]; else el.value = d.champs[id];

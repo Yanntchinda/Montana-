@@ -1,0 +1,28 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const html = fs.readFileSync('index.html','utf8');
+const source = html.slice(html.indexOf('const TOITURE_GROUPES ='),html.indexOf('function calculToitureActuel()'));
+const ctx = {}; vm.createContext(ctx); vm.runInContext(source,ctx);
+const c = {L:10,l:6,d:0.5,p1:30,p2:45};
+const data = {'tole-largeur':1,'tole-rec-lat':0,'tole-longueur':2,'tole-rec-bout':0,'tole-pertes':10,'ferme-entraxe':2,'ferme-piece':4,'ferme-pertes':0,'panne-entraxe':1,'panne-piece':4,'panne-pertes':0};
+let r=ctx.calculToitureCroupe(data,c,10), a=r.affichage;
+const close=(x,y)=>assert.ok(Math.abs(x-y)<1e-9,`${x} != ${y}`);
+close(a['c-w1'],3.5); close(a['c-H'],1.05); close(a['c-w2'],7/3); close(a['c-Lf'],19/3);
+close(a['c-R1'],3.5*Math.sqrt(1.09)); close(a['c-R2'],7/3*Math.sqrt(1.2025));
+close(a['c-aretier'],Math.hypot(3.5,7/3,1.05)); close(a['c-S1'],(11+19/3)*a['c-R1']); close(a['c-S2'],7*a['c-R2']); close(r.surface,a['c-S1']+a['c-S2']);
+assert.equal(r.toles,Math.ceil(r.surface*1.1/2));assert.equal(a.fermes,4);assert.equal(r.piecesFermes,10);
+let manual=0, count=0;
+for(const [R,width,wA,wB,p] of [[a['c-R1'],11,3.5,7/3,.3],[a['c-R2'],7,7/3,3.5,.45]]) for(let j=0;j<=Math.floor(R);j++){const len=width-2*j/Math.hypot(1,p)*wB/wA;if(len>1e-9){manual+=2*len;count+=2;}}
+close(a.panneMetres,manual);assert.equal(a.panneTotal,count);
+const rang=ctx.calculToitureCroupe(data, {...c,'panne-j':1},10);
+close(rang.affichage['c-panneG'],11-2/Math.sqrt(1.09)*(7/3)/3.5);
+close(rang.affichage['c-panneC'],7-2/Math.sqrt(1.2025)*3.5/(7/3));
+assert.ok(ctx.calculToitureCroupe(data, {...c,'panne-j':999},10).erreurs.includes('pannes'));
+const eq=ctx.calculToitureCroupe({}, {...c,p2:30},'');close(eq.affichage['c-w2'],eq.affichage['c-w1']);
+assert.equal(ctx.calculToitureCroupe({}, {...c,p2:1},'').baseValide,false);
+assert.equal(ctx.calculToitureCroupe({}, {...c,p2:0},'').baseValide,false);
+const chev=ctx.calculToitureCroupe({}, {...c,'chev-e':0.5,'chev-k':2},'');close(chev.affichage['c-chevron'],Math.hypot(1,.45));
+assert.ok(ctx.calculToitureCroupe({}, {...c,'chev-e':0.5,'chev-k':0},'').erreurs.includes('chevron'));
+console.log('✓ toiture à croupes : géométrie, compatibilité, tôles et charpente');
