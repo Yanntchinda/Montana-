@@ -12,7 +12,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 - Amorce : module complet calqué sur les poteaux (formes rectangulaire et circulaire, section, coffrage latéral, béton, fers verticaux, cadres et épingles), raccordé au tableau de bord et au devis.
 - Chenage : module complet calqué sur les poutres (coffrage, béton, fers, chapeaux, cadres et épingles), raccordé au tableau de bord et au devis.
 - Mains d’œuvre : tableau désignation · unité · quantité · prix unitaire · montant, avec les éléments de tous les modules pré-remplis (parpaing, poteaux, poutres, longrines, chenage, semelle, crépissage, amorce, dalles), les **quantités mises à jour automatiquement** depuis les modules (parpaings : quantité du devis validé des murs ; poteaux et amorce : hauteur totale ; poutres, longrines, chenage : longueur totale ; semelles : nombre ; crépissage, dalles : surfaces) et une section MAIN-D’ŒUVRE dans le devis.
-- Dalle pleine (plusieurs panneaux par dalle avec dimensions, surface et volume cumulés, deux nappes d'armatures Nappe 1 et Nappe 2 avec Lit 1 sens longueur L et Lit 2 sens largeur l, plus sous-modules Cavaliers, Chapeau, Lattes multi-panneaux, Planche et Étais envoyés au devis) et dalle à corps creux (hourdis, nervures et sous-modules Lattes multi-panneaux, Étais et Nappe de compression envoyés au devis).
+- Dalle pleine (plusieurs panneaux par dalle avec dimensions, surface et volume cumulés, chaque panneau avec deux nappes d’armatures et ses propres sous-modules Cavaliers, Chapeau, Lattes et Planche ; Étais et résultats cumulés envoyés au devis) et dalle à corps creux (hourdis, nervures et sous-modules Lattes multi-panneaux, Étais et Nappe de compression envoyés au devis).
 - Semelles avec deux nappes d'armatures (Nappe 1 et Nappe 2), chacune composée de deux lits indépendants (Lit 1 sens longueur L et Lit 2 sens largeur l).
 - Escalier avec deux sous-modules : **Palier** (volume béton et **Fer** Nappe 1 et Nappe 2 avec Lit 1 sens longueur L et Lit 2 sens largeur l) et **Volet** (**Marches** : ((giron × hauteur) ÷ 2) × emmarchement × nombre de marches total ; **Paillasse** : longueur × emmarchement × épaisseur × nombre de volets ; **Fer** : Nappe 1 et Nappe 2 avec Lit 1 sens longueur L et Lit 2 sens largeur l), raccordé au tableau de bord et au devis.
 - Crépissage.
@@ -125,8 +125,12 @@ Dans ce même sous-module, indiquez l’épaisseur de la dalle de compression en
 
 ### Crochets des nappes de dalle pleine
 
-Chaque lit des deux nappes possède sa propre longueur totale de crochets, saisie en centimètres et ajoutée à la longueur de chaque barre. Les calculs sont cumulés sur tous les panneaux de la dalle. Les dalles existantes conservent la valeur précédente de 15 cm pour chaque lit, modifiable indépendamment. Les quantités mises à jour alimentent le devis après validation du module.
+Chaque lit des deux nappes possède sa propre longueur totale de crochets, saisie en centimètres et ajoutée à la longueur de chaque barre. Chaque panneau dispose de ses propres paramètres ; les calculs sont cumulés sur tous les panneaux de la dalle. Les dalles existantes conservent la valeur précédente de 15 cm pour chaque lit, modifiable indépendamment. Les quantités mises à jour alimentent le devis après validation du module.
 
 ### Chapeau — dalle pleine
 
-Pour chaque dalle, renseignez la nuance HA ou RL, le diamètre, la longueur d’un chapeau en mètres et le nombre. Le linéaire est longueur × nombre ; il est divisé par 12 m pour afficher les barres exactes. Les longueurs des dalles de même nuance et diamètre sont cumulées puis arrondies au supérieur pour la commande. Après validation du module, les barres sont regroupées dans le devis avec les fers de même nuance et diamètre.
+Pour chaque panneau, renseignez la nuance HA ou RL, le diamètre, la longueur d’un chapeau en mètres et le nombre. Le linéaire est longueur × nombre ; il est divisé par 12 m pour afficher les barres exactes. Les longueurs des dalles de même nuance et diamètre sont cumulées puis arrondies au supérieur pour la commande. Après validation du module, les barres sont regroupées dans le devis avec les fers de même nuance et diamètre.
+
+### Panneaux indépendants des dalles pleines
+
+Chaque panneau possède ses propres nappes, cavaliers, chapeaux, panneaux de lattes et dimensions de planches. Les résultats sont cumulés au niveau du module et transférés au devis après validation. À l’ouverture d’un ancien projet, les paramètres communs des nappes et des planches sont repris sur chaque panneau ; les anciens cavaliers, chapeaux et panneaux de lattes communs sont rattachés au premier panneau, sans les dupliquer.

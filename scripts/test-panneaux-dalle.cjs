@@ -1,0 +1,18 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const html = fs.readFileSync('index.html', 'utf8');
+const source = html.slice(html.indexOf('function configPanneauDalle('), html.indexOf('function nouvelleDalle('));
+const context = { uid: 100, num: v => Number(v) || 0 }; vm.createContext(context); vm.runInContext(source, context);
+const ancien = { panneaux:[{id:1,L:'4',l:'3',n:'1'}, {id:2,L:'2',l:'5',n:'1'}], n1l1Crochet:'30', n1l1Esp:'18', cavL:'2', cavNb:'4', chapeauL:'3', chapeauNb:'5', plancheL:'2', plancheW:'0.5', lattePanneaux:[{id:3,L:'4',W:'3',espL:'1',espW:'1'}] };
+const panneaux = context.normaliserPanneauxDalle(ancien);
+assert.equal(panneaux.length,2); assert.equal(panneaux[0].sousModules.n1l1Crochet,'30'); assert.equal(panneaux[1].sousModules.n1l1Crochet,'30');
+assert.equal(panneaux[0].sousModules.cavL,'2'); assert.equal(panneaux[1].sousModules.cavL,'');
+assert.equal(panneaux[0].sousModules.chapeauL,'3'); assert.equal(panneaux[1].sousModules.chapeauL,'');
+assert.equal(panneaux[0].sousModules.lattePanneaux[0].L,'4'); assert.equal(panneaux[1].sousModules.lattePanneaux[0].L,'');
+assert.equal(panneaux[1].sousModules.plancheL,'2'); panneaux[0].sousModules.n1l1Crochet='5'; assert.equal(panneaux[1].sousModules.n1l1Crochet,'30');
+assert.equal(context.normaliserPanneauxDalle({panneaux:[], cavL:'2'}).length,1);
+assert.equal(context.normaliserPanneauxDalle({panneaux:[], panneauxIndependants:true, cavL:'2'}).length,0);
+assert.match(html, /blocNappeDalle\(p\.sousModules, 1\).*blocCavalierDalle\(p\.sousModules\).*blocChapeauDalle\(p\.sousModules\).*blocLattesDalle\(p\.sousModules\).*blocPlancheDalle\(p\.sousModules\)/);
+console.log('✓ dalle : sous-modules indépendants par panneau et migration des données communes');
