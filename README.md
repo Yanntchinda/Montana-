@@ -12,7 +12,7 @@ Calculateur professionnel de gros œuvre et générateur de devis quantitatifs, 
 - Amorce : module complet calqué sur les poteaux (formes rectangulaire et circulaire, section, coffrage latéral, béton, fers verticaux, cadres et épingles), raccordé au tableau de bord et au devis.
 - Chenage : module complet calqué sur les poutres (coffrage, béton, fers, chapeaux, cadres et épingles), raccordé au tableau de bord et au devis.
 - Mains d’œuvre : tableau désignation · unité · quantité · prix unitaire · montant, avec les éléments de tous les modules pré-remplis (parpaing, poteaux, poutres, longrines, chenage, semelle, crépissage, amorce, dalles), les **quantités mises à jour automatiquement** depuis les modules (parpaings : quantité du devis validé des murs ; poteaux et amorce : hauteur totale ; poutres, longrines, chenage : longueur totale ; semelles : nombre ; crépissage, dalles : surfaces) et une section MAIN-D’ŒUVRE dans le devis.
-- Dalle pleine (plusieurs panneaux par dalle avec dimensions, surface et volume cumulés, deux nappes d'armatures Nappe 1 et Nappe 2 avec Lit 1 sens longueur L et Lit 2 sens largeur l, plus sous-modules Cavaliers, Lattes multi-panneaux, Planche et Étais envoyés au devis) et dalle à corps creux (hourdis, nervures et sous-modules Lattes multi-panneaux et Étais envoyés au devis).
+- Dalle pleine (plusieurs panneaux par dalle avec dimensions, surface et volume cumulés, deux nappes d'armatures Nappe 1 et Nappe 2 avec Lit 1 sens longueur L et Lit 2 sens largeur l, plus sous-modules Cavaliers, Lattes multi-panneaux, Planche et Étais envoyés au devis) et dalle à corps creux (hourdis, nervures et sous-modules Lattes multi-panneaux, Étais et Nappe de compression envoyés au devis).
 - Semelles avec deux nappes d'armatures (Nappe 1 et Nappe 2), chacune composée de deux lits indépendants (Lit 1 sens longueur L et Lit 2 sens largeur l).
 - Escalier avec deux sous-modules : **Palier** (volume béton et **Fer** Nappe 1 et Nappe 2 avec Lit 1 sens longueur L et Lit 2 sens largeur l) et **Volet** (**Marches** : ((giron × hauteur) ÷ 2) × emmarchement × nombre de marches total ; **Paillasse** : longueur × emmarchement × épaisseur × nombre de volets ; **Fer** : Nappe 1 et Nappe 2 avec Lit 1 sens longueur L et Lit 2 sens largeur l), raccordé au tableau de bord et au devis.
 - Crépissage.
@@ -116,3 +116,7 @@ L'installateur produit par GitHub est fonctionnel mais non signé. Windows Smart
 ## Version
 
 La version de l'application se règle dans `package.json`. Avant chaque publication officielle, augmenter la propriété `version`, par exemple de `1.0.0` à `1.1.0`.
+
+### Nappe de compression — dalle à corps creux
+
+Renseignez les dimensions globales de la dalle en mètres, les espacements dans les deux sens et la longueur du crochet en centimètres, puis la nuance et le diamètre. Le calcul est `[(L / espacement L) × (l + crochet) + (l / espacement l) × (L + crochet)] / 12`, après conversion des centimètres en mètres. Les barres à commander sont arrondies au supérieur et rejoignent le devis après validation du module ; elles sont regroupées avec les autres fers de même nuance et diamètre. Les dimensions globales sont indépendantes des panneaux, dont la disposition ne permet pas de déduire automatiquement la longueur et la largeur totales.

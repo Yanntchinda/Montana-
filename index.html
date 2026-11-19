@@ -1412,6 +1412,27 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
             </div>
             <div id="tb-corps" class="escalier-fers-liste"></div>
             <div id="corps-lattes" style="margin-top:16px"></div>
+            <div class="subcard semelle-nappe" style="margin-top:16px" id="cc-nappe-compression">
+              <div class="semelle-nappe-head">
+                <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-border-all"></i> Nappe de compression</div>
+                <div class="semelle-nappe-total">Barres de 12 m à commander : <b class="res" id="cc-nappe-barres-h">0</b></div>
+              </div>
+              <div class="semelle-lit">
+                <div class="semelle-lit-grid">
+                  <div class="field"><label for="cc-nappe-L">Longueur totale de la dalle (m)</label><input class="inp" id="cc-nappe-L" type="number" min="0" step="0.01" placeholder="0" oninput="calculer()"></div>
+                  <div class="field"><label for="cc-nappe-l">Largeur totale de la dalle (m)</label><input class="inp" id="cc-nappe-l" type="number" min="0" step="0.01" placeholder="0" oninput="calculer()"></div>
+                  <div class="field"><label for="cc-nappe-esp-L">Espacement selon longueur (cm)</label><input class="inp" id="cc-nappe-esp-L" type="number" min="0" step="0.01" placeholder="0" oninput="calculer()"></div>
+                  <div class="field"><label for="cc-nappe-esp-l">Espacement selon largeur (cm)</label><input class="inp" id="cc-nappe-esp-l" type="number" min="0" step="0.01" placeholder="0" oninput="calculer()"></div>
+                  <div class="field"><label for="cc-nappe-crochet">Longueur du crochet (cm)</label><input class="inp" id="cc-nappe-crochet" type="number" min="0" step="0.01" placeholder="0" oninput="calculer()"></div>
+                  <div class="field"><label for="cc-nappe-nuance">Nuance du fer</label><select class="inp" id="cc-nappe-nuance" onchange="calculer()"><option value="HA">HA</option><option value="RL">RL</option></select></div>
+                  <div class="field"><label for="cc-nappe-diam">Diamètre (mm)</label><input class="inp" id="cc-nappe-diam" type="number" min="2" max="40" step="1" value="8" oninput="calculer()"></div>
+                  <div class="field"><label>Longueur totale de fer</label><div class="inp semelle-resultat"><b class="res" id="cc-nappe-ml">0</b> m</div></div>
+                  <div class="field"><label>Barres exactes (÷ 12 m)</label><div class="inp semelle-resultat"><b class="res" id="cc-nappe-exact">0</b></div></div>
+                  <div class="field"><label>Barres à commander</label><div class="inp semelle-resultat"><b class="res" id="cc-nappe-barres">0</b></div></div>
+                </div>
+                <div class="semelle-formule">[ (longueur totale ÷ espacement selon longueur) × (largeur totale + crochet) + (largeur totale ÷ espacement selon largeur) × (longueur totale + crochet) ] ÷ 12 m. Espacements et crochet convertis de cm en m ; barres à commander arrondies au supérieur. Saisissez les dimensions globales de la dalle, indépendamment des panneaux.</div>
+              </div>
+            </div>
             <div class="subcard semelle-nappe dalle-etais" style="margin-top:16px">
               <div class="semelle-nappe-head">
                 <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-bars-staggered"></i> Étais</div>
@@ -1725,7 +1746,13 @@ let T = { longVol: 0, longFerML: 0, longFer: 0, longCadreML: 0, longCadre: 0, lo
 const copierCalcul = valeur => JSON.parse(JSON.stringify(valeur || {}));
 const calculModuleValideAJour = cle => {
   const validation = validationsModules[cle];
-  return !!validation && JSON.stringify(validation.donnees) === JSON.stringify(calculsModules[cle]);
+  if (!validation) return false;
+  // Les anciens projets validés n'avaient pas encore de nappe de compression.
+  if (cle === 'corps' && !('nappeCompression' in validation.donnees)) {
+    const ancien = { nappeCompression: { metres: 0, exact: 0, barres: 0 }, fers: {}, ...validation.donnees };
+    return JSON.stringify(ancien) === JSON.stringify(calculsModules[cle]);
+  }
+  return JSON.stringify(validation.donnees) === JSON.stringify(calculsModules[cle]);
 };
 function rendreValidationsModules() {
   Object.entries(MODULES_VALIDABLES).forEach(([cle, libelle]) => {
@@ -1754,6 +1781,19 @@ function rendreValidationsModules() {
 }
 function validerModuleDevis(cle) {
   if (!(cle in MODULES_VALIDABLES)) return;
+  if (cle === 'corps') {
+    const dimensions = ['cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l'];
+    const saisie = dimensions.concat('cc-nappe-crochet').some(id => $(id).value !== '');
+    if (saisie && dimensions.some(id => !(num($(id).value) > 0))) {
+      alert('Pour calculer la nappe de compression, saisissez une longueur, une largeur et les deux espacements supérieurs à zéro.');
+      return;
+    }
+  }
+  if (cle === 'corps' && calculsModules.corps.nappeCompression?.barres > 0 && !Object.keys(calculsModules.corps.fers || {}).length) {
+    alert('Pour envoyer la nappe de compression au devis, renseignez un diamètre entier entre 2 et 40 mm.');
+    $('cc-nappe-diam').focus();
+    return;
+  }
   validationsModules[cle] = { donnees: copierCalcul(calculsModules[cle]), date: new Date().toISOString() };
   calculer();
   if (cle === 'semelle') { syncSemellesDevis(); syncFersDevis(); rendreDevis(); }
@@ -1960,7 +2000,7 @@ function viderModule(type) {
   const map = { longrine: 'longrines', mur: 'murs', poteau: 'poteaux', amorce: 'amorces', poutre: 'poutres', chenage: 'chenages', maindoeuvre: 'main-d’œuvre', dalle: 'dalles', corps: 'corps', semelle: 'semelles', escalier: 'escalier' };
   const nom = { longrine: 'les longrines', mur: 'les murs', poteau: 'les poteaux', amorce: 'les amorces', poutre: 'les poutres', chenage: 'les chenages', maindoeuvre: 'les lignes de main-d’œuvre', dalle: 'les dalles', corps: 'les panneaux', semelle: 'les semelles', escalier: 'les paliers et volets de l’escalier' }[type];
   if (!window.confirm('Supprimer toutes les lignes : ' + nom + ' ?')) return;
-  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], amorce: () => amorces = [], poutre: () => poutres = [], chenage: () => chenages = [], maindoeuvre: () => mainsOeuvre = [], dalle: () => { dalles = []; if ($('dal-etais-m2')) $('dal-etais-m2').value = ''; }, corps: () => { corps = []; corpsLattes = []; if ($('cc-etais-m2')) $('cc-etais-m2').value = ''; }, semelle: () => semelles = [], escalier: () => { escalierPaliers = []; escalierVolets = []; } })[type]();
+  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], amorce: () => amorces = [], poutre: () => poutres = [], chenage: () => chenages = [], maindoeuvre: () => mainsOeuvre = [], dalle: () => { dalles = []; if ($('dal-etais-m2')) $('dal-etais-m2').value = ''; }, corps: () => { corps = []; corpsLattes = []; if ($('cc-etais-m2')) $('cc-etais-m2').value = ''; ['cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet'].forEach(id => $(id).value = ''); $('cc-nappe-nuance').value = 'HA'; $('cc-nappe-diam').value = '8'; }, semelle: () => semelles = [], escalier: () => { escalierPaliers = []; escalierVolets = []; } })[type]();
   rendre(); toast('Lignes supprimées (' + map[type] + ')', 'ok');
 }
 function viderCrepissage(type) {
@@ -2706,6 +2746,16 @@ function rendre() {
 /* ============================================================
    CALCULS (formules inchangées)
    ============================================================ */
+// Dimensions en mètres ; espacements et crochet en centimètres.
+function calculNappeCompression(longueur, largeur, espLongueurCm, espLargeurCm, crochetCm) {
+  const L = Math.max(0, num(longueur)), l = Math.max(0, num(largeur));
+  const eL = Math.max(0, num(espLongueurCm)) / 100, el = Math.max(0, num(espLargeurCm)) / 100;
+  const crochet = Math.max(0, num(crochetCm)) / 100;
+  if (!(L > 0 && l > 0 && eL > 0 && el > 0)) return { metres: 0, exact: 0, barres: 0 };
+  const metres = (L / eL) * (l + crochet) + (l / el) * (L + crochet);
+  const exact = metres / 12;
+  return { metres, exact, barres: Math.ceil(exact - 1e-9) };
+}
 function calculer() {
   // --- Parpaing ---
   const j = num($('pp-j').value) / 100;
@@ -3288,6 +3338,14 @@ function calculer() {
     if (cPex) cPex.innerText = fmt(pEx);
     if (cPnb) cPnb.innerText = fmt(pNb);
   });
+  const nappeCompression = calculNappeCompression($('cc-nappe-L').value, $('cc-nappe-l').value, $('cc-nappe-esp-L').value, $('cc-nappe-esp-l').value, $('cc-nappe-crochet').value);
+  const diamCompression = num($('cc-nappe-diam').value);
+  const profilCompression = `${$('cc-nappe-nuance').value}:${diamCompression}`;
+  const fersCompression = nappeCompression.barres > 0 && Number.isInteger(diamCompression) && diamCompression >= 2 && diamCompression <= 40 ? { [profilCompression]: nappeCompression.barres } : {};
+  $('cc-nappe-ml').innerText = fmt(nappeCompression.metres);
+  $('cc-nappe-exact').innerText = fmt(nappeCompression.exact);
+  $('cc-nappe-barres').innerText = fmt(nappeCompression.barres);
+  $('cc-nappe-barres-h').innerText = fmt(nappeCompression.barres);
   const tCCLatteExact = tCCLatteML / 4.9;
   const tCCLatteCommande = tCCLatteML > 0 ? Math.ceil(tCCLatteExact - 1e-9) : 0;
   const ccEtaisM2 = Math.max(0, num($('cc-etais-m2') ? $('cc-etais-m2').value : ''));
@@ -3664,7 +3722,7 @@ function calculer() {
     poutre: { volume: tV, cadreMetres: tPouCadreML, epingleMetres: tPouEpingleML, fers: fersPoutresCommande, chapeaux: chapeauxCommande, cadres: cadresPoutresCommande, epingles: epinglesPoutresCommande },
     chenage: { volume: tChV, cadreMetres: tChCadreML, epingleMetres: tChEpingleML, fers: fersChenagesCommande, chapeaux: chapeauxChenagesCommande, cadres: cadresChenagesCommande, epingles: epinglesChenagesCommande },
     dalle: { surface: tDS, volume: tDV, fers: fersDallesCommande, cavalierMetres: tDalCavML, cavaliers: cavaliersDallesCommande, latteMetres: tDalLatteML, lattes: tDalLatteCommande, plancheExact: tDalPlancheExact, planches: tDalPlancheCommande, etaisParM2: dalEtaisM2, etaisExact: tDalEtaisExact, etais: tDalEtaisCommande },
-    corps: { surface: tCS, hourdis: tCH, nervures: tCG, latteMetres: tCCLatteML, lattes: tCCLatteCommande, etaisParM2: ccEtaisM2, etaisExact: tCCEtaisExact, etais: tCCEtaisCommande },
+    corps: { nappeCompression, fers: fersCompression, surface: tCS, hourdis: tCH, nervures: tCG, latteMetres: tCCLatteML, lattes: tCCLatteCommande, etaisParM2: ccEtaisM2, etaisExact: tCCEtaisExact, etais: tCCEtaisCommande },
     semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande },
     escalier: { volumePalier: tEscPalVol, volumeMarches: tEscMarVol, volumePaillasse: tEscPaiVol, volume: tEscVol, ferMetres: tEscFerML, barres: tEscFerCommande, fers: fersEscalierCommande },
     maindoeuvre: { lignes: mainsOeuvre.map(o => ({ designation: o.designation, unite: o.unite, qte: o.qte, pu: o.pu })), total: totalMo }
@@ -3685,6 +3743,7 @@ function calculer() {
   G.nervures = corpsValide?.nervures || 0;
   G.lattesCorps = corpsValide?.lattes || 0;
   G.etaisCorps = corpsValide?.etais || 0;
+  G.ferCompressionCorps = copierCalcul(corpsValide?.fers);
   G.ferLongrines = copierCalcul(longrineValidee?.fers);
   G.ferCadresLongrines = copierCalcul(longrineValidee?.cadres);
   G.ferEpinglesLongrines = copierCalcul(longrineValidee?.epingles);
@@ -3716,7 +3775,7 @@ function calculer() {
 /* ============================================================
    DEVIS QUANTITATIF
    ============================================================ */
-let G = { beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferLongrines: {}, ferCadresLongrines: {}, ferEpinglesLongrines: {}, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferAmorces: {}, ferCadresAmorces: {}, ferEpinglesAmorces: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferChenages: {}, ferChapeauxChenages: {}, ferCadresChenages: {}, ferEpinglesChenages: {}, ferDalles: {}, ferCavaliersDalles: {}, lattesDalles: 0, planchesDalles: 0, etaisDalles: 0, lattesCorps: 0, etaisCorps: 0, ferSemelles: {}, ferEscalier: {} };
+let G = { beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferLongrines: {}, ferCadresLongrines: {}, ferEpinglesLongrines: {}, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferAmorces: {}, ferCadresAmorces: {}, ferEpinglesAmorces: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferChenages: {}, ferChapeauxChenages: {}, ferCadresChenages: {}, ferEpinglesChenages: {}, ferDalles: {}, ferCavaliersDalles: {}, lattesDalles: 0, planchesDalles: 0, etaisDalles: 0, lattesCorps: 0, etaisCorps: 0, ferCompressionCorps: {}, ferSemelles: {}, ferEscalier: {} };
 let dvId = 1000;
 function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', total: null, auto }; }
 let devis = [
@@ -3890,9 +3949,10 @@ const estLigneLattesDalle = l => l.auto === 'dalle-lattes';
 const estLigneLattesCorps = l => l.auto === 'corps-lattes';
 const estLigneEtaisDalle = l => l.auto === 'dalle-etais';
 const estLigneEtaisCorps = l => l.auto === 'corps-etais';
+const estLigneFerCompressionCorps = l => typeof l.auto === 'string' && l.auto.startsWith('corpscompression:');
 const estLigneFerSemelle = l => typeof l.auto === 'string' && l.auto.startsWith('semellefer:');
 const estLigneFerEscalier = l => typeof l.auto === 'string' && l.auto.startsWith('escalierfer:');
-const estLigneAcier = l => estLigneFer(l) || estLigneFerLongrine(l) || estLigneCadreLongrine(l) || estLigneEpingleLongrine(l) || estLigneCadrePoteau(l) || estLigneEpinglePoteau(l) || estLigneCadreAmorce(l) || estLigneEpingleAmorce(l) || estLigneCadrePoutre(l) || estLigneEpinglePoutre(l) || estLigneChapeau(l) || estLigneCadreChenage(l) || estLigneEpingleChenage(l) || estLigneChapeauChenage(l) || estLigneFerDalle(l) || estLigneCavalierDalle(l) || estLigneFerSemelle(l) || estLigneFerEscalier(l);
+const estLigneAcier = l => estLigneFer(l) || estLigneFerLongrine(l) || estLigneCadreLongrine(l) || estLigneEpingleLongrine(l) || estLigneCadrePoteau(l) || estLigneEpinglePoteau(l) || estLigneCadreAmorce(l) || estLigneEpingleAmorce(l) || estLigneCadrePoutre(l) || estLigneEpinglePoutre(l) || estLigneChapeau(l) || estLigneCadreChenage(l) || estLigneEpingleChenage(l) || estLigneChapeauChenage(l) || estLigneFerDalle(l) || estLigneCavalierDalle(l) || estLigneFerSemelle(l) || estLigneFerEscalier(l) || estLigneFerCompressionCorps(l);
 const ligneDevisMasquee = (l, aciers = aciersDevisActifs()) => (estLigneAcier(l) && !(l.auto in aciers)) || (estLigneLattesDalle(l) && !(G.lattesDalles > 0)) || (estLigneLattesCorps(l) && !(G.lattesCorps > 0)) || (estLigneEtaisDalle(l) && !(G.etaisDalles > 0)) || (estLigneEtaisCorps(l) && !(G.etaisCorps > 0));
 const libelleFer = cle => {
   const [nuance, diametre] = cle.split(':');
@@ -3972,6 +4032,9 @@ function aciersDevisActifs() {
   });
   Object.entries(G.ferCavaliersDalles || {}).forEach(([cle, qte]) => {
     if (num(qte) > 0) lignes[`cavdalle:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
+  });
+  Object.entries(G.ferCompressionCorps || {}).forEach(([cle, qte]) => {
+    if (num(qte) > 0) lignes[`corpscompression:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferSemelles || {}).forEach(([cle, qte]) => {
     if (num(qte) > 0) lignes[`semellefer:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
@@ -4447,7 +4510,7 @@ const CLE_RECENTS = 'gros-oeuvre-projets-recents-v1';
 const MAX_RECENTS = 10;
 const nouvelIdProjet = () => (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2));
 let projetId = nouvelIdProjet();
-const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dal-etais-m2', 'cc-etais-m2', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
+const CHAMPS = ['pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dal-etais-m2', 'cc-etais-m2', 'cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet', 'cc-nappe-nuance', 'cc-nappe-diam', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
   'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
   'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-dalle', 'sel-corps', 'sel-semelle', 'sel-escalier'];
 let saveTimer = null;
