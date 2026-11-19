@@ -1706,6 +1706,35 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
               </div>
             </div>
             <div id="tb-corps" class="escalier-fers-liste"></div>
+            <div class="subcard semelle-nappe" id="cc-nervure" style="margin-top:16px">
+              <div class="subcard-title"><i class="fa-solid fa-grip-lines"></i> Nervures : béton et armatures</div>
+              <p class="semelle-formule">Le linéaire provient des panneaux ci-dessus. Les sous-parties sont facultatives ; complétez tous les champs de chaque partie commencée. Les dimensions des cadres sont des longueurs développées incluant les crochets.</p>
+              <div class="semelle-lit"><div class="subcard-title">Béton des nervures</div><div class="semelle-lit-grid">
+                <div class="field"><label>Linéaire total des nervures</label><div class="inp semelle-resultat"><b class="res" id="cc-nv-lineaire">0</b> m</div></div>
+                <div class="field"><label for="cc-nv-largeur">Largeur de la nervure (cm)</label><input class="inp" type="number" min="0" step="any" id="cc-nv-largeur" oninput="calculer()"></div>
+                <div class="field"><label for="cc-nv-epaisseur">Épaisseur de la nervure (cm)</label><input class="inp" type="number" min="0" step="any" id="cc-nv-epaisseur" oninput="calculer()"></div>
+                <div class="field"><label>Volume du béton des nervures</label><div class="inp semelle-resultat"><b class="res" id="cc-nv-volume">0</b> m³</div></div>
+              </div><p class="semelle-formule">Volume = linéaire total × largeur × épaisseur (cm convertis en m). Saisir uniquement la hauteur de nervure sous la dalle de compression pour ne pas compter deux fois son béton.</p></div>
+              <div class="semelle-lit" style="margin-top:12px"><div class="subcard-title">Fers longitudinaux</div><div class="semelle-lit-grid">
+                <div class="field"><label for="cc-nv-fer-nb">Nombre de fers par nervure</label><input class="inp" type="number" min="1" step="1" id="cc-nv-fer-nb" oninput="calculer()"></div>
+                <div class="field"><label for="cc-nv-fer-nuance">Nuance</label><select class="inp" id="cc-nv-fer-nuance" onchange="calculer()"><option>HA</option><option>RL</option></select></div>
+                <div class="field"><label for="cc-nv-fer-diam">Diamètre (mm)</label><input class="inp" type="number" min="2" max="40" step="1" id="cc-nv-fer-diam" value="12" oninput="calculer()"></div>
+                <div class="field"><label>Linéaire de fer</label><div class="inp semelle-resultat"><b class="res" id="cc-nv-fer-ml">0</b> m</div></div>
+                <div class="field"><label>Barres exactes de 12 m</label><div class="inp semelle-resultat"><b class="res" id="cc-nv-fer-exact">0</b></div></div>
+                <div class="field"><label>Barres arrondies</label><div class="inp semelle-resultat"><b class="res" id="cc-nv-fer-barres">0</b></div></div>
+              </div><p class="semelle-formule">Linéaire de fer = linéaire total des nervures × nombre de fers par nervure. Estimation sans recouvrements, ancrages ni pertes.</p></div>
+              <div class="semelle-lit" style="margin-top:12px"><div class="subcard-title">Cadres</div><div class="semelle-lit-grid">
+                <div class="field"><label for="cc-nv-cadre-esp">Espacement des cadres (cm)</label><input class="inp" type="number" min="0" step="any" id="cc-nv-cadre-esp" oninput="calculer()"></div>
+                <div class="field"><label for="cc-nv-cadre-long">Longueur développée d’un cadre, crochets compris (cm)</label><input class="inp" type="number" min="0" step="any" id="cc-nv-cadre-long" oninput="calculer()"></div>
+                <div class="field"><label for="cc-nv-cadre-nuance">Nuance</label><select class="inp" id="cc-nv-cadre-nuance" onchange="calculer()"><option>RL</option><option>HA</option></select></div>
+                <div class="field"><label for="cc-nv-cadre-diam">Diamètre (mm)</label><input class="inp" type="number" min="2" max="40" step="1" id="cc-nv-cadre-diam" value="6" oninput="calculer()"></div>
+                <div class="field"><label>Nombre total de cadres</label><div class="inp semelle-resultat"><b class="res" id="cc-nv-cadre-nb">0</b></div></div>
+                <div class="field"><label>Linéaire de fer des cadres</label><div class="inp semelle-resultat"><b class="res" id="cc-nv-cadre-ml">0</b> m</div></div>
+                <div class="field"><label>Barres exactes de 12 m</label><div class="inp semelle-resultat"><b class="res" id="cc-nv-cadre-exact">0</b></div></div>
+                <div class="field"><label>Barres arrondies</label><div class="inp semelle-resultat"><b class="res" id="cc-nv-cadre-barres">0</b></div></div>
+              </div><p class="semelle-formule">Par nervure : ⌈longueur de la nervure ÷ espacement⌉ + 1 cadres. Les quantités sont calculées panneau par panneau. L’estimation en barres ne remplace pas un plan de coupe.</p></div>
+              <p class="semelle-formule" id="cc-nv-message" role="status"></p><p class="semelle-formule">Les aciers de même nuance et diamètre des nervures sont regroupés avant arrondi pour le devis. Vérifier sections, ancrages et assemblages avec un professionnel.</p>
+            </div>
             <div id="corps-lattes" style="margin-top:16px"></div>
             <div class="subcard semelle-nappe" style="margin-top:16px" id="cc-nappe-compression">
               <div class="semelle-nappe-head">
@@ -2059,10 +2088,14 @@ const calculModuleValideAJour = cle => {
   // Les anciens instantanés n'incluent pas nécessairement les calculs de compression.
   if (cle === 'corps') {
     const ancien = validation.donnees;
+    const { volumeCompression, calculNervure, volumeNervures, fersNervures, ...reste } = ancien;
     const normalise = {
       ...(!('nappeCompression' in ancien) ? { nappeCompression: { metres: 0, exact: 0, barres: 0 }, fers: {} } : {}),
-      ...ancien,
-      ...(!('volumeCompression' in ancien) ? { volumeCompression: 0 } : {})
+      ...reste,
+      volumeCompression: volumeCompression ?? 0,
+      calculNervure: calculNervure ?? null,
+      volumeNervures: volumeNervures ?? 0,
+      fersNervures: fersNervures ?? {}
     };
     return JSON.stringify(normalise) === JSON.stringify(calculsModules[cle]);
   }
@@ -2101,6 +2134,10 @@ function validerModuleDevis(cle) {
       alert('Complétez les données de base et tous les champs des sous-modules commencés avant de valider. Renseignez au moins un sous-module de matériaux.');
       return;
     }
+  }
+  if (cle === 'corps' && calculsModules.corps.calculNervure?.erreurs.length) {
+    alert('Nervures : ' + calculsModules.corps.calculNervure.erreurs.join(' '));
+    return;
   }
   if (cle === 'corps') {
     const dimensions = ['cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l'];
@@ -2391,7 +2428,7 @@ function viderModule(type) {
   const map = { longrine: 'longrines', mur: 'murs', poteau: 'poteaux', amorce: 'amorces', poutre: 'poutres', chenage: 'chenages', maindoeuvre: 'main-d’œuvre', dalle: 'dalles', corps: 'corps', semelle: 'semelles', escalier: 'escalier' };
   const nom = { longrine: 'les longrines', mur: 'les murs', poteau: 'les poteaux', amorce: 'les amorces', poutre: 'les poutres', chenage: 'les chenages', maindoeuvre: 'les lignes de main-d’œuvre', dalle: 'les dalles', corps: 'les panneaux', semelle: 'les semelles', escalier: 'les paliers et volets de l’escalier' }[type];
   if (!window.confirm('Supprimer toutes les lignes : ' + nom + ' ?')) return;
-  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], amorce: () => amorces = [], poutre: () => poutres = [], chenage: () => chenages = [], maindoeuvre: () => mainsOeuvre = [], dalle: () => { dalles = []; panneauxDalleOuverts.clear(); if ($('dal-etais-m2')) $('dal-etais-m2').value = ''; }, corps: () => { corps = []; corpsLattes = []; if ($('cc-etais-m2')) $('cc-etais-m2').value = ''; ['cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet', 'cc-nappe-epaisseur'].forEach(id => $(id).value = ''); $('cc-nappe-nuance').value = 'HA'; $('cc-nappe-diam').value = '8'; }, semelle: () => semelles = [], escalier: () => { escalierPaliers = []; escalierVolets = []; } })[type]();
+  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], amorce: () => amorces = [], poutre: () => poutres = [], chenage: () => chenages = [], maindoeuvre: () => mainsOeuvre = [], dalle: () => { dalles = []; panneauxDalleOuverts.clear(); if ($('dal-etais-m2')) $('dal-etais-m2').value = ''; }, corps: () => { corps = []; corpsLattes = []; if ($('cc-etais-m2')) $('cc-etais-m2').value = ''; ['cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet', 'cc-nappe-epaisseur', 'cc-nv-largeur', 'cc-nv-epaisseur', 'cc-nv-fer-nb', 'cc-nv-cadre-esp', 'cc-nv-cadre-long'].forEach(id => $(id).value = ''); $('cc-nv-fer-nuance').value = 'HA'; $('cc-nv-fer-diam').value = '12'; $('cc-nv-cadre-nuance').value = 'RL'; $('cc-nv-cadre-diam').value = '6'; $('cc-nappe-nuance').value = 'HA'; $('cc-nappe-diam').value = '8'; }, semelle: () => semelles = [], escalier: () => { escalierPaliers = []; escalierVolets = []; } })[type]();
   rendre(); toast('Lignes supprimées (' + map[type] + ')', 'ok');
 }
 function viderCrepissage(type) {
@@ -3487,6 +3524,56 @@ function viderToiture() {
   calculer();
   toast('Saisies de toiture effacées', 'ok');
 }
+// Les nervures suivent les largeurs de panneau et les appuis déjà utilisés par le module.
+function calculNervures(panneaux, entraxe, donnees) {
+  const clefs = ['largeur','epaisseur','fer-nb','cadre-esp','cadre-long'];
+  if (!clefs.some(k => String(donnees[k] ?? '').trim() !== '')) return null;
+  const lire = v => { const t = String(v ?? '').trim().replace(',', '.'); return t === '' ? null : Number(t); };
+  const n = Object.fromEntries([...clefs,'fer-diam','cadre-diam'].map(k => [k,lire(donnees[k])]));
+  n['fer-nuance'] = donnees['fer-nuance']; n['cadre-nuance'] = donnees['cadre-nuance'];
+  const r = { entrees: n, erreurs: [], volume: 0, ferMetres: 0, cadreNombre: 0, cadreMetres: 0, fers: {} };
+  const positif = x => Number.isFinite(x) && x > 0;
+  const profilValide = prefix => ['HA','RL'].includes(n[prefix+'-nuance']) && Number.isInteger(n[prefix+'-diam']) && n[prefix+'-diam'] >= 2 && n[prefix+'-diam'] <= 40;
+  let lineaire = 0, segments = [];
+  if (!positif(entraxe) || !panneaux.length) r.erreurs.push('Renseignez au moins un panneau et un entraxe de nervures positif.');
+  else {
+    for (const p of panneaux) {
+      const L = lire(p.L), l = lire(p.l), pb = lire(p.pb), nombre = lire(p.n);
+      if (!positif(L) || !positif(l) || !Number.isFinite(pb) || pb < 0 || !Number.isSafeInteger(nombre) || nombre < 1) {
+        r.erreurs.push('Chaque panneau doit avoir des dimensions positives, une largeur de poutre positive ou nulle et un nombre entier positif.'); break;
+      }
+      const nb = Math.ceil(L / entraxe - 1e-9) * nombre, longueur = l + pb;
+      if (!Number.isSafeInteger(nb) || !Number.isFinite(longueur) || !Number.isFinite(nb*longueur) || nb*longueur > Number.MAX_SAFE_INTEGER) {
+        r.erreurs.push('Les dimensions des panneaux produisent une quantité trop grande.'); break;
+      }
+      segments.push({ nb, longueur }); lineaire += nb * longueur;
+    }
+    if (!Number.isFinite(lineaire) || lineaire > Number.MAX_SAFE_INTEGER) r.erreurs.push('Linéaire de nervures trop grand.');
+  }
+  const dimensionsCommencees = n.largeur !== null || n.epaisseur !== null;
+  if (dimensionsCommencees && !(positif(n.largeur) && positif(n.epaisseur))) r.erreurs.push('Saisissez la largeur et l’épaisseur de nervure positives.');
+  const ferCommence = n['fer-nb'] !== null;
+  if (ferCommence && (!Number.isSafeInteger(n['fer-nb']) || n['fer-nb'] < 1 || !profilValide('fer'))) r.erreurs.push('Saisissez un nombre entier de fers positif et une nuance et un diamètre valides.');
+  const cadresCommences = n['cadre-esp'] !== null || n['cadre-long'] !== null;
+  if (cadresCommences && (!positif(n['cadre-esp']) || !positif(n['cadre-long']) || !profilValide('cadre'))) r.erreurs.push('Saisissez un espacement et une longueur de cadre positifs, une nuance et un diamètre valides.');
+  if (r.erreurs.length) return r;
+  if (dimensionsCommencees) r.volume = lineaire * n.largeur / 100 * n.epaisseur / 100;
+  const metresParProfil = {};
+  if (ferCommence) {
+    r.ferMetres = lineaire * n['fer-nb'];
+    const cle = n['fer-nuance'] + ':' + n['fer-diam']; metresParProfil[cle] = r.ferMetres;
+  }
+  if (cadresCommences) {
+    r.cadreNombre = segments.reduce((total, p) => total + (Math.ceil(p.longueur / (n['cadre-esp']/100) - 1e-9) + 1)*p.nb, 0);
+    r.cadreMetres = r.cadreNombre * n['cadre-long'] / 100;
+    const cle = n['cadre-nuance'] + ':' + n['cadre-diam']; metresParProfil[cle] = (metresParProfil[cle] || 0) + r.cadreMetres;
+  }
+  if (![r.volume,r.ferMetres,r.cadreNombre,r.cadreMetres,...Object.values(metresParProfil)].every(x => Number.isFinite(x) && x >= 0 && x <= Number.MAX_SAFE_INTEGER)) {
+    r.erreurs.push('Quantité trop grande : vérifiez les valeurs.'); r.volume = r.ferMetres = r.cadreNombre = r.cadreMetres = 0; return r;
+  }
+  Object.entries(metresParProfil).forEach(([cle,metres]) => { if (metres > 0) r.fers[cle] = Math.ceil(metres / 12 - 1e-9); });
+  return r;
+}
 function calculer() {
   // --- Parpaing ---
   const j = num($('pp-j').value) / 100;
@@ -4096,6 +4183,12 @@ function calculer() {
     if (cPex) cPex.innerText = fmt(pEx);
     if (cPnb) cPnb.innerText = fmt(pNb);
   });
+  const donneesNervure = Object.fromEntries(CHAMPS_NERVURE.map(id => [id.slice(6), $(id).value]));
+  const calculNervure = calculNervures(corps, entraxe, donneesNervure);
+  const volumeNervures = calculNervure?.volume || 0, fersNervures = calculNervure?.fers || {};
+  const nvValeurs = { lineaire: tCG, volume: volumeNervures, 'fer-ml': calculNervure?.ferMetres || 0, 'fer-exact': (calculNervure?.ferMetres || 0)/12, 'fer-barres': Math.ceil((calculNervure?.ferMetres || 0)/12 - 1e-9), 'cadre-nb': calculNervure?.cadreNombre || 0, 'cadre-ml': calculNervure?.cadreMetres || 0, 'cadre-exact': (calculNervure?.cadreMetres || 0)/12, 'cadre-barres': Math.ceil((calculNervure?.cadreMetres || 0)/12 - 1e-9) };
+  Object.entries(nvValeurs).forEach(([k,v]) => { $('cc-nv-' + k).innerText = fmt(Math.max(0,v)); });
+  $('cc-nv-message').textContent = calculNervure?.erreurs.join(' ') || '';
   const volumeCompression = calculVolumeCompression(tCS, $('cc-nappe-epaisseur').value);
   $('cc-nappe-surface').innerText = fmt(tCS);
   $('cc-nappe-volume').innerText = fmt(volumeCompression);
@@ -4484,7 +4577,7 @@ function calculer() {
     poutre: { volume: tV, cadreMetres: tPouCadreML, epingleMetres: tPouEpingleML, fers: fersPoutresCommande, chapeaux: chapeauxCommande, cadres: cadresPoutresCommande, epingles: epinglesPoutresCommande },
     chenage: { volume: tChV, cadreMetres: tChCadreML, epingleMetres: tChEpingleML, fers: fersChenagesCommande, chapeaux: chapeauxChenagesCommande, cadres: cadresChenagesCommande, epingles: epinglesChenagesCommande },
     dalle: { surface: tDS, volume: tDV, fers: fersDallesCommande, cavalierMetres: tDalCavML, cavaliers: cavaliersDallesCommande, latteMetres: tDalLatteML, lattes: tDalLatteCommande, plancheExact: tDalPlancheExact, planches: tDalPlancheCommande, etaisParM2: dalEtaisM2, etaisExact: tDalEtaisExact, etais: tDalEtaisCommande, chapeauMetres: tDalChapML, chapeaux: chapeauxDallesCommande },
-    corps: { nappeCompression, fers: fersCompression, surface: tCS, hourdis: tCH, nervures: tCG, latteMetres: tCCLatteML, lattes: tCCLatteCommande, etaisParM2: ccEtaisM2, etaisExact: tCCEtaisExact, etais: tCCEtaisCommande, volumeCompression },
+    corps: { nappeCompression, fers: fersCompression, surface: tCS, hourdis: tCH, nervures: tCG, latteMetres: tCCLatteML, lattes: tCCLatteCommande, etaisParM2: ccEtaisM2, etaisExact: tCCEtaisExact, etais: tCCEtaisCommande, volumeCompression, calculNervure, volumeNervures, fersNervures },
     semelle: { volume: tSemVol, nappe1: tSemFer1, nappe2: tSemFer2, barres: tSemFerCommande, fers: fersSemellesCommande },
     escalier: { volumePalier: tEscPalVol, volumeMarches: tEscMarVol, volumePaillasse: tEscPaiVol, volume: tEscVol, ferMetres: tEscFerML, barres: tEscFerCommande, fers: fersEscalierCommande },
     toiture: calculToitureActuel(),
@@ -4498,7 +4591,7 @@ function calculer() {
   const toitureValidee = valideActif('toiture');
 
   // --- Alimentation du devis à partir des derniers instantanés validés ---
-  G.betonHorsSemelles = (longrineValidee?.volume || 0) + (poteauValide?.volume || 0) + (amorceValide?.volume || 0) + (poutreValide?.volume || 0) + (chenageValide?.volume || 0) + (dalleValidee?.volume || 0) + (corpsValide?.volumeCompression || 0) + (escalierValide?.volume || 0) + num($('dos-autre').value);
+  G.betonHorsSemelles = (longrineValidee?.volume || 0) + (poteauValide?.volume || 0) + (amorceValide?.volume || 0) + (poutreValide?.volume || 0) + (chenageValide?.volume || 0) + (dalleValidee?.volume || 0) + (corpsValide?.volumeCompression || 0) + (corpsValide?.volumeNervures || 0) + (escalierValide?.volume || 0) + num($('dos-autre').value);
   G.beton = G.betonHorsSemelles + (semelleValidee?.volume || 0);
   G.parpaings = murValide?.parpaings || 0;
   G.cimentMur = murValide?.ciment || 0;
@@ -4509,6 +4602,7 @@ function calculer() {
   G.lattesCorps = corpsValide?.lattes || 0;
   G.etaisCorps = corpsValide?.etais || 0;
   G.ferCompressionCorps = copierCalcul(corpsValide?.fers);
+  G.ferNervuresCorps = copierCalcul(corpsValide?.fersNervures);
   G.ferLongrines = copierCalcul(longrineValidee?.fers);
   G.ferCadresLongrines = copierCalcul(longrineValidee?.cadres);
   G.ferEpinglesLongrines = copierCalcul(longrineValidee?.epingles);
@@ -4541,7 +4635,7 @@ function calculer() {
 /* ============================================================
    DEVIS QUANTITATIF
    ============================================================ */
-let G = { toiture: {}, beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferLongrines: {}, ferCadresLongrines: {}, ferEpinglesLongrines: {}, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferAmorces: {}, ferCadresAmorces: {}, ferEpinglesAmorces: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferChenages: {}, ferChapeauxChenages: {}, ferCadresChenages: {}, ferEpinglesChenages: {}, ferDalles: {}, ferCavaliersDalles: {}, ferChapeauxDalles: {}, lattesDalles: 0, planchesDalles: 0, etaisDalles: 0, lattesCorps: 0, etaisCorps: 0, ferCompressionCorps: {}, ferSemelles: {}, ferEscalier: {} };
+let G = { toiture: {}, beton: 0, betonHorsSemelles: 0, parpaings: 0, hourdis: 0, nervures: 0, cimentMur: 0, sableMur: 0, ferLongrines: {}, ferCadresLongrines: {}, ferEpinglesLongrines: {}, ferPoteaux: {}, ferCadresPoteaux: {}, ferEpinglesPoteaux: {}, ferAmorces: {}, ferCadresAmorces: {}, ferEpinglesAmorces: {}, ferPoutres: {}, ferChapeaux: {}, ferCadresPoutres: {}, ferEpinglesPoutres: {}, ferChenages: {}, ferChapeauxChenages: {}, ferCadresChenages: {}, ferEpinglesChenages: {}, ferDalles: {}, ferCavaliersDalles: {}, ferChapeauxDalles: {}, lattesDalles: 0, planchesDalles: 0, etaisDalles: 0, lattesCorps: 0, etaisCorps: 0, ferCompressionCorps: {}, ferNervuresCorps: {}, ferSemelles: {}, ferEscalier: {} };
 let dvId = 1000;
 function ligne(des, unite, auto = null) { return { id: dvId++, des, unite, qte: auto ? null : '', pu: '0', total: null, auto }; }
 let devis = [
@@ -4717,9 +4811,10 @@ const estLigneLattesCorps = l => l.auto === 'corps-lattes';
 const estLigneEtaisDalle = l => l.auto === 'dalle-etais';
 const estLigneEtaisCorps = l => l.auto === 'corps-etais';
 const estLigneFerCompressionCorps = l => typeof l.auto === 'string' && l.auto.startsWith('corpscompression:');
+const estLigneFerNervureCorps = l => typeof l.auto === 'string' && l.auto.startsWith('corpsnervure:');
 const estLigneFerSemelle = l => typeof l.auto === 'string' && l.auto.startsWith('semellefer:');
 const estLigneFerEscalier = l => typeof l.auto === 'string' && l.auto.startsWith('escalierfer:');
-const estLigneAcier = l => estLigneFer(l) || estLigneFerLongrine(l) || estLigneCadreLongrine(l) || estLigneEpingleLongrine(l) || estLigneCadrePoteau(l) || estLigneEpinglePoteau(l) || estLigneCadreAmorce(l) || estLigneEpingleAmorce(l) || estLigneCadrePoutre(l) || estLigneEpinglePoutre(l) || estLigneChapeau(l) || estLigneCadreChenage(l) || estLigneEpingleChenage(l) || estLigneChapeauChenage(l) || estLigneFerDalle(l) || estLigneCavalierDalle(l) || estLigneChapeauDalle(l) || estLigneFerSemelle(l) || estLigneFerEscalier(l) || estLigneFerCompressionCorps(l);
+const estLigneAcier = l => estLigneFer(l) || estLigneFerLongrine(l) || estLigneCadreLongrine(l) || estLigneEpingleLongrine(l) || estLigneCadrePoteau(l) || estLigneEpinglePoteau(l) || estLigneCadreAmorce(l) || estLigneEpingleAmorce(l) || estLigneCadrePoutre(l) || estLigneEpinglePoutre(l) || estLigneChapeau(l) || estLigneCadreChenage(l) || estLigneEpingleChenage(l) || estLigneChapeauChenage(l) || estLigneFerDalle(l) || estLigneCavalierDalle(l) || estLigneChapeauDalle(l) || estLigneFerSemelle(l) || estLigneFerEscalier(l) || estLigneFerCompressionCorps(l) || estLigneFerNervureCorps(l);
 const ligneToitureMasquee = l => typeof l.auto === 'string' && l.auto.startsWith('toiture:') && !(G.toiture?.[l.auto.slice(8)] > 0);
 const ligneDevisMasquee = (l, aciers = aciersDevisActifs()) => (estLigneAcier(l) && !(l.auto in aciers)) || ligneToitureMasquee(l) || (estLigneLattesDalle(l) && !(G.lattesDalles > 0)) || (estLigneLattesCorps(l) && !(G.lattesCorps > 0)) || (estLigneEtaisDalle(l) && !(G.etaisDalles > 0)) || (estLigneEtaisCorps(l) && !(G.etaisCorps > 0));
 const libelleFer = cle => {
@@ -4806,6 +4901,9 @@ function aciersDevisActifs() {
   });
   Object.entries(G.ferCompressionCorps || {}).forEach(([cle, qte]) => {
     if (num(qte) > 0) lignes[`corpscompression:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
+  });
+  Object.entries(G.ferNervuresCorps || {}).forEach(([cle, qte]) => {
+    if (num(qte) > 0) lignes[`corpsnervure:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
   });
   Object.entries(G.ferSemelles || {}).forEach(([cle, qte]) => {
     if (num(qte) > 0) lignes[`semellefer:${cle}`] = { qte, des: libelleFer(cle), unite: 'barre' };
@@ -5295,7 +5393,8 @@ const CLE_RECENTS = 'gros-oeuvre-projets-recents-v1';
 const MAX_RECENTS = 10;
 const nouvelIdProjet = () => (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2));
 let projetId = nouvelIdProjet();
-const CHAMPS = [...CHAMPS_TOITURE, 'sel-toiture', 'toi-methode', 'pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dal-etais-m2', 'cc-etais-m2', 'cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet', 'cc-nappe-nuance', 'cc-nappe-diam', 'cc-nappe-epaisseur', 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
+const CHAMPS_NERVURE = ['cc-nv-largeur','cc-nv-epaisseur','cc-nv-fer-nb','cc-nv-fer-nuance','cc-nv-fer-diam','cc-nv-cadre-esp','cc-nv-cadre-long','cc-nv-cadre-nuance','cc-nv-cadre-diam'];
+const CHAMPS = [...CHAMPS_TOITURE, 'sel-toiture', 'toi-methode', 'pp-l', 'pp-h', 'pp-j', 'pp-m', 'cc-h', 'cc-e', 'dal-etais-m2', 'cc-etais-m2', 'cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet', 'cc-nappe-nuance', 'cc-nappe-diam', 'cc-nappe-epaisseur', ...CHAMPS_NERVURE, 'crep-epaisseur', 'crep-dosage', 'crep-dosage-sable', 'dos-c', 'dos-s', 'dos-g', 'dos-autre',
   'dv-devise', 'dv-tva', 'dv-titre', 'dv-projet', 'dv-ent', 'dv-client', 'dv-ref', 'dv-date',
   'sel-longrine', 'sel-mur', 'sel-poteau', 'sel-amorce', 'sel-poutre', 'sel-chenage', 'sel-maindoeuvre', 'sel-dalle', 'sel-corps', 'sel-semelle', 'sel-escalier'];
 let saveTimer = null;
@@ -5715,6 +5814,8 @@ function charger() {
     syncCrepissageDevis();
     syncSemellesDevis();
     dvId = Math.max(dvId, ...devis.flatMap(s => s.lignes.map(l => l.id + 1)));
+    ['cc-nv-largeur','cc-nv-epaisseur','cc-nv-fer-nb','cc-nv-cadre-esp','cc-nv-cadre-long'].forEach(id => $(id).value = '');
+    $('cc-nv-fer-nuance').value = 'HA'; $('cc-nv-fer-diam').value = '12'; $('cc-nv-cadre-nuance').value = 'RL'; $('cc-nv-cadre-diam').value = '6';
     // Valeurs par défaut pour les projets antérieurs aux versants indépendants.
     $('toi-mode').value = 'symetrique'; $('toi-nb-versants').value = '2'; $('toi-versants').value = '[]';
     $('toi-ferme-nombre').value = ''; $('toi-ferme-metrage').value = ''; ['L','l','d','p1','p2','chev-e','chev-k','panne-j'].forEach(k => $('toi-c-' + k).value = '');
