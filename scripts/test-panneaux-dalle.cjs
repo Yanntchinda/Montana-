@@ -15,4 +15,17 @@ assert.equal(panneaux[1].sousModules.plancheL,'2'); panneaux[0].sousModules.n1l1
 assert.equal(context.normaliserPanneauxDalle({panneaux:[], cavL:'2'}).length,1);
 assert.equal(context.normaliserPanneauxDalle({panneaux:[], panneauxIndependants:true, cavL:'2'}).length,0);
 assert.match(html, /blocNappeDalle\(p\.sousModules, 1\).*blocCavalierDalle\(p\.sousModules\).*blocChapeauDalle\(p\.sousModules\).*blocLattesDalle\(p\.sousModules\).*blocPlancheDalle\(p\.sousModules\)/);
+const pliageSource = html.slice(html.indexOf('const panneauxDalleOuverts ='), html.indexOf('function ajouterDalle()'));
+vm.runInContext(pliageSource, context);
+const panneau = { open: false };
+let annule = false;
+const event = { currentTarget: { parentElement: panneau }, preventDefault() { annule = true; } };
+context.basculerPanneauDalle(event, 1);
+assert.ok(annule && panneau.open);
+assert.equal(vm.runInContext('panneauxDalleOuverts.has(1)', context), true);
+context.basculerPanneauDalle(event, 1);
+assert.equal(panneau.open, false);
+assert.equal(vm.runInContext('panneauxDalleOuverts.has(1)', context), false);
+assert.match(html, /<details class="semelle-lit panneau-dalle"/);
+assert.match(html, /panneauxDalleOuverts\.has\(p\.id\) \? 'open' : ''/);
 console.log('✓ dalle : sous-modules indépendants par panneau et migration des données communes');

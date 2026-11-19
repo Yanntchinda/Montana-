@@ -234,6 +234,14 @@ td .inp{padding:9px 10px;font-size:13px}
 .semelle-nappes{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
 .semelle-nappe{border-top:3px solid var(--brand);background:var(--bg)}
 .semelle-nappe:nth-child(2){border-top-color:#2563eb}
+.semelle-lit.panneau-dalle {padding:0;overflow:hidden}
+.panneau-dalle:not([open]) > .panneau-dalle-corps{display:none}
+.panneau-dalle > summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none;padding:14px 16px;font-weight:700;color:var(--text);background:var(--bg)}
+.panneau-dalle > summary::-webkit-details-marker{display:none}
+.panneau-dalle > summary:focus-visible{outline:3px solid var(--brand);outline-offset:-3px}
+.panneau-dalle > summary .panneau-chevron{transition:transform .2s ease;color:var(--brand)}
+.panneau-dalle[open] > summary .panneau-chevron{transform:rotate(180deg)}
+.panneau-dalle-corps{padding:16px}
 .semelle-nappe.dalle-cavalier{border-top-color:#7c3aed}
 .semelle-nappe.dalle-chapeau{border-top-color:#be185d}
 .semelle-nappe.dalle-lattes{border-top-color:#0f766e}
@@ -1915,6 +1923,14 @@ function nouvelleDalle(id, numero = 1) {
     plancheL: '', plancheW: ''
   };
 }
+// État d'affichage temporaire : les panneaux ne s'ouvrent qu'au clic.
+const panneauxDalleOuverts = new Set();
+function basculerPanneauDalle(event, id) {
+  event.preventDefault();
+  const panneau = event.currentTarget.parentElement;
+  panneau.open = !panneau.open;
+  if (panneau.open) panneauxDalleOuverts.add(id); else panneauxDalleOuverts.delete(id);
+}
 function ajouterDalle()  { dalles.push(nouvelleDalle(uid++, dalles.length + 1)); rendre(); }
 function ajouterPanneauDalle(dalleId) {
   const o = dalles.find(x => x.id === dalleId); if (!o) return;
@@ -1926,12 +1942,14 @@ function ajouterPanneauDalle(dalleId) {
 function supprimerPanneauDalle(dalleId, panneauId) {
   const o = dalles.find(x => x.id === dalleId); if (!o || !Array.isArray(o.panneaux)) return;
   o.panneaux = o.panneaux.filter(p => p.id !== panneauId);
+  panneauxDalleOuverts.delete(panneauId);
   rendre();
 }
 function majPanneauDalle(dalleId, panneauId, champ, val) {
   const o = dalles.find(x => x.id === dalleId); if (!o || !Array.isArray(o.panneaux)) return;
   const p = o.panneaux.find(x => x.id === panneauId); if (!p) return;
   p[champ] = val;
+  if (champ === 'nom') { const titre = $('panneau-dalle-titre-' + panneauId); if (titre) titre.textContent = val || 'Panneau'; }
   calculer();
 }
 function trouverConfigPanneauDalle(id) {
@@ -2034,7 +2052,7 @@ function ajouterCrepMur() { crepMurs.push({ id: uid++, nom: 'Mur crépissage ' +
 function ajouterCrepDalle() { crepDalles.push({ id: uid++, nom: 'Dalle crépissage ' + (crepDalles.length + 1), L: '', l: '', n: '1' }); rendre(); }
 
 function supprimer(type, id) {
-  if (type === 'dalle') dalles = dalles.filter(x => x.id !== id);
+  if (type === 'dalle') { const dalle = dalles.find(x => x.id === id); (dalle?.panneaux || []).forEach(p => panneauxDalleOuverts.delete(p.id)); dalles = dalles.filter(x => x.id !== id); }
   if (type === 'corps') corps = corps.filter(x => x.id !== id);
   if (type === 'semelle') semelles = semelles.filter(x => x.id !== id);
   if (type === 'escPalier') escalierPaliers = escalierPaliers.filter(x => x.id !== id);
@@ -2054,7 +2072,7 @@ function viderModule(type) {
   const map = { longrine: 'longrines', mur: 'murs', poteau: 'poteaux', amorce: 'amorces', poutre: 'poutres', chenage: 'chenages', maindoeuvre: 'main-d’œuvre', dalle: 'dalles', corps: 'corps', semelle: 'semelles', escalier: 'escalier' };
   const nom = { longrine: 'les longrines', mur: 'les murs', poteau: 'les poteaux', amorce: 'les amorces', poutre: 'les poutres', chenage: 'les chenages', maindoeuvre: 'les lignes de main-d’œuvre', dalle: 'les dalles', corps: 'les panneaux', semelle: 'les semelles', escalier: 'les paliers et volets de l’escalier' }[type];
   if (!window.confirm('Supprimer toutes les lignes : ' + nom + ' ?')) return;
-  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], amorce: () => amorces = [], poutre: () => poutres = [], chenage: () => chenages = [], maindoeuvre: () => mainsOeuvre = [], dalle: () => { dalles = []; if ($('dal-etais-m2')) $('dal-etais-m2').value = ''; }, corps: () => { corps = []; corpsLattes = []; if ($('cc-etais-m2')) $('cc-etais-m2').value = ''; ['cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet', 'cc-nappe-epaisseur'].forEach(id => $(id).value = ''); $('cc-nappe-nuance').value = 'HA'; $('cc-nappe-diam').value = '8'; }, semelle: () => semelles = [], escalier: () => { escalierPaliers = []; escalierVolets = []; } })[type]();
+  ({ longrine: () => longrines = [], mur: () => murs = [], poteau: () => poteaux = [], amorce: () => amorces = [], poutre: () => poutres = [], chenage: () => chenages = [], maindoeuvre: () => mainsOeuvre = [], dalle: () => { dalles = []; panneauxDalleOuverts.clear(); if ($('dal-etais-m2')) $('dal-etais-m2').value = ''; }, corps: () => { corps = []; corpsLattes = []; if ($('cc-etais-m2')) $('cc-etais-m2').value = ''; ['cc-nappe-L', 'cc-nappe-l', 'cc-nappe-esp-L', 'cc-nappe-esp-l', 'cc-nappe-crochet', 'cc-nappe-epaisseur'].forEach(id => $(id).value = ''); $('cc-nappe-nuance').value = 'HA'; $('cc-nappe-diam').value = '8'; }, semelle: () => semelles = [], escalier: () => { escalierPaliers = []; escalierVolets = []; } })[type]();
   rendre(); toast('Lignes supprimées (' + map[type] + ')', 'ok');
 }
 function viderCrepissage(type) {
@@ -2672,7 +2690,9 @@ function rendre() {
 
   $('liste-dalles').innerHTML = dalles.length ? dalles.map(o => {
     if (!Array.isArray(o.panneaux)) o.panneaux = normaliserPanneauxDalle(o);
-    const cartesPanneaux = o.panneaux.length ? o.panneaux.map(p => `<div class="semelle-lit">
+    const cartesPanneaux = o.panneaux.length ? o.panneaux.map(p => `<details class="semelle-lit panneau-dalle" ${panneauxDalleOuverts.has(p.id) ? 'open' : ''}>
+        <summary onclick="basculerPanneauDalle(event,${p.id})"><span id="panneau-dalle-titre-${p.id}">${esc(p.nom || 'Panneau')}</span><i class="fa-solid fa-chevron-down panneau-chevron" aria-hidden="true"></i></summary>
+        <div class="panneau-dalle-corps">
         <div class="semelle-entete" style="margin-bottom:10px">
           <div class="field"><label>Désignation</label><input class="inp inp-txt" value="${esc(p.nom)}" oninput="majPanneauDalle(${o.id},${p.id},'nom',this.value)"></div>
           <button class="btn btn-sm btn-danger no-print" onclick="supprimerPanneauDalle(${o.id},${p.id})" title="Supprimer ce panneau"><i class="fa-solid fa-trash-can"></i> Supprimer</button>
@@ -2687,7 +2707,8 @@ function rendre() {
         </div>
         <div class="semelle-nappes" style="margin-top:14px">${blocNappeDalle(p.sousModules, 1)}${blocNappeDalle(p.sousModules, 2)}${blocCavalierDalle(p.sousModules)}${blocChapeauDalle(p.sousModules)}${blocLattesDalle(p.sousModules)}${blocPlancheDalle(p.sousModules)}</div>
         <div class="semelle-nappe-total" style="margin-top:10px">Fer des nappes : <b class="res" id="d-ft-${p.id}">0</b> m · <b class="res" id="d-fb-${p.id}">0</b> barres exactes</div>
-      </div>`).join('')
+        </div>
+      </details>`).join('')
       : '<div class="note"><i class="fa-solid fa-circle-info"></i><div>Aucun panneau — cliquez sur « Ajouter un panneau ».</div></div>';
     return `<div class="subcard semelle-ligne">
       <div class="semelle-entete">
@@ -4874,6 +4895,7 @@ function accederApp() {
 }
 function retourAccueil() {
   if (!sauver(false)) return;
+  panneauxDalleOuverts.clear();
   projetOuvert = false;
   document.body.classList.add('sans-projet');
   document.querySelector('.sidebar').inert = true;

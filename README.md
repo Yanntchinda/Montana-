@@ -133,4 +133,4 @@ Pour chaque panneau, renseignez la nuance HA ou RL, le diamètre, la longueur d�
 
 ### Panneaux indépendants des dalles pleines
 
-Chaque panneau possède ses propres nappes, cavaliers, chapeaux, panneaux de lattes et dimensions de planches. Les résultats sont cumulés au niveau du module et transférés au devis après validation. À l’ouverture d’un ancien projet, les paramètres communs des nappes et des planches sont repris sur chaque panneau ; les anciens cavaliers, chapeaux et panneaux de lattes communs sont rattachés au premier panneau, sans les dupliquer.
+Chaque panneau est replié par défaut et se déplie au clic pour afficher ses propres nappes, cavaliers, chapeaux, panneaux de lattes et dimensions de planches. Les résultats sont cumulés au niveau du module et transférés au devis après validation. À l’ouverture d’un ancien projet, les paramètres communs des nappes et des planches sont repris sur chaque panneau ; les anciens cavaliers, chapeaux et panneaux de lattes communs sont rattachés au premier panneau, sans les dupliquer.
