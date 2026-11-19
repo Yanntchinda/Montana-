@@ -1382,7 +1382,7 @@ body.sans-projet .sidebar,body.sans-projet .barre-outils-projet,body.sans-projet
             </div>
             <div class="note" id="dal-fer-detail" style="margin-top:14px"><i class="fa-solid fa-table-cells-large"></i><div>Aucune armature de dalle calculée.</div></div>
             <div class="note" id="dal-cav-detail" style="margin-top:10px"><i class="fa-solid fa-archway"></i><div>Aucun cavalier calculé.</div></div>
-            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Panneaux de dalle :</b> vous pouvez ajouter autant de panneaux que nécessaire dans une même dalle (Longueur L, Largeur l, Épaisseur, Nb) ; la surface, le volume béton et les armatures cumulent tous les panneaux de la dalle. <b>Pour chaque nappe (Nappe 1 et Nappe 2) :</b> <b>Lit 1 (sens longueur L) :</b> Σ panneaux [(L ÷ espacement) × (largeur + 0,15 m) × nb] ; <b>Lit 2 (sens largeur l) :</b> Σ panneaux [(largeur ÷ espacement) × (L + 0,15 m) × nb]. <b>Cavaliers :</b> (nombre × longueur) ÷ <b>12 m</b>, regroupés par nuance et diamètre. <b>Lattes :</b> plusieurs panneaux possibles, chacun calculé par [ ((longueur ÷ espacement sens L) + 1) × largeur + ((largeur ÷ espacement sens l) + 1) × longueur ] × nb, puis total ÷ <b>4,9</b> (arrondi au supérieur). <b>Planche :</b> surface des panneaux ÷ (longueur d’une planche × largeur d’une planche), arrondi au supérieur et envoyé directement dans la ligne <b>Planche</b> du devis. <b>Étais :</b> surface totale de tous les panneaux × nombre d’étais par m² (arrondi au supérieur). Les résultats validés (armatures, cavaliers, lattes, planches et étais) alimentent automatiquement le devis.</div></div>
+            <div class="note" style="margin-top:10px"><i class="fa-solid fa-circle-info"></i><div><b>Panneaux de dalle :</b> vous pouvez ajouter autant de panneaux que nécessaire dans une même dalle (Longueur L, Largeur l, Épaisseur, Nb) ; la surface, le volume béton et les armatures cumulent tous les panneaux de la dalle. <b>Pour chaque nappe (Nappe 1 et Nappe 2) :</b> <b>Lit 1 (sens longueur L) :</b> Σ panneaux [(L ÷ espacement) × (largeur + crochet) × nb] ; <b>Lit 2 (sens largeur l) :</b> Σ panneaux [(largeur ÷ espacement) × (L + crochet) × nb]. Les espacements et les crochets sont saisis en centimètres, indépendamment pour chaque lit. <b>Cavaliers :</b> (nombre × longueur) ÷ <b>12 m</b>, regroupés par nuance et diamètre. <b>Lattes :</b> plusieurs panneaux possibles, chacun calculé par [ ((longueur ÷ espacement sens L) + 1) × largeur + ((largeur ÷ espacement sens l) + 1) × longueur ] × nb, puis total ÷ <b>4,9</b> (arrondi au supérieur). <b>Planche :</b> surface des panneaux ÷ (longueur d’une planche × largeur d’une planche), arrondi au supérieur et envoyé directement dans la ligne <b>Planche</b> du devis. <b>Étais :</b> surface totale de tous les panneaux × nombre d’étais par m² (arrondi au supérieur). Les résultats validés (armatures, cavaliers, lattes, planches et étais) alimentent automatiquement le devis.</div></div>
             <div id="validation-module-dalle"></div>
           </div>
         </div>
@@ -1873,10 +1873,10 @@ function nouvelleDalle(id, numero = 1) {
   return {
     id, nom: 'Dalle ' + numero,
     panneaux: [nouveauPanneauDalle(1)],
-    n1l1Nuance: 'HA', n1l1Diam: '10', n1l1Esp: '20',
-    n1l2Nuance: 'HA', n1l2Diam: '10', n1l2Esp: '20',
-    n2l1Nuance: 'HA', n2l1Diam: '10', n2l1Esp: '20',
-    n2l2Nuance: 'HA', n2l2Diam: '10', n2l2Esp: '20',
+    n1l1Nuance: 'HA', n1l1Diam: '10', n1l1Esp: '20', n1l1Crochet: '15',
+    n1l2Nuance: 'HA', n1l2Diam: '10', n1l2Esp: '20', n1l2Crochet: '15',
+    n2l1Nuance: 'HA', n2l1Diam: '10', n2l1Esp: '20', n2l1Crochet: '15',
+    n2l2Nuance: 'HA', n2l2Diam: '10', n2l2Esp: '20', n2l2Crochet: '15',
     cavNuance: 'HA', cavDiam: '10', cavL: '', cavNb: '',
     lattePanneaux: [nouveauPanneauLatte(1)],
     plancheL: '', plancheW: ''
@@ -2114,16 +2114,18 @@ const blocLitDalle = (o, nappe, lit) => {
   const nuance = (o[p + 'Nuance'] ?? o['ferNuance' + sensSuffix] ?? o.ferNuance) === 'RL' ? 'RL' : 'HA';
   const diam = o[p + 'Diam'] ?? o['ferDiam' + sensSuffix] ?? o.ferDiam ?? '10';
   const esp = o[p + 'Esp'] ?? o['ferEsp' + sensSuffix] ?? o.ferEsp ?? '20';
+  const crochet = o[p + 'Crochet'] ?? '15';
   const sensLabel = lit === 1 ? 'sens longueur L' : 'sens largeur l';
   const formule = lit === 1
-    ? 'Σ panneaux : (L ÷ espacement) × (largeur + 0,15 m) × nb'
-    : 'Σ panneaux : (largeur ÷ espacement) × (L + 0,15 m) × nb';
+    ? 'Σ panneaux : (L ÷ espacement) × (largeur + crochet) × nb'
+    : 'Σ panneaux : (largeur ÷ espacement) × (L + crochet) × nb';
   return `<div class="subcard semelle-lit">
     <div class="subcard-title"><i class="fa-solid fa-bars"></i> Lit ${lit} — ${sensLabel}</div>
     <div class="semelle-lit-grid">
       <div class="field"><label>Nuance du fer</label><select class="inp" onchange="maj('dalle',${o.id},'${p}Nuance',this.value)"><option value="HA" ${nuance === 'HA' ? 'selected' : ''}>HA</option><option value="RL" ${nuance === 'RL' ? 'selected' : ''}>RL</option></select></div>
       <div class="field"><label>Diamètre (mm)</label><select class="inp" onchange="maj('dalle',${o.id},'${p}Diam',this.value)">${optionsFer(diam)}</select></div>
       <div class="field"><label>Espacement (cm)</label><input class="inp" type="number" min="0" step="0.1" value="${esc(esp)}" oninput="maj('dalle',${o.id},'${p}Esp',this.value)"></div>
+      <div class="field"><label>Longueur des crochets (cm)</label><input class="inp" type="number" min="0" step="0.1" value="${esc(crochet)}" oninput="maj('dalle',${o.id},'${p}Crochet',this.value)"></div>
       <div class="field"><label>Nb fers</label><div class="inp semelle-resultat"><b class="res" id="d-${p}nb-${o.id}">0</b></div></div>
       <div class="field"><label>Fer calculé</label><div class="inp semelle-resultat"><b class="res" id="d-${p}ml-${o.id}">0</b> ml</div></div>
       <div class="field"><label>Barres / 12 m</label><div class="inp semelle-resultat"><b class="res" id="d-${p}bar-${o.id}">0</b></div></div>
@@ -2773,6 +2775,15 @@ function calculNappeCompression(longueur, largeur, espLongueurCm, espLargeurCm, 
 function calculVolumeCompression(surface, epaisseurCm) {
   return Math.max(0, num(surface)) * Math.max(0, num(epaisseurCm)) / 100;
 }
+// Lit d'une dalle : dimensions du panneau en m, espacement et crochet en cm.
+function calculFerLitDalle(panneau, lit, espacementCm, crochetCm) {
+  const esp = Math.max(0, num(espacementCm)) / 100;
+  if (!(esp > 0)) return { nb: 0, ml: 0 };
+  const L = Math.max(0, num(panneau.L)), l = Math.max(0, num(panneau.l)), n = Math.max(0, num(panneau.n));
+  const crochet = Math.max(0, num(crochetCm)) / 100;
+  const nb = (lit === 1 ? L : l) / esp * n;
+  return { nb, ml: nb * ((lit === 1 ? l : L) + crochet) };
+}
 function calculer() {
   // --- Parpaing ---
   const j = num($('pp-j').value) / 100;
@@ -3179,16 +3190,14 @@ function calculer() {
     const calculLit = (nappe, lit) => {
       const p = `n${nappe}l${lit}`;
       const sensSuffix = lit === 1 ? 'Long' : 'Larg';
-      const esp = Math.max(0, num(o[p + 'Esp'] ?? o['ferEsp' + sensSuffix] ?? o.ferEsp)) / 100; // cm → m
+      const esp = o[p + 'Esp'] ?? o['ferEsp' + sensSuffix] ?? o.ferEsp;
+      const crochet = o[p + 'Crochet'] ?? '15';
       let nb = 0, ml = 0;
-      if (esp > 0) {
-        o.panneaux.forEach(pan => {
-          const pL = Math.max(0, num(pan.L)), pl = Math.max(0, num(pan.l)), pn = Math.max(0, num(pan.n));
-          const panNb = ((lit === 1 ? pL : pl) / esp) * pn;
-          nb += panNb;
-          ml += panNb * ((lit === 1 ? pl : pL) + 0.15); // +15 cm automatique sur chaque barre
-        });
-      }
+      o.panneaux.forEach(pan => {
+        const resultat = calculFerLitDalle(pan, lit, esp, crochet);
+        nb += resultat.nb;
+        ml += resultat.ml;
+      });
       const nuance = (o[p + 'Nuance'] ?? o['ferNuance' + sensSuffix] ?? o.ferNuance) === 'RL' ? 'RL' : 'HA';
       const diam = String(o[p + 'Diam'] ?? o['ferDiam' + sensSuffix] ?? o.ferDiam ?? '10');
       const profil = `${nuance}:${diam}`;
@@ -4828,15 +4837,19 @@ function charger() {
       n1l1Nuance: o.n1l1Nuance ?? o.ferNuanceLong ?? o.ferNuance ?? 'HA',
       n1l1Diam: o.n1l1Diam ?? o.ferDiamLong ?? o.ferDiam ?? '10',
       n1l1Esp: o.n1l1Esp ?? o.ferEspLong ?? o.ferEsp ?? '20',
+      n1l1Crochet: o.n1l1Crochet ?? '15',
       n1l2Nuance: o.n1l2Nuance ?? o.ferNuanceLarg ?? o.ferNuance ?? 'HA',
       n1l2Diam: o.n1l2Diam ?? o.ferDiamLarg ?? o.ferDiam ?? '10',
       n1l2Esp: o.n1l2Esp ?? o.ferEspLarg ?? o.ferEsp ?? '20',
+      n1l2Crochet: o.n1l2Crochet ?? '15',
       n2l1Nuance: o.n2l1Nuance ?? o.ferNuanceLong ?? o.ferNuance ?? 'HA',
       n2l1Diam: o.n2l1Diam ?? o.ferDiamLong ?? o.ferDiam ?? '10',
       n2l1Esp: o.n2l1Esp ?? o.ferEspLong ?? o.ferEsp ?? '20',
+      n2l1Crochet: o.n2l1Crochet ?? '15',
       n2l2Nuance: o.n2l2Nuance ?? o.ferNuanceLarg ?? o.ferNuance ?? 'HA',
       n2l2Diam: o.n2l2Diam ?? o.ferDiamLarg ?? o.ferDiam ?? '10',
       n2l2Esp: o.n2l2Esp ?? o.ferEspLarg ?? o.ferEsp ?? '20',
+      n2l2Crochet: o.n2l2Crochet ?? '15',
       cavNuance: o.cavNuance ?? 'HA',
       cavDiam: o.cavDiam ?? '10',
       cavL: o.cavL ?? '',
