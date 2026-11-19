@@ -9,7 +9,9 @@ const ancien = { panneaux:[{id:1,L:'4',l:'3',n:'1'}, {id:2,L:'2',l:'5',n:'1'}], 
 const panneaux = context.normaliserPanneauxDalle(ancien);
 assert.equal(panneaux.length,2); assert.equal(panneaux[0].sousModules.n1l1Crochet,'30'); assert.equal(panneaux[1].sousModules.n1l1Crochet,'30');
 assert.equal(panneaux[0].sousModules.cavL,'2'); assert.equal(panneaux[1].sousModules.cavL,'');
-assert.equal(panneaux[0].sousModules.chapeauL,'3'); assert.equal(panneaux[1].sousModules.chapeauL,'');
+assert.equal(panneaux[0].sousModules.chapeaux[0].L,'3'); assert.equal(panneaux[1].sousModules.chapeaux[0].L,'');
+assert.equal(context.normaliserChapeauxDalle({chapeaux:[], chapeauL:'3'}).length,0);
+assert.equal(context.normaliserChapeauxDalle({chapeauNuance:'RL',chapeauDiam:'12',chapeauL:'2',chapeauNb:'9'})[0].nuance,'RL');
 assert.equal(panneaux[0].sousModules.lattePanneaux[0].L,'4'); assert.equal(panneaux[1].sousModules.lattePanneaux[0].L,'');
 assert.equal(panneaux[1].sousModules.plancheL,'2'); panneaux[0].sousModules.n1l1Crochet='5'; assert.equal(panneaux[1].sousModules.n1l1Crochet,'30');
 assert.equal(context.normaliserPanneauxDalle({panneaux:[], cavL:'2'}).length,1);

@@ -129,8 +129,10 @@ Chaque lit des deux nappes possède sa propre longueur totale de crochets, saisi
 
 ### Chapeau — dalle pleine
 
-Pour chaque panneau, renseignez la nuance HA ou RL, le diamètre, la longueur d’un chapeau en mètres et le nombre. Le linéaire est longueur × nombre ; il est divisé par 12 m pour afficher les barres exactes. Les longueurs des dalles de même nuance et diamètre sont cumulées puis arrondies au supérieur pour la commande. Après validation du module, les barres sont regroupées dans le devis avec les fers de même nuance et diamètre.
+Dans chaque panneau, ajoutez autant de chapeaux que nécessaire, chacun avec sa nuance HA ou RL, son diamètre, sa longueur en mètres et son nombre. Le linéaire est longueur × nombre ; il est divisé par 12 m pour afficher les barres exactes. Les longueurs des dalles de même nuance et diamètre sont cumulées puis arrondies au supérieur pour la commande. Après validation du module, les barres sont regroupées dans le devis avec les fers de même nuance et diamètre.
 
 ### Panneaux indépendants des dalles pleines
 
 Chaque panneau est replié par défaut et se déplie au clic pour afficher ses propres nappes, cavaliers, chapeaux, panneaux de lattes et dimensions de planches. Les résultats sont cumulés au niveau du module et transférés au devis après validation. À l’ouverture d’un ancien projet, les paramètres communs des nappes et des planches sont repris sur chaque panneau ; les anciens cavaliers, chapeaux et panneaux de lattes communs sont rattachés au premier panneau, sans les dupliquer.
+
+Les chapeaux peuvent être ajoutés ou supprimés indépendamment dans chaque panneau ; les chapeaux des anciens projets sont conservés.

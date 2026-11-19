@@ -10,8 +10,9 @@ assert.equal(r.metres, 15); assert.equal(r.exact, 1.25); assert.equal(r.barres, 
 assert.equal(context.calculChapeauDalle(3, 4).barres, 1);
 assert.equal(context.calculChapeauDalle(-3, 4).barres, 0);
 assert.equal(context.calculChapeauDalle(3, '').barres, 0);
-for (const champ of ['chapeauNuance', 'chapeauDiam', 'chapeauL', 'chapeauNb']) {
-  assert.ok(html.includes(`'${champ}'`)); assert.ok(html.includes(`${champ}: o.${champ} ??`));
-}
+for (const champ of ['nuance', 'diam', 'L', 'nb']) assert.ok(html.includes(`'${champ}'`));
+assert.match(html, /ajouterChapeauDalle/); assert.match(html, /supprimerChapeauDalle/);
+assert.match(html, /normaliserChapeauxDalle\(config\)/);
+assert.match(html, /chapeauxDallesParProfil\[profil\]/);
 assert.match(html, /estLigneChapeauDalle\(l\)/); assert.match(html, /chapdalle:/);
 console.log('✓ chapeaux de dalle : formule, arrondi, champs et devis');

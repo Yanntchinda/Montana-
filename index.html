@@ -1870,9 +1870,19 @@ function configPanneauDalle(id, ancien = {}, premier = false) {
   c.chapeauNuance = premier ? (ancien.chapeauNuance ?? 'HA') : 'HA';
   c.chapeauDiam = premier ? (ancien.chapeauDiam ?? '10') : '10';
   c.chapeauL = premier ? (ancien.chapeauL ?? '') : ''; c.chapeauNb = premier ? (ancien.chapeauNb ?? '') : '';
+  c.chapeaux = normaliserChapeauxDalle(c);
   c.lattePanneaux = premier ? normaliserLattePanneauxDalle(ancien) : [nouveauPanneauLatte(1)];
   c.plancheL = ancien.plancheL ?? ''; c.plancheW = ancien.plancheW ?? '';
   return c;
+}
+function nouveauChapeauDalle(nuance = 'HA', diam = '10', L = '', nb = '') {
+  return { id: uid++, nuance, diam, L, nb };
+}
+function normaliserChapeauxDalle(config) {
+  if (Array.isArray(config.chapeaux)) return config.chapeaux.map(ch => ({
+    id: ch.id ?? uid++, nuance: ch.nuance === 'RL' ? 'RL' : 'HA', diam: ch.diam ?? '10', L: ch.L ?? '', nb: ch.nb ?? ''
+  }));
+  return [nouveauChapeauDalle(config.chapeauNuance === 'RL' ? 'RL' : 'HA', config.chapeauDiam ?? '10', config.chapeauL ?? '', config.chapeauNb ?? '')];
 }
 function nouveauPanneauDalle(numero = 1, L = '', l = '', e = '0.15', n = '1') {
   const id = uid++;
@@ -1888,6 +1898,7 @@ function normaliserPanneauxDalle(o) {
   return anciens.map((p, idx) => {
     const id = p.id ?? uid++;
     const config = p.sousModules ? { ...p.sousModules, id } : configPanneauDalle(id, o, idx === 0);
+    config.chapeaux = normaliserChapeauxDalle(config);
     if (!Array.isArray(config.lattePanneaux)) config.lattePanneaux = normaliserLattePanneauxDalle(config);
     return { ...p, id, nom: p.nom ?? ('Panneau ' + (idx + 1)), L: p.L ?? '', l: p.l ?? '', e: p.e ?? '0.15', n: p.n ?? '1', sousModules: config };
   });
@@ -1958,6 +1969,23 @@ function trouverConfigPanneauDalle(id) {
     if (panneau) return panneau.sousModules;
   }
   return null;
+}
+function ajouterChapeauDalle(panneauId) {
+  const config = trouverConfigPanneauDalle(panneauId); if (!config) return;
+  config.chapeaux.push(nouveauChapeauDalle());
+  rendre();
+}
+function supprimerChapeauDalle(panneauId, chapeauId) {
+  const config = trouverConfigPanneauDalle(panneauId); if (!config) return;
+  config.chapeaux = config.chapeaux.filter(ch => ch.id !== chapeauId);
+  rendre();
+}
+function majChapeauDalle(panneauId, chapeauId, champ, valeur) {
+  const config = trouverConfigPanneauDalle(panneauId);
+  const ch = config?.chapeaux.find(x => x.id === chapeauId);
+  if (!ch || !['nuance', 'diam', 'L', 'nb'].includes(champ)) return;
+  ch[champ] = valeur;
+  calculer();
 }
 function ajouterPanneauLatteDalle(dalleId) {
   const o = trouverConfigPanneauDalle(dalleId); if (!o) return;
@@ -2286,24 +2314,30 @@ const blocCavalierDalle = o => {
   </div>`;
 };
 const blocChapeauDalle = o => {
-  const nuance = o.chapeauNuance === 'RL' ? 'RL' : 'HA';
-  const diam = o.chapeauDiam || '10';
+  const cartes = o.chapeaux.length ? o.chapeaux.map((ch, index) => `<div class="semelle-lit">
+    <div class="semelle-nappe-head">
+      <div class="subcard-title" style="margin-bottom:0">Chapeau ${index + 1}</div>
+      <button class="btn btn-sm btn-danger no-print" onclick="supprimerChapeauDalle(${o.id},${ch.id})" aria-label="Supprimer chapeau ${index + 1}"><i class="fa-solid fa-trash-can"></i> Supprimer</button>
+    </div>
+    <div class="semelle-lit-grid">
+      <div class="field"><label>Nuance</label><select class="inp" onchange="majChapeauDalle(${o.id},${ch.id},'nuance',this.value)"><option value="HA" ${ch.nuance === 'HA' ? 'selected' : ''}>HA</option><option value="RL" ${ch.nuance === 'RL' ? 'selected' : ''}>RL</option></select></div>
+      <div class="field"><label>Diamètre (mm)</label><select class="inp" onchange="majChapeauDalle(${o.id},${ch.id},'diam',this.value)">${optionsFer(ch.diam)}</select></div>
+      <div class="field"><label>Longueur d’un chapeau (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(ch.L)}" oninput="majChapeauDalle(${o.id},${ch.id},'L',this.value)"></div>
+      <div class="field"><label>Nombre de chapeaux</label><input class="inp" type="number" min="0" step="1" placeholder="0" value="${esc(ch.nb)}" oninput="majChapeauDalle(${o.id},${ch.id},'nb',this.value)"></div>
+      <div class="field"><label>Longueur totale</label><div class="inp semelle-resultat"><b class="res" id="d-chapml-${o.id}-${ch.id}">0</b> m</div></div>
+      <div class="field"><label>Barres exactes de 12 m</label><div class="inp semelle-resultat"><b class="res" id="d-chapbar-${o.id}-${ch.id}">0</b></div></div>
+    </div>
+  </div>`).join('') : '<div class="note">Aucun chapeau — cliquez sur « Ajouter un chapeau ».</div>';
   return `<div class="subcard semelle-nappe dalle-chapeau">
     <div class="semelle-nappe-head">
-      <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-grip-lines"></i> Chapeau</div>
-      <div class="semelle-nappe-total">Quantité de fer : <b class="res" id="d-chapbar-h-${o.id}">0</b> barres exactes · <b class="res" id="d-chapcmd-h-${o.id}">0</b> à commander</div>
-    </div>
-    <div class="semelle-lit">
-      <div class="semelle-lit-grid">
-        <div class="field"><label>Nuance</label><select class="inp" onchange="maj('dalle',${o.id},'chapeauNuance',this.value)"><option value="HA" ${nuance === 'HA' ? 'selected' : ''}>HA</option><option value="RL" ${nuance === 'RL' ? 'selected' : ''}>RL</option></select></div>
-        <div class="field"><label>Diamètre (mm)</label><select class="inp" onchange="maj('dalle',${o.id},'chapeauDiam',this.value)">${optionsFer(diam)}</select></div>
-        <div class="field"><label>Longueur d’un chapeau (m)</label><input class="inp" type="number" min="0" step="0.01" placeholder="0" value="${esc(o.chapeauL ?? '')}" oninput="maj('dalle',${o.id},'chapeauL',this.value)"></div>
-        <div class="field"><label>Nombre de chapeaux</label><input class="inp" type="number" min="0" step="1" placeholder="0" value="${esc(o.chapeauNb ?? '')}" oninput="maj('dalle',${o.id},'chapeauNb',this.value)"></div>
-        <div class="field"><label>Longueur totale</label><div class="inp semelle-resultat"><b class="res" id="d-chapml-${o.id}">0</b> m</div></div>
-        <div class="field"><label>Barres exactes de 12 m</label><div class="inp semelle-resultat"><b class="res" id="d-chapbar-${o.id}">0</b></div></div>
+      <div class="subcard-title" style="margin-bottom:0"><i class="fa-solid fa-grip-lines"></i> Chapeaux</div>
+      <div class="dalle-panneaux-actions">
+        <div class="semelle-nappe-total">Total : <b class="res" id="d-chapbar-h-${o.id}">0</b> barres exactes · <b class="res" id="d-chapcmd-h-${o.id}">0</b> à commander par profil</div>
+        <button class="btn btn-sm btn-primary no-print" onclick="ajouterChapeauDalle(${o.id})"><i class="fa-solid fa-plus"></i> Ajouter un chapeau</button>
       </div>
-      <div class="semelle-formule">Quantité de fer des chapeaux = (longueur × nombre) ÷ 12 m</div>
     </div>
+    <div class="escalier-fers-liste">${cartes}</div>
+    <div class="semelle-formule">Pour chaque chapeau : (longueur × nombre) ÷ 12 m. Barres à commander regroupées par nuance et diamètre.</div>
   </div>`;
 };
 const blocLattesDalle = o => {
@@ -3329,14 +3363,21 @@ function calculer() {
     if (cCavCmdH) cCavCmdH.innerText = fmt(cavCmd);
 
     // Chapeaux : (longueur × nombre) ÷ 12 m ; cumul par nuance et diamètre.
-    const resultatChapeau = calculChapeauDalle(o.chapeauL, o.chapeauNb);
-    const chapML = resultatChapeau.metres, chapBarres = resultatChapeau.exact, chapCommande = resultatChapeau.barres;
-    const chapProfil = `${o.chapeauNuance === 'RL' ? 'RL' : 'HA'}:${String(o.chapeauDiam || '10')}`;
-    if (chapML > 0) chapeauxDallesParProfil[chapProfil] = (chapeauxDallesParProfil[chapProfil] || 0) + chapML;
-    $('d-chapml-' + o.id).innerText = fmt(chapML);
-    $('d-chapbar-' + o.id).innerText = fmt(chapBarres);
-    $('d-chapbar-h-' + o.id).innerText = fmt(chapBarres);
-    $('d-chapcmd-h-' + o.id).innerText = fmt(chapCommande);
+    let chapML = 0;
+    const profilsChapeauPanneau = {};
+    o.chapeaux.forEach(ch => {
+      const resultat = calculChapeauDalle(ch.L, ch.nb);
+      const profil = `${ch.nuance === 'RL' ? 'RL' : 'HA'}:${String(ch.diam || '10')}`;
+      chapML += resultat.metres;
+      if (resultat.metres > 0) {
+        profilsChapeauPanneau[profil] = (profilsChapeauPanneau[profil] || 0) + resultat.metres;
+        chapeauxDallesParProfil[profil] = (chapeauxDallesParProfil[profil] || 0) + resultat.metres;
+      }
+      $('d-chapml-' + o.id + '-' + ch.id).innerText = fmt(resultat.metres);
+      $('d-chapbar-' + o.id + '-' + ch.id).innerText = fmt(resultat.exact);
+    });
+    $('d-chapbar-h-' + o.id).innerText = fmt(chapML / 12);
+    $('d-chapcmd-h-' + o.id).innerText = fmt(Object.values(profilsChapeauPanneau).reduce((total, metres) => total + Math.ceil(metres / 12 - 1e-9), 0));
 
     // Lattes (multi-panneaux) : Σ [ ((L ÷ espL) + 1) × W + ((W ÷ espW) + 1) × L ] × nb, puis ÷ 4,9
     let latML = 0;
@@ -5062,7 +5103,7 @@ function charger() {
       ...section, lignes: (section.lignes || []).filter(l => section.auto !== 'maindoeuvre' || String(l.des || '').trim().toLowerCase() !== 'solivage').map(l => ({ ...l, total: l.total ?? null }))
     }));
     migrerFersDevis();
-    uid = Math.max(uid, d.uid || 1, ...[murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, escalierPaliers, escalierVolets, crepMurs, crepDalles].flat().map(o => o.id + 1), ...dalles.flatMap(o => [...(o.panneaux || []), ...(o.lattePanneaux || []), ...(o.panneaux || []).flatMap(p => p.sousModules?.lattePanneaux || [])]).map(p => (p.id || 0) + 1), 1);
+    uid = Math.max(uid, d.uid || 1, ...[murs, poteaux, amorces, poutres, chenages, mainsOeuvre, dalles, corps, corpsLattes, semelles, longrines, escalierPaliers, escalierVolets, crepMurs, crepDalles].flat().map(o => o.id + 1), ...dalles.flatMap(o => [...(o.panneaux || []), ...(o.lattePanneaux || []), ...(o.panneaux || []).flatMap(p => p.sousModules?.lattePanneaux || []), ...(o.panneaux || []).flatMap(p => p.sousModules?.chapeaux || [])]).map(p => (p.id || 0) + 1), 1);
     // Les projets antérieurs à l'ajout du module reçoivent leur première ligne de chenage.
     if (!d.moduleAmorcesInitialise && !amorces.length) amorces.push({ id: uid++, nom: 'Amorce 1', forme: 'rect', a: '', b: '', H: '', n: '1', ferNuance: 'HA', ferDiam: '12', ferH: '', ferNb: '4', cadreNuance: 'RL', cadreDiam: '6', cadreEnrobage: '', cadreNb: '', epingleNuance: 'HA', epingleNb: '', epingleL: '' });
     // Les projets antérieurs à l'ajout du module reçoivent les lignes de main-d'œuvre pré-remplies.
